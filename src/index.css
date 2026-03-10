@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  /* Float animation for hero badges */
+  .animate-float {
+    animation: floatBob 3s ease-in-out infinite;
+  }
+
+  .animate-float-delay {
+    animation: floatBob 3s ease-in-out infinite;
+    animation-delay: -1.5s;
+  }
+
+  /* Fade up for initial hero load */
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease both;
+  }
+}
+
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
