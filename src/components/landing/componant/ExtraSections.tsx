@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import type { FC } from "react";
 import { FadeUp, StatCard, SectionHeader } from "./UI";
 import { SECURITY_PROTOCOLS, STATS, FOOTER_LINKS } from "../data";
 

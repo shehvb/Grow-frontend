@@ -1,0 +1,31 @@
+import type { FC } from "react";
+
+interface DailyMasteryProgressBarProps {
+  progress: number;
+}
+
+const DailyMasteryProgressBar: FC<DailyMasteryProgressBarProps> = ({ progress }) => {
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-slate-800">Daily Mastery</h2>
+        <span className="text-[#1600D5] font-bold text-sm tracking-widest uppercase">LEVEL 12</span>
+      </div>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-slate-500 text-sm font-medium">Daily Goal Progress</p>
+        <span className="text-[#FF8000] font-bold text-lg">{progress}%</span>
+      </div>
+      <div className="w-full h-4 bg-[#E2E2E2] rounded-full overflow-hidden mb-4">
+        <div
+          className="h-full bg-gradient-to-r from-[#1600D5] via-[#7b4dff] to-[#FF8000] rounded-full transition-all duration-500"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <p className="text-slate-500 text-xs flex items-center gap-1 font-medium">
+        Finish your last 2 tasks to turn the bar fully Orange! <span>🏆</span>
+      </p>
+    </div>
+  );
+};
+
+export default DailyMasteryProgressBar;

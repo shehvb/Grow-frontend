@@ -19,7 +19,7 @@ export function useInView(threshold = 0.15): [RefObject<HTMLDivElement>, boolean
     return () => observer.disconnect();
   }, [threshold]);
 
-  return [ref, visible];
+  return [ref as RefObject<HTMLDivElement>, visible];
 }
 
 // ── useCountUp ────────────────────────────────────────────────────────────────

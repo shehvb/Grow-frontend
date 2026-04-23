@@ -1,8 +1,14 @@
-import {  type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
+import AuthTabs from "./AuthTabs";
 
-type Role = "student" | "parent";
+interface School {
+  id: number;
+  name: string;
+  school_code: string;
+}
+
 
 // ─── Floating XP / achievement badges for the student panel ──────────────────
 const Badge: FC<{ emoji: string; text: string; className?: string; delay?: string }> = ({
@@ -22,7 +28,7 @@ const StudentLeftPanel: FC = () => (
   <div
     className="relative hidden h-screen lg:flex flex-col justify-between p-12 overflow-hidden"
     style={{
-      background: "linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 35%, #7c3aed 70%, #ec4899 100%)",
+      background: "linear-gradient(135deg, rgb(15, 27, 107) 0%, rgb(26, 47, 160) 40%, rgb(45, 27, 138) 70%, rgb(76, 29, 149) 100%)",
     }}
   >
     <style>{`
@@ -106,7 +112,7 @@ const StudentLeftPanel: FC = () => (
 
         {/* Badges row */}
         <div className="flex gap-2 mt-4">
-          {["🧪","📚","🎯","💡"].map((e, i) => (
+          {["🧪", "📚", "🎯", "💡"].map((e, i) => (
             <div key={i} className="w-9 h-9 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-base">
               {e}
             </div>
@@ -131,12 +137,82 @@ const StudentLeftPanel: FC = () => (
 );
 
 // ─── Right Panel — Student Login Form ────────────────────────────────────────
-const StudentLoginForm: FC<{ role: Role; onRoleChange: (r: Role) => void }> = ({ role, onRoleChange }) => {
+const StudentLoginForm: FC = () => {
   const navigate = useNavigate();
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [showPass, setShowPass] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [studentId, setStudentId] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [schools, setSchools] = useState<School[]>([]);
+  const [selectedSchoolCode, setSelectedSchoolCode] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/students/schools/");
+        if (res.ok) setSchools(await res.json());
+      } catch (err) {
+        console.error("Failed to load schools", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!selectedSchoolCode) {
+      setError("Please choose your school");
+      return;
+    }
+
+    if (!studentId.trim() || !password) {
+
+      setError("Please enter Student ID and password");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/accounts/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: studentId,        // Student ID = username
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+        localStorage.setItem("user", JSON.stringify({
+          user_id: data.user_id,
+          username: data.username,
+          role: data.role
+        }));
+
+        alert(`✅ Login successful! Welcome ${data.username}`);
+
+        // Redirect لـ Student Dashboard
+        navigate("/student/dashboard");
+      } else {
+        setError(data.message || "Invalid Student ID or password");
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Cannot connect to server. Make sure Django is running on port 8000.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16 h-screen">
@@ -165,50 +241,46 @@ const StudentLoginForm: FC<{ role: Role; onRoleChange: (r: Role) => void }> = ({
         </div>
 
         {/* Role selector */}
-        <div className="mb-7 ">
-          <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Select your role
+        <AuthTabs currentRole="student" onRoleChange={(r) => navigate(`/login/${r}`)} />
+
+        {/* School Selector */}
+        <div className="mb-4">
+          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+            School Selector
           </label>
-          <div className="grid grid-cols-2 gap-3 p-1.5 bg-slate-100 rounded-2xl">
-            <button
-              onClick={() => onRoleChange("student")}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-black text-sm transition-all duration-200 ${
-                role === "student"
-                  ? "bg-white text-blue-700 shadow-md"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
-              style={{ fontFamily: "'Nunito', sans-serif" }}
-            >
-              <span className="text-lg">🎓</span> Student
-            </button>
-            <button
-              onClick={() => navigate('/login/parent')}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-black text-sm transition-all duration-200 text-slate-400 hover:text-slate-600`}
-              style={{ fontFamily: "'Nunito', sans-serif" }}
-            >
-              <span className="text-lg">👨‍👩‍👧</span> Parent
-            </button>
-          </div>
+          <select
+            value={selectedSchoolCode}
+            onChange={(e) => setSelectedSchoolCode(e.target.value)}
+            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            style={{ fontFamily: "'Nunito', sans-serif" }}
+          >
+            <option value="">Choose your school...</option>
+            {schools.map((school) => (
+              <option key={school.id} value={school.school_code}>
+                {school.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Student ID (student-specific field) */}
+        {/* Username */}
         <div className="mb-4">
-          <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Student ID 
+          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+            Username
           </label>
           <input
             type="text"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
-            placeholder="e.g. STU-2024-0042"
+            placeholder="Enter your Code"
             className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             style={{ fontFamily: "'Nunito', sans-serif" }}
           />
         </div>
 
         {/* Email */}
-        
-        
+
+
         {/* <div className="mb-4">
           <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
             Email address
@@ -226,9 +298,9 @@ const StudentLoginForm: FC<{ role: Role; onRoleChange: (r: Role) => void }> = ({
         {/* Password */}
 
 
-        {/* <div className="mb-2">
-          <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Password
+        <div className="mb-2">
+          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+            password
           </label>
           <div className="relative">
             <input
@@ -249,58 +321,67 @@ const StudentLoginForm: FC<{ role: Role; onRoleChange: (r: Role) => void }> = ({
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
               )}
             </button>
+          </div>
         </div>
-          </div> */}
 
         {/* Forgot */}
-        <div className="flex justify-end mb-7">
-          <a href="#" className="text-blue-600 font-black text-sm hover:text-blue-800 transition-colors" style={{ fontFamily: "'Nunito', sans-serif" }}>
+        <div className="flex justify-end mb-4">
+          <button type="button" onClick={() => navigate('/forgot-password')} className="text-blue-600 font-black text-sm hover:text-blue-800 transition-colors" style={{ fontFamily: "'Nunito', sans-serif" }}>
             Forget password?
-          </a>
+          </button>
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-semibold">
+            {error}
+          </div>
+        )}
 
         {/* Submit — student gradient */}
         <button
-          className="w-full py-4 rounded-2xl font-black text-white text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full py-4 rounded-2xl font-black text-white text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             fontFamily: "'Nunito', sans-serif",
-            background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 60%, #ec4899 100%)",
-            boxShadow: "0 8px 32px rgba(124,58,237,0.4)",
+            background: "linear-gradient(135deg, rgb(15, 27, 107) 0%, rgb(26, 47, 160) 40%, rgb(45, 27, 138) 70%, rgb(76, 29, 149) 100%)",
+            boxShadow: "0 8px 32px rgba(26, 47, 160, 0.4)",
           }}
         >
-          Log In 🚀
+          {loading ? "Logging in..." : "Log In 🚀"}
         </button>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 my-6">
+        {/* OAuth */}
+        {/* <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-slate-200" />
           <span className="text-slate-400 text-xs font-bold" style={{ fontFamily: "'Nunito', sans-serif" }}>Or continue with</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
-        {/* OAuth */}
         <div className="grid grid-cols-2 gap-3 mb-8">
           <button className="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border-2 border-slate-200 bg-white font-black text-slate-700 text-sm hover:border-blue-300 hover:bg-slate-50 transition-all" style={{ fontFamily: "'Nunito', sans-serif" }}>
             <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
             Google
           </button>
           <button className="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border-2 border-slate-200 bg-white font-black text-slate-700 text-sm hover:border-blue-300 hover:bg-slate-50 transition-all" style={{ fontFamily: "'Nunito', sans-serif" }}>
             <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
             </svg>
             Facebook
-          </button>
-        </div>
-
+          </button> */}
+        {/* </div> */}
+        {/* 
         <p className="text-center text-slate-500 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
           Don't have an account?{" "}
-          <a href="#" className="text-blue-600 font-black hover:text-blue-800 transition-colors">Sign Up</a>
-        </p>
+          <button type="button" onClick={() => navigate('/signup/student')} className="text-blue-600 font-black hover:text-blue-800 transition-colors">Sign Up</button>
+        </p> */}
       </div>
 
       {/* Footer */}
@@ -317,12 +398,10 @@ const StudentLoginForm: FC<{ role: Role; onRoleChange: (r: Role) => void }> = ({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const LoginStudent: FC = () => {
-  const [role, setRole] = useState<Role>("student");
-
   return (
     <div className="min-h-screen grid lg:grid-cols-[45%_55%]" style={{ fontFamily: "'Nunito', sans-serif" }}>
       <StudentLeftPanel />
-      <StudentLoginForm role={role} onRoleChange={setRole} />
+      <StudentLoginForm />
     </div>
   );
 };

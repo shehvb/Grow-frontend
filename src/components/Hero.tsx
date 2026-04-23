@@ -36,7 +36,7 @@ const Hero: FC = () => {
         <button onClick={() => navigate('/login/student')} className="px-8 py-4 rounded-2xl bg-blue-600 text-white font-black text-base shadow-xl shadow-blue-200 hover:-translate-y-1 hover:shadow-blue-300 transition-all">
           Get Started
         </button>
-        <button onClick={() => navigate('/login/parent')} className="px-8 py-4 rounded-2xl bg-orange-400 text-white font-black text-base shadow-xl shadow-orange-200 hover:-translate-y-1 transition-all">
+        <button onClick={() => navigate('/signup/parent')} className="px-8 py-4 rounded-2xl bg-orange-400 text-white font-black text-base shadow-xl shadow-orange-200 hover:-translate-y-1 transition-all">
           Sign Up Free
         </button>
       </div>
