@@ -1,20 +1,23 @@
 import type { FC } from "react";
 import { FiCheck, FiBook, FiChevronRight } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface RecentActivityListProps {
-  activities: { title: string; score?: string; time: string }[];
+  activities: { type?: string; title: string; subtitle?: string; timeAgo?: string }[];
 }
 
 const RecentActivityList: FC<RecentActivityListProps> = ({ activities }) => {
+  const navigate = useNavigate();
   return (
     <div className="mt-2">
       <h3 className="font-extrabold text-[#0F172A] text-[17px] mb-4">Recent Activity</h3>
       <div className="space-y-4">
         {activities.map((activity, index) => {
-          const isCompleted = activity.title.toLowerCase().includes('completed') || activity.score;
+          const isCompleted = activity.type?.toLowerCase() === 'completed';
           return (
             <div 
               key={index} 
+              onClick={() => navigate("/parent/analytics")}
               className="flex items-center justify-between p-5 bg-white rounded-[24px] shadow-sm border border-slate-100 hover:shadow-md transition-shadow cursor-pointer group"
             >
               <div className="flex items-center gap-5">
@@ -27,14 +30,14 @@ const RecentActivityList: FC<RecentActivityListProps> = ({ activities }) => {
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <h4 className="font-extrabold text-slate-900 text-[15px]">
-                    {activity.title}
+                    {activity.type ? `${activity.type}: ${activity.title}` : activity.title}
                   </h4>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    {activity.score && (
-                      <span className="text-[12px] font-bold text-slate-500">Score: {activity.score}</span>
+                    {activity.subtitle && (
+                      <span className="text-[12px] font-bold text-slate-500">{activity.subtitle}</span>
                     )}
-                    {activity.score && <span className="text-slate-300 text-[10px]">●</span>}
-                    <span className="text-[12px] font-semibold text-slate-400">{activity.time}</span>
+                    {activity.subtitle && <span className="text-slate-300 text-[10px]">●</span>}
+                    <span className="text-[12px] font-semibold text-slate-400">{activity.timeAgo}</span>
                   </div>
                 </div>
               </div>

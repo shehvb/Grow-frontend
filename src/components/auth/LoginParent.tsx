@@ -170,20 +170,25 @@ const LoginForm: FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/accounts/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
-
+      // TODO: Replace with new backend API
+      /*
+      const response = await fetch("http://127.0.0.1:8000/accounts/login/", { ... });
       const data = await response.json();
+      */
 
-      if (response.ok && data.success) {
+      // MOCK DATA:
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const data = {
+        success: true,
+        access: "mock_parent_token",
+        refresh: "mock_parent_refresh",
+        user_id: 3,
+        username: "Demo Parent",
+        email: email,
+        role: "parent"
+      };
+
+      if (email && password) {
         // حفظ البيانات في localStorage
         localStorage.setItem("access_token", data.access);
         localStorage.setItem("refresh_token", data.refresh);
@@ -199,14 +204,15 @@ const LoginForm: FC = () => {
         // التحقق الذكي للـ Parent (أول مرة → Add Student، بعد كده → Dashboard)
         if (data.role === 'parent') {
           try {
-            const checkRes = await fetch("http://127.0.0.1:8000/students/check-has-students/", {
-              method: "GET",
-              headers: {
-                "Authorization": `Bearer ${data.access}`,
-              },
-            });
-
+            // TODO: Replace with new backend API
+            /*
+            const checkRes = await fetch("http://127.0.0.1:8000/students/check-has-students/", { ... });
             const checkData = await checkRes.json();
+            */
+
+            // MOCK DATA:
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const checkData = { has_students: true };
 
             if (checkData.has_students === true) {
               navigate("/parent/dashboard");
@@ -226,7 +232,7 @@ const LoginForm: FC = () => {
           navigate("/teacher/dashboard");
         }
       } else {
-        setError(data.message || "Invalid email or password");
+        setError("Invalid email or password");
       }
     } catch (error) {
       console.error(error);

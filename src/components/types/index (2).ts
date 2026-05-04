@@ -10,7 +10,7 @@ export interface Feature {
 }
 
 export interface Step {
-  num: string;
+  icon: string | ComponentType;
   title: string;
   desc: string;
   grad: string;
@@ -43,5 +43,6 @@ export interface AudienceCard {
   bgGrad: string;
   dotColor: string;
   title: string;
+  desc: string;
   items: string[];
 }

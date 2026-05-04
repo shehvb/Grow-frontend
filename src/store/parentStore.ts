@@ -19,7 +19,7 @@ export const useParentStore = create<ParentState>((set, get) => ({
   students: [],
   selectedStudentId: null,
   dashboardSummary: null,
-  loading: false,
+  loading: true, // Start with loading true
   error: null,
 
   fetchStudents: async (parentId: string) => {

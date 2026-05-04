@@ -3,17 +3,16 @@ import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import { Features, HowItWorks, Audience } from "../components/Sections";
 
-import { Security, Stats, CTA, Footer } from "../components/ExtraSections";
+import { CTA, Footer } from "../components/ExtraSections";
 
 const LandingPage: FC = () => (
   <div className="font-sans bg-white text-slate-800 overflow-x-hidden">
     <Navbar />
     <Hero />
-    <Features />
     <HowItWorks />
+    <Features />
     <Audience />
-    <Security />
-    <Stats />
+
     <CTA />
     <Footer />
   </div>

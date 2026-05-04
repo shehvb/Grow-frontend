@@ -6,6 +6,7 @@ import Topbar from "../components/layout/Topbar";
 import PageContainer from "../components/layout/PageContainer";
 import { useParentStore } from "../store/parentStore";
 import { FiMessageSquare } from "react-icons/fi";
+import StudentSelector from "../features/parent/components/StudentSelector";
 
 const ParentLayout: FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -33,8 +34,7 @@ const ParentLayout: FC = () => {
           onMenuToggle={toggleMobileMenu} 
           isMenuOpen={isMobileMenuOpen} 
         >
-          {/* <StudentSelector /> Placeholder temporarily disabled due to props mismatch */}
-
+          <StudentSelector />
         </Topbar>
         <PageContainer className="flex-1 overflow-y-auto w-full">
           <Outlet />

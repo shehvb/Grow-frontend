@@ -1,10 +1,9 @@
-import { RiChatAiFill } from "react-icons/ri";
-import { TbBrandGoogleAnalytics } from "react-icons/tb";
-import { TbLayoutDashboardFilled } from "react-icons/tb";
+import { RiChatAiFill, RiBookOpenFill, RiGraduationCapFill, RiBankFill, RiTeamFill, RiEyeFill } from "react-icons/ri";
+import { TbBrandGoogleAnalytics, TbLayoutDashboardFilled } from "react-icons/tb";
 import { GoGoal } from "react-icons/go";
 import learn1  from "../../assets/learn.png"
 import learn2  from "../../assets/learn1.png"
-
+import learn3  from "../../assets/Effortless Classroom Management.png"
 
 import type {
   Feature,
@@ -18,53 +17,53 @@ import type {
 
 export const FEATURES: Feature[] = [
   {
-    icon: RiChatAiFill ,
+    icon: RiChatAiFill,
     title: "AI Tutor Support",
     desc: "Instant, 24/7 learning support tailored to the student's current curriculum and pace.",
-    bgColor: "bg-blue-50",
+    bgColor: "bg-[#e6ebff] text-blue-600",
     borderHover: "hover:border-blue-300",
   },
   {
-    icon: TbBrandGoogleAnalytics ,
-    title: "Performance Analytics",
-    desc: "Deep dive into grades and habits with easy-to-read charts that highlight improvement areas.",
-    bgColor: "bg-emerald-50",
-    borderHover: "hover:border-emerald-300",
+    icon: RiBookOpenFill,
+    title: "Teacher Tools",
+    desc: "Teachers create assignments, quizzes, and manage learning content easily.",
+    bgColor: "bg-[#e0f2fe] text-[#0ea5e9]",
+    borderHover: "hover:border-sky-300",
   },
   {
     icon: TbLayoutDashboardFilled,
     title: "Parent Dashboard",
     desc: "A dedicated view for parents to monitor attendance, homework completion, and grades.",
-    bgColor: "bg-purple-50",
+    bgColor: "bg-[#f3e8ff] text-[#a855f7]",
     borderHover: "hover:border-purple-300",
   },
   {
-    icon: GoGoal ,
-    title: "Goals & Rewards",
-    desc: "Gamified system where students earn XP and rewards for consistent study habits.",
-    bgColor: "bg-amber-50",
-    borderHover: "hover:border-amber-300",
+    icon: RiGraduationCapFill,
+    title: "Smart Learning Experience",
+    desc: "Students access lessons, assignments, and quizzes with ease.",
+    bgColor: "bg-[#ffedd5] text-[#f97316]",
+    borderHover: "hover:border-orange-300",
   },
 ];
 
 export const STEPS: Step[] = [
   {
-    num: "1",
-    title: "Student Learns",
-    desc: "Student completes quizzes, assignments, and watches lessons on the platform.",
-    grad: "from-blue-500 to-blue-400",
+    icon: RiBankFill,
+    title: "School Joins GROW",
+    desc: "Admins register their school and set up grades, subjects, and teachers.",
+    grad: "from-[#326ce5] to-blue-500",
   },
   {
-    num: "2",
-    title: "AI Analyzes",
-    desc: "Our AI engine processes performance data to identify strengths and weaknesses in real time.",
-    grad: "from-blue-600 to-purple-500",
+    icon: RiTeamFill,
+    title: "Students & Teachers Get Access",
+    desc: "Accounts are created securely using school-managed system (codes or invitations).",
+    grad: "from-[#ff8800] to-orange-400",
   },
   {
-    num: "3",
-    title: "Parents Get Insights",
-    desc: "Parents receive clear, actionable reports and real-time alerts on their child's progress.",
-    grad: "from-orange-400 to-amber-400",
+    icon: RiEyeFill,
+    title: "Learning & Monitoring",
+    desc: "Students access lessons and tasks, teachers manage content, parents track progress.",
+    grad: "from-[#22c55e] to-[#16a34a]",
   },
 ];
 
@@ -129,11 +128,11 @@ export const AUDIENCE_CARDS: AudienceCard[] = [
     bgGrad: "from-blue-100 to-blue-200",
     dotColor: "bg-blue-500",
     title: "Gamified Learning & AI Assistance",
+    desc: "Interactive modules that make studying feel like a game and provide instant homework assistance.",
     items: [
       "Daily XP Goals & Streaks",
-      "Instant Homework Help from AI",
-      "Interactive Quizzes & Challenges",
-      "Personalized Study Plans",
+      "Instant Homework Help",
+      "Interactive Quizzes",
     ],
   },
   {
@@ -143,12 +142,27 @@ export const AUDIENCE_CARDS: AudienceCard[] = [
     illustration: "🏡",
     bgGrad: "from-orange-100 to-amber-200",
     dotColor: "bg-orange-400",
-    title: "Total Transparency & Peace of Mind",
+    title: "Total Transparency & Peace",
+    desc: "Parents receive weekly reports and real-time alerts to monitor attendance and grades from a dedicated dashboard.",
     items: [
       "Real-time Performance Tracking",
       "Smart Alert System",
       "Detailed Weekly Reports",
-      "Direct Teacher Communication",
+    ],
+  },
+  {
+    tag: "For School",
+    image: learn3,
+    tagColor: "bg-amber-400",
+    illustration: "🏫",
+    bgGrad: "from-amber-50 to-yellow-100",
+    dotColor: "bg-amber-400",
+    title: "Effortless Classroom Management",
+    desc: "Everything teachers need to build courses, monitor student performance, and run their classes.",
+    items: [
+      "Create assignments & quizzes",
+      "Manage lessons & study materials",
+      "Track student performance",
     ],
   },
 ];

@@ -1,17 +1,21 @@
 import type { FC } from "react";
 import { FiBook, FiBookmark } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface Subject {
   name: string;
-  average: number;
-  color: string;
+  grade: number;
+  letterGrade?: string;
 }
 
 interface DashboardSubjectsListProps {
   subjects: Subject[];
 }
 
+const COLORS = ["#0062FF", "#F59E0B", "#D946EF", "#10B981", "#6366F1"];
+
 const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }) => {
+  const navigate = useNavigate();
   if (!subjects || subjects.length === 0) {
     return (
       <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100">
@@ -24,15 +28,18 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
     <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100">
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-extrabold text-[#0F172A] text-[17px]">Subject Performance</h3>
-        <span className="text-[#0062FF] text-xs font-bold cursor-pointer hover:underline">See All</span>
+        <button 
+          onClick={() => navigate("/parent/analytics")}
+          className="text-[#0062FF] text-xs font-bold hover:underline"
+        >
+          See All
+        </button>
       </div>
 
       <div className="space-y-4">
         {subjects.map((subject, index) => {
-          let grade = "C";
-          if (subject.average >= 95) grade = "A+";
-          else if (subject.average >= 90) grade = "A";
-          else if (subject.average >= 80) grade = "B";
+          const color = COLORS[index % COLORS.length];
+          const grade = subject.letterGrade || "B";
 
           return (
             <div key={index} className="bg-[#F8FAFC] rounded-[20px] p-5 border border-[#F1F5F9] relative">
@@ -40,7 +47,7 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
               <div className="flex justify-between items-start mb-3">
                 <div
                   className="w-8 h-8 rounded-[10px] flex items-center justify-center text-white"
-                  style={{ backgroundColor: subject.color }}
+                  style={{ backgroundColor: color }}
                 >
                   <FiBookmark className="w-4 h-4 fill-current" />
                 </div>
@@ -48,8 +55,8 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
                 <div
                   className="px-2 py-1 flex items-center justify-center rounded-lg text-xs font-bold"
                   style={{ 
-                    backgroundColor: `${subject.color}20`, 
-                    color: subject.color !== '#F59E0B' ? subject.color : '#D97706' // dark text logic optionally
+                    backgroundColor: `${color}20`, 
+                    color: color !== '#F59E0B' ? color : '#D97706'
                   }}
                 >
                   {grade}
@@ -65,15 +72,15 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
                 <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
                   style={{
-                    width: `${subject.average}%`,
-                    backgroundColor: subject.color
+                    width: `${subject.grade}%`,
+                    backgroundColor: color
                   }}
                 />
               </div>
               
               {/* Footer Text */}
               <p className="text-xs font-bold text-slate-400">
-                {subject.average}% Average
+                {subject.grade}% Average
               </p>
             </div>
           );

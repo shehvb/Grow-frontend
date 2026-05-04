@@ -31,7 +31,6 @@ const AddStudentPage: FC = () => {
 
   const navigate = useNavigate();
 
-  // جلب المدارس والدرجات
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,6 +41,19 @@ const AddStudentPage: FC = () => {
 
         if (schoolsRes.ok) setSchools(await schoolsRes.json());
         if (gradesRes.ok) setGrades(await gradesRes.json());
+
+
+        // MOCK DATA:
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setSchools([
+          { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
+          { id: 2, name: "Westside High School", school_code: "WHS-002" },
+        ]);
+        setGrades([
+          { id: 1, name: "Grade 8" },
+          { id: 2, name: "Grade 9" },
+          { id: 3, name: "Grade 10" },
+        ]);
       } catch (err) {
         setError("Failed to load schools or grades");
       }
@@ -66,25 +78,22 @@ const AddStudentPage: FC = () => {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/students/add-student/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
+      // TODO: Replace with new backend API
+      /*
+      const response = await fetch("http://127.0.0.1:8000/students/add-student/", { ... });
       const data = await response.json();
+      */
 
-      if (response.ok) {
+      // MOCK DATA:
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      if (studentId) {
         setView("SUCCESS");
         setTimeout(() => {
           navigate("/parent/dashboard");
         }, 2500);
       } else {
-        const errorMsg = data.error || data.detail || "الطالب غير موجود أو مرتبط بولي أمر آخر";
-        setError(errorMsg);
+        setError("الطالب غير موجود أو مرتبط بولي أمر آخر");
         setView("ERROR");
       }
     } catch (err) {
@@ -125,7 +134,7 @@ const AddStudentPage: FC = () => {
             onClick={() => setView("FORM")}
             className="w-full py-4 bg-red-600 text-white rounded-2xl font-bold"
           >
-            حاول مرة أخرى
+            try again
           </button>
         </div>
       </div>

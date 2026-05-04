@@ -19,16 +19,15 @@ const ParentReportsPage: FC = () => {
   const { student, reportMetrics, aiLearningAnalysis, detailedSubjects } = dashboardSummary;
 
   return (
-    <div className="max-w-full mx-auto pb-10 pt-6">
-      <div className="mb-8 px-2">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
+      <div className="mb-8">
         <h1 className="text-[36px] font-black text-[#1A1C1E] tracking-tight mb-1 leading-none">Monthly Reports</h1>
         <p className="text-[#9E9E9E] font-bold text-[16px]">
           January 2026
         </p>
       </div>
 
-      <div className="bg-[#F3F3F3]/50 rounded-[32px] p-10 border border-slate-100 shadow-sm relative">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
             <div>
               <h2 className="text-[42px] font-black text-[#1A1C1E] tracking-tighter leading-tight mb-2">Monthly Report: January 2026</h2>
               <p className="text-[#9E9E9E] font-medium text-[16px]">
@@ -58,7 +57,6 @@ const ParentReportsPage: FC = () => {
           {detailedSubjects && detailedSubjects.length > 0 && (
             <DetailedSubjectsGrid subjects={detailedSubjects} />
           )}
-      </div>
     </div>
   );
 };

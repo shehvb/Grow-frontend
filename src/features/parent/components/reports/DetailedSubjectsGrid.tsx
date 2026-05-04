@@ -64,17 +64,15 @@ const DetailedSubjectsGrid: FC<DetailedSubjectsGridProps> = ({ subjects }) => {
             </div>
 
             {/* Stats Footer */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-50">
-               <div>
-                  <span className="block text-[11px] font-bold text-[#9E9E9E] uppercase tracking-wider mb-0.5">Assignments</span>
-                  <span className="text-[13px] font-black text-[#1A1C1E]">{subject.assignmentsCompleted}/{subject.assignmentsTotal}</span>
+            <div className="flex items-center justify-between pt-1 mt-auto">
+               <div className="text-[11px] font-bold">
+                  <span className="text-[#9E9E9E]">Assignments: </span>
+                  <span className="text-[#1A1C1E]">{subject.assignmentsCompleted}/{subject.assignmentsTotal}</span>
                </div>
-               <div className="text-right">
-                  <span className="block text-[11px] font-bold text-[#9E9E9E] uppercase tracking-wider mb-0.5">
-                    {subject.labsAvg !== undefined ? 'Labs' : 'Tests'} avg
-                  </span>
-                  <span className="text-[13px] font-black" style={{ color: config.color }}>
-                    {subject.labsAvg !== undefined ? `${subject.labsAvg}%` : `${subject.testsAvg}%`}
+               <div className="text-[11px] font-bold">
+                  <span className="text-[#9E9E9E]">{subject.labsAvg !== undefined ? 'Labs' : 'Tests'}: </span>
+                  <span style={{ color: config.color }}>
+                    {subject.labsAvg !== undefined ? `${subject.labsAvg}%` : `${subject.testsAvg}%`} avg
                   </span>
                </div>
             </div>

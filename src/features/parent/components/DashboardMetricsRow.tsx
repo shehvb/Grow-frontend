@@ -1,35 +1,31 @@
 import type { FC } from "react";
 import { FiTrendingUp, FiClock, FiZap } from "react-icons/fi";
-
-interface MetricItem {
-  value: number;
-  changeLabel: string;
-  trend: string;
-}
+import { useNavigate } from "react-router-dom";
+import type { DashboardMetrics } from "../../../../types/parent";
 
 interface DashboardMetricsRowProps {
-  metrics?: {
-    gpa?: MetricItem;
-    studyHours?: MetricItem;
-    engagement?: MetricItem;
-  } | null;
+  metrics?: DashboardMetrics | null;
 }
 
 const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) => {
-  // Default values عشان نتجنب أي null error
+  const navigate = useNavigate();
+  // Default values to avoid any null error
   const safeMetrics = metrics || {
-    gpa: { value: 3.8, changeLabel: "+2.4%", trend: "up" },
+    gpa: { value: 3.8, changePercentage: 2.4, trend: "up" },
     studyHours: { value: 12.5, changeLabel: "+1.5 hrs", trend: "up" },
-    engagement: { value: 92, changeLabel: "Excellent", trend: "up" },
+    engagementRate: { value: 92, badge: "Excellent", subtitle: "Top 5% of class" },
   };
 
-  const activeGpa = safeMetrics.gpa || (safeMetrics as any).currentGPA;
-  const activeEngagement = safeMetrics.engagement || (safeMetrics as any).engagementRate;
+  const activeGpa = safeMetrics.gpa;
+  const activeEngagement = safeMetrics.engagementRate;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Current GPA */}
-      <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px]">
+      <div 
+        onClick={() => navigate("/parent/analytics")}
+        className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
+      >
         {/* Decorative Blob */}
         <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-green-50 rounded-full opacity-60"></div>
         
@@ -46,15 +42,19 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
         </div>
         
         <div className="flex items-center gap-2 mt-4 relative z-10">
-          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-md">
-            {activeGpa?.changeLabel || "+0%"}
+          <span className="text-[#1600D5] font-extrabold text-[12px] bg-blue-50 px-2 py-0.5 rounded flex items-center gap-1">
+            <FiTrendingUp className="w-3 h-3" />
+            {activeGpa.changePercentage > 0 ? "+" : ""}{activeGpa.changePercentage}%
           </span>
-          <span className="text-xs font-semibold text-slate-400">from last term</span>
+          <span className="text-xs text-slate-500 font-bold ml-2">from last month</span>
         </div>
       </div>
 
       {/* Study Hours */}
-      <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px]">
+      <div 
+        onClick={() => navigate("/parent/analytics")}
+        className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
+      >
         {/* Decorative Blob */}
         <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-indigo-50 rounded-full opacity-60"></div>
 
@@ -79,7 +79,10 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
       </div>
 
       {/* Engagement Rate */}
-      <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px]">
+      <div 
+        onClick={() => navigate("/parent/analytics")}
+        className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
+      >
         {/* Decorative Blob */}
         <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-fuchsia-50 rounded-full opacity-60"></div>
 
