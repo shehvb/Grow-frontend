@@ -150,8 +150,16 @@ const StudentLoginForm: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/students/schools/");
-        if (res.ok) setSchools(await res.json());
+        // TODO: Replace with new backend API
+        // const res = await fetch("http://127.0.0.1:8000/students/schools/");
+        // if (res.ok) setSchools(await res.json());
+
+        // MOCK DATA:
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setSchools([
+          { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
+          { id: 2, name: "Westside High School", school_code: "WHS-002" },
+        ]);
       } catch (err) {
         console.error("Failed to load schools", err);
       }
@@ -177,20 +185,24 @@ const StudentLoginForm: FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/accounts/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: studentId,        // Student ID = username
-          password: password,
-        }),
-      });
-
+      // TODO: Replace with new backend API
+      /*
+      const response = await fetch("http://127.0.0.1:8000/accounts/login/", { ... });
       const data = await response.json();
+      */
 
-      if (response.ok && data.success) {
+      // MOCK DATA:
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const data = {
+        success: true,
+        access: "mock_student_token",
+        refresh: "mock_student_refresh",
+        user_id: 2,
+        username: studentId || "Demo Student",
+        role: "student"
+      };
+
+      if (studentId && password) {
         localStorage.setItem("access_token", data.access);
         localStorage.setItem("refresh_token", data.refresh);
         localStorage.setItem("user", JSON.stringify({

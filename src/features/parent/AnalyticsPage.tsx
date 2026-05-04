@@ -29,7 +29,7 @@ const AnalyticsPage: FC = () => {
   const trendData = period === "weekly" ? analyticsData.weeklyTrend : analyticsData.monthlyTrend;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-16">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-2">
         <div>

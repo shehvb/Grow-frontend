@@ -40,6 +40,23 @@ import NotificationsPage from "./features/notifications/NotificationsPage";
 import ParentCommunicationLayout from "./features/parent/communication/ParentCommunicationLayout";
 import ParentChatPage from "./features/parent/communication/ParentChatPage";
 
+// Teacher Module
+import TeacherLayout from "./layouts/TeacherLayout";
+import TeacherDashboardPage from "./features/teacher/dashboard/TeacherDashboardPage";
+import CourseListPage from "./features/teacher/courses/CourseListPage";
+import CourseEditorPage from "./features/teacher/courses/CourseEditorPage";
+import LessonEditorPage from "./features/teacher/courses/LessonEditorPage";
+import AssignmentListPage from "./features/teacher/assignments/AssignmentListPage";
+import CreateAssignmentPage from "./features/teacher/assignments/CreateAssignmentPage";
+import ReviewSubmissionsPage from "./features/teacher/assignments/ReviewSubmissionsPage";
+import QuizListPage from "./features/teacher/quizzes/QuizListPage";
+import QuizBuilderPage from "./features/teacher/quizzes/QuizBuilderPage";
+import QuizResultsPage from "./features/teacher/quizzes/QuizResultsPage";
+import TeacherAttendancePage from "./features/teacher/attendance/AttendancePage";
+import TeacherNotificationsPage from "./features/teacher/notifications/NotificationsPage";
+import TeacherSettingsPage from "./features/teacher/settings/SettingsPage";
+import TeacherStudentsPage from "./features/teacher/students/StudentsPage";
+
 const App: FC = () => {
   return (
     <Routes>
@@ -103,6 +120,27 @@ const App: FC = () => {
       <Route path="/parent/communication" element={<ParentCommunicationLayout />}>
         <Route index element={<Navigate to="chat" replace />} />
         <Route path="chat" element={<ParentChatPage />} />
+      </Route>
+
+      {/* Teacher Routes */}
+      <Route path="/teacher" element={<TeacherLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<TeacherDashboardPage />} />
+        <Route path="courses" element={<CourseListPage />} />
+        <Route path="courses/:id" element={<CourseEditorPage />} />
+        <Route path="courses/:id/lessons/new" element={<LessonEditorPage />} />
+        <Route path="courses/:id/lessons/:lessonId" element={<LessonEditorPage />} />
+        <Route path="assignments" element={<AssignmentListPage />} />
+        <Route path="assignments/new" element={<CreateAssignmentPage />} />
+        <Route path="assignments/:id/review" element={<ReviewSubmissionsPage />} />
+        <Route path="quizzes" element={<QuizListPage />} />
+        <Route path="quizzes/new" element={<QuizBuilderPage />} />
+        <Route path="quizzes/:id/edit" element={<QuizBuilderPage />} />
+        <Route path="quizzes/:id/results" element={<QuizResultsPage />} />
+        <Route path="students" element={<TeacherStudentsPage />} />
+        <Route path="attendance" element={<TeacherAttendancePage />} />
+        <Route path="settings" element={<TeacherSettingsPage />} />
+        <Route path="notifications" element={<TeacherNotificationsPage />} />
       </Route>
 
       {/* Fallback */}

@@ -25,27 +25,21 @@ const SignupParent: FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/accounts/signup/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: email.split("@")[0],   // بنستخدم جزء من الإيميل كـ username مؤقتاً
-          email: email,
-          password: password,
-          role: "parent",                  // مهم جدًا
-        }),
-      });
-
+      // TODO: Replace with new backend API
+      /*
+      const response = await fetch("http://127.0.0.1:8000/accounts/signup/", { ... });
       const data = await response.json();
+      */
 
-      if (response.ok) {
+      // MOCK DATA:
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      if (email && password && fullName) {
         alert("✅ Account created successfully!");
         navigate("/login/parent");        // بعد التسجيل يروح لصفحة Login Parent
       } else {
         // لو فيه error (مثل email موجود مسبقاً)
-        alert(data.email || data.username || "Signup failed. Try again.");
+        alert("Signup failed. Try again.");
       }
     } catch (error) {
       console.error(error);

@@ -2,7 +2,7 @@ import  { type FC , useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScrolled } from "../components/hooks";
 import { NAV_LINKS } from "../components/data";
-import Logo from "../assets/logo.png"
+import Logo from "../assets/Logo.png"
 
 const Navbar: FC = () => {
   const navigate = useNavigate();

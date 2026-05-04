@@ -1,6 +1,8 @@
 import {  type FC } from "react";
 import { FadeUp, StatCard, SectionHeader } from "./UI";
-import { SECURITY_PROTOCOLS, STATS, FOOTER_LINKS } from "../components/data";
+import { SECURITY_PROTOCOLS, STATS } from "../components/data";
+import { RiSettings4Line, RiGraduationCapLine, RiLinkM, RiBarChartBoxLine, RiEarthLine, RiTwitterXLine } from "react-icons/ri";
+import Logo from "../assets/Logo.png";
 
 // ── Security ──────────────────────────────────────────────────────────────────
 export const Security: FC = () => (
@@ -58,65 +60,105 @@ export const Stats: FC = () => (
 
 // ── CTA ───────────────────────────────────────────────────────────────────────
 export const CTA: FC = () => (
-  <section className="py-24 px-8 text-center bg-white">
-    <FadeUp>
-      <div className="max-w-2xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-500 text-xs font-black mb-6">
-          🚀 Join 50,000+ families today
-        </div>
-        <h2 className="font-display text-5xl font-black mb-6 leading-tight text-slate-800">
-          Ready to{" "}
-          <span className="text-blue-600">Grow</span> Together?
-        </h2>
-        <p className="text-slate-400 text-base leading-relaxed mb-10 max-w-lg mx-auto">
-          Start your free trial today. No credit card required. See your child's
-          progress transform in the first week.
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <button className="px-10 py-4 rounded-2xl bg-blue-600 text-white font-black text-base shadow-xl shadow-blue-200 hover:-translate-y-1 hover:shadow-blue-300 transition-all">
-            Get Started Free
+  <section className="py-24 px-6 md:px-12 bg-slate-50">
+    <div className="max-w-[1400px] mx-auto">
+      <FadeUp>
+        <div className="bg-[#3b6dbf] rounded-[2rem] p-12 md:p-16 text-center shadow-xl">
+          <h2 className="font-display text-4xl md:text-5xl font-black mb-4 text-white">
+            Partner With GROW
+          </h2>
+          <p className="text-blue-100 text-base mb-12">
+            Bring your school into a smarter digital learning environment!
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto mb-12 text-left">
+            <div className="bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-2xl p-5 flex items-center gap-4 text-white">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                <RiSettings4Line className="text-lg" />
+              </div>
+              <span className="font-bold text-sm">Full control over students and teachers</span>
+            </div>
+            <div className="bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-2xl p-5 flex items-center gap-4 text-white">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                <RiGraduationCapLine className="text-lg" />
+              </div>
+              <span className="font-bold text-sm">Structured educator system</span>
+            </div>
+            <div className="bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-2xl p-5 flex items-center gap-4 text-white">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                <RiLinkM className="text-lg" />
+              </div>
+              <span className="font-bold text-sm">Secure onboarding via codes & invitations</span>
+            </div>
+            <div className="bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-2xl p-5 flex items-center gap-4 text-white">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                <RiBarChartBoxLine className="text-lg" />
+              </div>
+              <span className="font-bold text-sm">Performance tracking & reporting</span>
+            </div>
+          </div>
+
+          <button className="px-8 py-3.5 rounded-xl bg-white text-blue-600 font-black text-sm shadow-xl hover:-translate-y-1 transition-all mb-4">
+            Apply as a School
           </button>
-          <button className="px-10 py-4 rounded-2xl border-2 border-slate-200 text-slate-600 font-black text-base hover:border-blue-300 hover:text-blue-600 transition-all">
-            View Demo
-          </button>
+          <p className="text-blue-200 text-xs font-medium">
+            Custom features available tailored to your school
+          </p>
         </div>
-      </div>
-    </FadeUp>
+      </FadeUp>
+    </div>
   </section>
 );
 
 // ── Footer ────────────────────────────────────────────────────────────────────
 export const Footer: FC = () => (
-  <footer className="bg-slate-900 text-white py-16 px-8 text-center">
-    <p className="font-display text-3xl font-black mb-4 bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-      Grow
-    </p>
-    <p className="text-slate-400 text-sm mb-8 max-w-md mx-auto">
-      Empowering every child's learning journey with AI-driven insights and
-      family transparency.
-    </p>
-    <ul className="flex justify-center gap-8 list-none mb-10 flex-wrap p-0 m-0">
-      {FOOTER_LINKS.map((l) => (
-        <li key={l}>
-          <a
-            href="#"
-            className="text-slate-400 hover:text-white text-sm font-bold transition-colors no-underline"
-          >
-            {l}
-          </a>
-        </li>
-      ))}
-    </ul>
-    <div className="flex justify-center gap-4 mb-10 flex-wrap">
-      <button className="px-8 py-3 rounded-xl bg-blue-600 text-white font-black text-sm shadow-lg hover:-translate-y-0.5 transition-all">
-        Get Started Free
-      </button>
-      <button className="px-8 py-3 rounded-xl bg-orange-400 text-white font-black text-sm shadow-lg hover:-translate-y-0.5 transition-all">
-        View Demo
-      </button>
+  <footer className="bg-white py-16 px-6 md:px-12 border-t border-slate-100">
+    <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row gap-12 justify-between">
+      {/* Brand Column */}
+      <div className="max-w-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <img src={Logo} alt="Grow logo" className="h-10 object-contain" />
+        </div>
+        <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+          Empowering schools to connect learning, streamline management, and build stronger educational communities.
+        </p>
+        <div className="flex items-center gap-3">
+          <button className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors">
+            <RiEarthLine className="text-lg" />
+          </button>
+          <button className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors">
+            <RiTwitterXLine className="text-lg" />
+          </button>
+        </div>
+      </div>
+
+      {/* Links Columns */}
+      <div className="flex gap-16 flex-wrap">
+        <div>
+          <h4 className="font-black text-slate-800 text-sm mb-6">Platform</h4>
+          <ul className="flex flex-col gap-4 list-none p-0 m-0">
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">About</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Features</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">For School</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-black text-slate-800 text-sm mb-6">Support</h4>
+          <ul className="flex flex-col gap-4 list-none p-0 m-0">
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Help Center</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Contact Us</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">System Status</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-black text-slate-800 text-sm mb-6">Legal</h4>
+          <ul className="flex flex-col gap-4 list-none p-0 m-0">
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Privacy Policy</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Terms of Service</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Cookie Policy</a></li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <p className="text-slate-600 text-xs">
-      © 2026 Grow Learning Inc. All rights reserved.
-    </p>
   </footer>
 );

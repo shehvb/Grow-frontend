@@ -1,10 +1,11 @@
 import type { FC } from "react";
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { FiArrowRight } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface GpaTrendPoint {
   month: string;
-  gpa: number;
+  value: number;
 }
 
 interface GpaTrendChartProps {
@@ -13,6 +14,7 @@ interface GpaTrendChartProps {
 }
 
 const GpaTrendChart: FC<GpaTrendChartProps> = ({ data, metrics }) => {
+  const navigate = useNavigate();
   const activeGpa = metrics?.gpa || metrics?.currentGPA;
 
   // حماية ضد null
@@ -42,7 +44,10 @@ const GpaTrendChart: FC<GpaTrendChartProps> = ({ data, metrics }) => {
           </div>
           <p className="text-[13px] text-slate-400 font-bold mt-1">Top 5% of class</p>
         </div>
-        <button className="flex items-center gap-1.5 text-[#0062FF] font-extrabold text-sm hover:underline mt-1">
+        <button 
+          onClick={() => navigate("/parent/reports")}
+          className="flex items-center gap-1.5 text-[#0062FF] font-extrabold text-sm hover:underline mt-1"
+        >
           View Full Report <FiArrowRight className="w-4 h-4" strokeWidth={3} />
         </button>
       </div>
@@ -69,7 +74,7 @@ const GpaTrendChart: FC<GpaTrendChartProps> = ({ data, metrics }) => {
             />
             <Area
               type="monotone"
-              dataKey="gpa"
+              dataKey="value"
               stroke="#0062FF"
               strokeWidth={3}
               fillOpacity={1}

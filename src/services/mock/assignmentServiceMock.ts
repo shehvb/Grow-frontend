@@ -42,7 +42,7 @@ class AssignmentServiceMock {
     });
   }
 
-  async uploadAssignmentFile(assignmentId: string, file: File): Promise<{ success: boolean; message: string; fileName: string }> {
+  async uploadAssignmentFile(_assignmentId: string, file: File): Promise<{ success: boolean; message: string; fileName: string }> {
     return new Promise((resolve) => {
       setTimeout(() => {
         // Return a simulated success

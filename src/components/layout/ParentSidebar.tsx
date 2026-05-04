@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FiX, FiPieChart, FiFileText, FiSettings, FiCalendar, FiBarChart2, FiLogOut } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/Logo.png";
 
 const navItems = [
@@ -18,16 +19,23 @@ interface ParentSidebarProps {
 }
 
 const ParentSidebar: FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const [parentName, setParentName] = useState("Parent");
 
   useEffect(() => {
-    // نحاول نجيب اسم الـ Parent من localStorage (هنحفظه لاحقًا عند الـ Login)
     const user = localStorage.getItem("user");
     if (user) {
       const parsed = JSON.parse(user);
       setParentName(parsed.username || parsed.email?.split('@')[0] || "Parent");
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user");
+    navigate("/login/parent");
+  };
 
   return (
     <>
@@ -90,7 +98,11 @@ const ParentSidebar: FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
             </p>
             <p className="text-xs text-slate-400 font-medium tracking-wide">Parent Account</p>
           </div>
-          <button className="text-[#0062FF] p-2 hover:bg-blue-50 rounded-lg transition-colors">
+          <button 
+            onClick={handleLogout}
+            className="text-[#0062FF] p-2 hover:bg-blue-50 rounded-lg transition-colors"
+            title="Logout"
+          >
             <FiLogOut className="w-5 h-5" />
           </button>
         </div>
