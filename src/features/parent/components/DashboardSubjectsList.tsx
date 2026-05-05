@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { FiBook, FiBookmark } from "react-icons/fi";
+import { FiBookmark } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 interface Subject {

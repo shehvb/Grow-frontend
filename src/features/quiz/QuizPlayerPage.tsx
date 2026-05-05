@@ -55,12 +55,7 @@ const QuizPlayerPage: FC = () => {
     return () => clearInterval(timer);
   }, [loading, isFinished, timeLeft]);
 
-  // Format Time
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
+
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
     setAnswers(prev => ({ ...prev, [questionId]: answerIndex }));
@@ -107,8 +102,7 @@ const QuizPlayerPage: FC = () => {
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const progressPercent = ((Object.keys(answers).length) / quiz.questions.length) * 100;
   
-  // Warning at 1 minute
-  const isTimeWarning = timeLeft <= 60;
+
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-20 flex flex-col lg:flex-row gap-8 font-['Nunito']">

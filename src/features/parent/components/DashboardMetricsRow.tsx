@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { FiTrendingUp, FiClock, FiZap } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import type { DashboardMetrics } from "../../../../types/parent";
+import type { DashboardMetrics } from "../../../types/parent";
 
 interface DashboardMetricsRowProps {
   metrics?: DashboardMetrics | null;
@@ -11,8 +11,8 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
   const navigate = useNavigate();
   // Default values to avoid any null error
   const safeMetrics = metrics || {
-    gpa: { value: 3.8, changePercentage: 2.4, trend: "up" },
-    studyHours: { value: 12.5, changeLabel: "+1.5 hrs", trend: "up" },
+    gpa: { value: 3.8, changePercentage: 2.4, trend: "from last month" },
+    studyHours: { value: 12.5, changeLabel: "+1.5 hrs", trend: "vs Weekly goal" },
     engagementRate: { value: 92, badge: "Excellent", subtitle: "Top 5% of class" },
   };
 
@@ -44,9 +44,9 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
         <div className="flex items-center gap-2 mt-4 relative z-10">
           <span className="text-[#1600D5] font-extrabold text-[12px] bg-blue-50 px-2 py-0.5 rounded flex items-center gap-1">
             <FiTrendingUp className="w-3 h-3" />
-            {activeGpa.changePercentage > 0 ? "+" : ""}{activeGpa.changePercentage}%
+            {activeGpa?.changePercentage > 0 ? "+" : ""}{activeGpa?.changePercentage}%
           </span>
-          <span className="text-xs text-slate-500 font-bold ml-2">from last month</span>
+          <span className="text-xs text-slate-500 font-bold ml-2">{activeGpa?.trend}</span>
         </div>
       </div>
 
@@ -74,7 +74,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-md">
             {safeMetrics.studyHours?.changeLabel || "+0 hrs"}
           </span>
-          <span className="text-xs font-semibold text-slate-400">vs Weekly goal</span>
+          <span className="text-xs font-semibold text-slate-400">{safeMetrics.studyHours?.trend}</span>
         </div>
       </div>
 
@@ -99,10 +99,10 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
         </div>
         
         <div className="flex items-center gap-2 mt-4 relative z-10">
-          <span className="px-2 py-1 bg-fuchsia-100 text-fuchsia-700 text-xs font-bold rounded-md uppercase tracking-wide px-3">
-            {activeEngagement?.changeLabel || "Good"}
+          <span className="px-3 py-1 bg-fuchsia-100 text-fuchsia-700 text-xs font-bold rounded-md uppercase tracking-wide">
+            {activeEngagement?.badge || "Good"}
           </span>
-          <span className="text-xs font-semibold text-slate-400">Top 5% of class</span>
+          <span className="text-xs font-semibold text-slate-400">{activeEngagement?.subtitle}</span>
         </div>
       </div>
     </div>

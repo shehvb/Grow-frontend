@@ -140,13 +140,12 @@ const ForgotPassword: FC = () => {
 
       <div className="flex-1 flex items-center justify-center p-4">
         <div 
-          className="w-full max-w-[1400px] bg-white rounded-[2rem] shadow-xl overflow-hidden grid md:grid-cols-2"
-          style={{ aspectRatio: "2.6 / 1" }}
+          className="w-full max-w-[1200px] bg-white rounded-[2rem] shadow-xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[40%_60%] min-h-[600px]"
         >
           
           {/* Left Panel */}
           <div 
-            className="p-12 lg:p-16 flex flex-col items-center justify-center relative overflow-hidden"
+            className="hidden lg:flex p-12 lg:p-16 flex-col items-center justify-center relative overflow-hidden"
             style={{ background: "linear-gradient(135deg, #0B006F 0%, #1600D5 100%)" }}
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -178,7 +177,7 @@ const ForgotPassword: FC = () => {
           </div>
 
           {/* Right Panel */}
-          <div className="p-12 lg:p-16 flex flex-col justify-center">
+          <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center">
             {step === "email" ? (
               <form onSubmit={handleSendCode} className="w-full max-w-sm mx-auto relative z-10 transition-all duration-300">
                 <h2 className="text-2xl font-black text-slate-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -234,21 +233,21 @@ const ForgotPassword: FC = () => {
                   Enter the verification code sent to your email to reset your password.
                 </p>
 
-                <div className="flex justify-center items-center gap-2 mb-4">
+                <div className="flex justify-center items-center gap-1.5 sm:gap-2 mb-4">
                   {code.map((digit, i) => (
-                    <div key={i} className="flex items-center gap-1.5 sm:gap-2">
+                    <div key={i} className="flex items-center gap-1 sm:gap-2">
                       <input
                         ref={(el) => { inputRefs.current[i] = el; }}
                         type="text"
-                        maxLength={6}
+                        maxLength={1}
                         value={digit}
                         onChange={(e) => handleCodeChange(i, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, i)}
-                        className={`w-10 h-14 sm:w-12 sm:h-14 text-center text-lg font-black rounded-xl border focus:outline-none transition-all shadow-sm ${
+                        className={`w-9 h-12 sm:w-12 sm:h-14 text-center text-lg font-black rounded-xl border focus:outline-none transition-all shadow-sm ${
                           digit ? "border-blue-600 bg-blue-50 text-blue-800" : "border-slate-200 bg-slate-50 text-slate-900"
                         } ${error ? "border-red-400 bg-red-50 text-red-600" : ""} ${success ? "border-emerald-400 bg-emerald-50 text-emerald-600" : ""}`}
                       />
-                      {i === 2 && <span className="text-slate-300 font-black px-1">-</span>}
+                      {i === 2 && <span className="text-slate-300 font-black px-0.5 sm:px-1">-</span>}
                     </div>
                   ))}
                 </div>

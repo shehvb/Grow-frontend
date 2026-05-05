@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { FiMessageSquare, FiClock } from "react-icons/fi";
+import { FiClock } from "react-icons/fi";
 
 const UpcomingSessionWidget: FC = () => {
   return (

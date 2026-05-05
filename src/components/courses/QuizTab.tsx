@@ -21,7 +21,7 @@ const QuizTab: FC<QuizTabProps> = ({ courseId, quizzes }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {quizzes.map((quiz, idx) => (
+      {quizzes.map((quiz) => (
         <div key={quiz.id} className="bg-white rounded-[24px] overflow-hidden border border-white shadow-sm flex flex-col group font-['Nunito']">
           {/* Top Banner Area */}
           <div className="h-36 bg-[#C7C2FF] relative overflow-hidden flex flex-col p-4">

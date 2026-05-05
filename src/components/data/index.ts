@@ -1,6 +1,6 @@
 import { RiChatAiFill, RiBookOpenFill, RiGraduationCapFill, RiBankFill, RiTeamFill, RiEyeFill } from "react-icons/ri";
-import { TbBrandGoogleAnalytics, TbLayoutDashboardFilled } from "react-icons/tb";
-import { GoGoal } from "react-icons/go";
+import { TbLayoutDashboardFilled } from "react-icons/tb";
+
 import learn1  from "../../assets/learn.png"
 import learn2  from "../../assets/learn1.png"
 import learn3  from "../../assets/Effortless Classroom Management.png"

@@ -41,10 +41,10 @@ const AddStudentPage: FC = () => {
 
         if (schoolsRes.ok) setSchools(await schoolsRes.json());
         if (gradesRes.ok) setGrades(await gradesRes.json());
-
-
-        // MOCK DATA:
-        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (err) {
+        console.warn("Failed to load schools or grades from server, using mock data", err);
+      } finally {
+        // MOCK DATA Fallback:
         setSchools([
           { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
           { id: 2, name: "Westside High School", school_code: "WHS-002" },
@@ -54,8 +54,6 @@ const AddStudentPage: FC = () => {
           { id: 2, name: "Grade 9" },
           { id: 3, name: "Grade 10" },
         ]);
-      } catch (err) {
-        setError("Failed to load schools or grades");
       }
     };
 
@@ -67,15 +65,20 @@ const AddStudentPage: FC = () => {
     setError("");
     setLoading(true);
 
-    if (!studentId.trim()) {
-      setError("يرجى إدخال كود الطالب (Student ID)");
+    if (!selectedSchoolCode || !fullName.trim() || !studentId.trim() || !selectedGradeId) {
+      setError("يرجى ملء جميع الحقول المطلوبة");
       setLoading(false);
       return;
     }
 
+    /* 
     const formData = {
       student_id: studentId.trim(),
+      school_code: selectedSchoolCode,
+      full_name: fullName.trim(),
+      grade_id: selectedGradeId
     };
+    */
 
     try {
       // TODO: Replace with new backend API
@@ -84,17 +87,15 @@ const AddStudentPage: FC = () => {
       const data = await response.json();
       */
 
-      // MOCK DATA:
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      if (studentId) {
+      // MOCK DATA Success condition:
+      if (studentId.startsWith("STU")) {
         setView("SUCCESS");
         setTimeout(() => {
           navigate("/parent/dashboard");
         }, 2500);
       } else {
-        setError("الطالب غير موجود أو مرتبط بولي أمر آخر");
-        setView("ERROR");
+        setError("الطالب غير موجود أو الكود غير صحيح (يجب أن يبدأ بـ STU)");
+        setLoading(false); // Enable button again
       }
     } catch (err) {
       console.error(err);
@@ -152,6 +153,13 @@ const AddStudentPage: FC = () => {
           <h1 className="text-3xl font-black text-slate-900">Add / Link Student</h1>
           <p className="text-slate-400 text-sm">Enter your child's Student ID</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 animate-shake">
+            <FiAlertCircle className="shrink-0" />
+            <p className="text-sm font-bold">{error}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col gap-6">
           {/* School Name - Dropdown */}

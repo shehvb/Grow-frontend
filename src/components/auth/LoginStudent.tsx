@@ -216,7 +216,7 @@ const StudentLoginForm: FC = () => {
         // Redirect لـ Student Dashboard
         navigate("/student/dashboard");
       } else {
-        setError(data.message || "Invalid Student ID or password");
+        setError((data as any).message || "Invalid Student ID or password");
       }
     } catch (error) {
       console.error(error);

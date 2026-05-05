@@ -173,7 +173,7 @@ const LoginForm: FC = () => {
         // Redirect لـ Teacher Dashboard
         navigate("/teacher/dashboard");
       } else {
-        setError(data.message || "Invalid email or password");
+        setError((data as any).message || "Invalid email or password");
       }
     } catch (error) {
       console.error(error);

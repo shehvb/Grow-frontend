@@ -156,7 +156,7 @@ const LoginForm: FC = () => {
 
   const isParent = true;
 
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
