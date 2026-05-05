@@ -16,7 +16,7 @@ const filters: { key: FilterType; label: string }[] = [
 
 const FilterBar: FC<FilterBarProps> = ({ activeFilter, onFilterChange }) => {
   return (
-    <div className="flex flex-wrap gap-3 mb-10">
+    <div className="flex flex-nowrap overflow-x-auto no-scrollbar gap-2 sm:gap-3 mb-6 sm:mb-10 pb-2 sm:pb-0">
       {filters.map((filter) => (
         <button
           key={filter.key}

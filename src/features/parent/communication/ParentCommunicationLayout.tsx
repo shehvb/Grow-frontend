@@ -28,9 +28,12 @@ const ParentCommunicationLayout: React.FC = () => {
   const isChatActive = location.pathname.includes('/chat');
 
   return (
-    <div className="flex h-full w-full bg-white overflow-hidden">
+    <div className="flex h-full w-full bg-white overflow-hidden relative">
       {/* Sidebar */}
-      <div className="w-80 h-full border-r border-gray-100 flex flex-col bg-white shrink-0">
+      <div className={`
+        ${activeTeacherId ? 'hidden md:flex' : 'flex'}
+        w-full md:w-80 h-full border-r border-gray-100 flex-col bg-white shrink-0
+      `}>
         <div className="p-6 border-b border-gray-100">
            <div className="mb-1">
               <img src={logo} alt="Grow Logo" className="h-8 w-auto object-contain" />
@@ -92,7 +95,10 @@ const ParentCommunicationLayout: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 min-w-0 min-h-0 relative flex flex-col overflow-hidden">
+      <div className={`
+        ${activeTeacherId ? 'flex' : 'hidden md:flex'}
+        flex-1 min-w-0 min-h-0 relative flex-col overflow-hidden
+      `}>
         <Outlet />
       </div>
     </div>

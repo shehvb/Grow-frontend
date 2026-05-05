@@ -16,10 +16,10 @@ const DashboardPage: FC = () => {
     avatar: "https://via.placeholder.com/150",
   };
   return (
-    <div className="w-[80%] mx-auto space-y-8">
-      <div>
-        <h1 className="text-4xl font-extrabold text-slate-800 mb-3 tracking-tight">Welcome back, {user.name}</h1>
-        <p className="text-slate-500 font-medium text-lg">You've completed <span className="text-[#FF8000] font-bold">70%</span> of your daily goal. Keep it up!</p>
+    <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-8">
+      <div className="mt-2 sm:mt-4">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2 sm:mb-3 tracking-tight">Welcome back, {user.name}</h1>
+        <p className="text-slate-500 font-medium text-base sm:text-lg">You've completed <span className="text-[#FF8000] font-bold">70%</span> of your daily goal. Keep it up!</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

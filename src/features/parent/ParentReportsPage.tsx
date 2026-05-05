@@ -1,5 +1,8 @@
+import { useState, useRef } from "react";
 import type { FC } from "react";
-import { FiDownload, FiShare2 } from "react-icons/fi";
+import { FiDownload, FiShare2, FiLoader } from "react-icons/fi";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { useParentStore } from "../../store/parentStore";
 import ReportMetricsRow from "./components/reports/ReportMetricsRow";
 import AiAnalysisBanner from "./components/reports/AiAnalysisBanner";
@@ -7,6 +10,8 @@ import DetailedSubjectsGrid from "./components/reports/DetailedSubjectsGrid";
 
 const ParentReportsPage: FC = () => {
   const { dashboardSummary } = useParentStore();
+  const reportRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   if (!dashboardSummary || !dashboardSummary.reportMetrics) {
     return (
@@ -18,6 +23,39 @@ const ParentReportsPage: FC = () => {
 
   const { student, reportMetrics, aiLearningAnalysis, detailedSubjects } = dashboardSummary;
 
+  const handleDownloadReport = async () => {
+    if (!reportRef.current) return;
+    
+    setIsDownloading(true);
+    try {
+      const element = reportRef.current;
+      
+      // Capture the element
+      const canvas = await html2canvas(element, {
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#F8F9FA", // Match app background
+        windowWidth: 1440, // Ensure desktop layout
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width / 2, canvas.height / 2], // Keep original aspect ratio
+      });
+      
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save(`${student.name.replace(/\s+/g, '_')}_Report_Jan_2026.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       <div className="mb-8">
@@ -27,36 +65,47 @@ const ParentReportsPage: FC = () => {
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-            <div>
-              <h2 className="text-[42px] font-black text-[#1A1C1E] tracking-tighter leading-tight mb-2">Monthly Report: January 2026</h2>
-              <p className="text-[#9E9E9E] font-medium text-[16px]">
-                 Detailed academic performance analysis for {student.name}
-              </p>
+      <div ref={reportRef} className="space-y-8 pb-10 mt-6 relative">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+              <div>
+                <h2 className="text-[42px] font-black text-[#1A1C1E] tracking-tighter leading-tight mb-2">Monthly Report: January 2026</h2>
+                <p className="text-[#9E9E9E] font-medium text-[16px]">
+                   Detailed academic performance analysis for {student.name}
+                </p>
+              </div>
+              <div className="flex gap-4 self-center md:self-start print:hidden">
+                <button className="px-7 py-3.5 bg-white border border-slate-200 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 transition-all text-[#1A1C1E] shadow-sm text-[15px]">
+                  <FiShare2 className="w-5 h-5" /> Share
+                </button>
+                <button 
+                  onClick={handleDownloadReport}
+                  disabled={isDownloading}
+                  className="px-7 py-3.5 bg-[#1600D5] text-white rounded-xl font-black flex items-center gap-2 hover:bg-blue-800 transition-all shadow-lg text-[15px] disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isDownloading ? (
+                    <FiLoader className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <FiDownload className="w-5 h-5" />
+                  )}
+                  {isDownloading ? 'Generating...' : 'Download Report'}
+                </button>
+              </div>
             </div>
-            <div className="flex gap-4 self-center md:self-start">
-              <button className="px-7 py-3.5 bg-white border border-slate-200 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 transition-all text-[#1A1C1E] shadow-sm text-[15px]">
-                <FiShare2 className="w-5 h-5" /> Share
-              </button>
-              <button className="px-7 py-3.5 bg-[#1600D5] text-white rounded-xl font-black flex items-center gap-2 hover:bg-blue-800 transition-all shadow-lg text-[15px]">
-                <FiDownload className="w-5 h-5" /> Download Report
-              </button>
+
+            <ReportMetricsRow metrics={reportMetrics} />
+
+            {aiLearningAnalysis && (
+              <AiAnalysisBanner data={aiLearningAnalysis} />
+            )}
+
+            <div className="mb-8">
+              <h2 className="text-[32px] font-black text-[#1A1C1E] tracking-tight">Subject Performance</h2>
             </div>
-          </div>
 
-          <ReportMetricsRow metrics={reportMetrics} />
-
-          {aiLearningAnalysis && (
-            <AiAnalysisBanner data={aiLearningAnalysis} />
-          )}
-
-          <div className="mb-8">
-            <h2 className="text-[32px] font-black text-[#1A1C1E] tracking-tight">Subject Performance</h2>
-          </div>
-
-          {detailedSubjects && detailedSubjects.length > 0 && (
-            <DetailedSubjectsGrid subjects={detailedSubjects} />
-          )}
+            {detailedSubjects && detailedSubjects.length > 0 && (
+              <DetailedSubjectsGrid subjects={detailedSubjects} />
+            )}
+      </div>
     </div>
   );
 };

@@ -6,14 +6,14 @@ interface DailyMasteryProgressBarProps {
 
 const DailyMasteryProgressBar: FC<DailyMasteryProgressBarProps> = ({ progress }) => {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-800">Daily Mastery</h2>
-        <span className="text-[#1600D5] font-bold text-sm tracking-widest uppercase">LEVEL 12</span>
+    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-lg sm:text-xl font-bold text-slate-800">Daily Mastery</h2>
+        <span className="text-[#1600D5] font-bold text-[10px] sm:text-sm tracking-widest uppercase">LEVEL 12</span>
       </div>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-slate-500 text-sm font-medium">Daily Goal Progress</p>
-        <span className="text-[#FF8000] font-bold text-lg">{progress}%</span>
+        <p className="text-slate-500 text-xs sm:text-sm font-medium">Daily Goal Progress</p>
+        <span className="text-[#FF8000] font-bold text-base sm:text-lg">{progress}%</span>
       </div>
       <div className="w-full h-4 bg-[#E2E2E2] rounded-full overflow-hidden mb-4">
         <div

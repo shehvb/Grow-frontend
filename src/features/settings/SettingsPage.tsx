@@ -11,7 +11,7 @@ const SettingsPage: FC = () => {
   const preferences = MOCK_STUDENT_LEARNING_PREFS["s1"];
 
   return (
-    <div className="max-w-[1200px] mx-auto pb-12">
+    <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 pb-12">
       <div className="mb-10">
         <h1 className="text-3xl font-extrabold text-slate-900 mb-1">Profile & Settings</h1>
         <p className="text-slate-400 font-medium tracking-tight">Account Overview</p>

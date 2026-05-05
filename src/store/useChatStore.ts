@@ -12,7 +12,7 @@ interface ChatState {
   error: string | null;
 
   fetchTeachers: () => Promise<void>;
-  setActiveTeacher: (teacherId: string) => void;
+  setActiveTeacher: (teacherId: string | null) => void;
   fetchMessages: (teacherId: string) => Promise<void>;
   sendMessage: (teacherId: string, content: string) => Promise<void>;
 }
@@ -38,7 +38,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setActiveTeacher: (teacherId) => {
     set({ activeTeacherId: teacherId, error: null });
-    get().fetchMessages(teacherId);
+    if (teacherId) {
+      get().fetchMessages(teacherId);
+    }
   },
 
   fetchMessages: async (teacherId) => {

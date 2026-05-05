@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { FiX, FiMessageSquare, FiSearch, FiCode, FiFolder, FiLogOut } from "react-icons/fi";
+import { NavLink } from "react-router-dom";
+import { 
+  FiX, FiMessageSquare, FiSearch, FiCode, FiFolder, FiLogOut, 
+  FiPieChart, FiBookOpen, FiCheckSquare, FiCpu, FiSettings 
+} from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
 import { useAIStore } from "../../store/aiStore";
 
@@ -8,6 +12,14 @@ const mainNavItems = [
   { id: 'search-chats', label: "Search chats", icon: <FiSearch /> },
   { id: 'codex', label: "Codex", icon: <FiCode /> },
   { id: 'projects', label: "Projects", icon: <FiFolder /> },
+];
+
+const appNavItems = [
+  { path: "/student/dashboard", label: "Dashboard", icon: <FiPieChart /> },
+  { path: "/student/courses", label: "Courses", icon: <FiBookOpen /> },
+  { path: "/student/tasks", label: "Tasks", icon: <FiCheckSquare /> },
+  { path: "/student/ai-tutor", label: "AI Tutor", icon: <FiCpu /> },
+  { path: "/student/settings", label: "Settings", icon: <FiSettings /> },
 ];
 
 interface AITutorSidebarProps {
@@ -52,6 +64,32 @@ const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ isOpen, onClose }) => {
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">
+          {/* Main App Navigation (Visible on mobile to fix missing nav) */}
+          <div className="mb-6 lg:hidden">
+            <h3 className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Main Menu</h3>
+            <ul className="space-y-1">
+              {appNavItems.map((item) => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all font-bold text-sm ${
+                        isActive
+                          ? "text-white bg-[#FF8000] shadow-sm"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                      }`
+                    }
+                  >
+                    <span className="text-xl md:text-lg">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 border-t border-slate-100 mx-4" />
+          </div>
+
           <ul className="space-y-4 mb-8 mt-4">
             {mainNavItems.map((item) => (
               <li key={item.id}>

@@ -32,24 +32,24 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm col-span-2">
-      <div className="flex justify-between items-center mb-8">
-        <h3 className="text-2xl font-black text-slate-800 tracking-tight">Activity Calendar</h3>
+    <div className="bg-white rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm col-span-full lg:col-span-2 overflow-hidden">
+      <div className="flex justify-between items-center mb-6 sm:mb-8">
+        <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Activity Calendar</h3>
         <div className="flex gap-4">
           <button className="p-2 text-slate-400 hover:text-slate-800 transition-colors pointer"><FiChevronLeft size={24} /></button>
           <button className="p-2 text-slate-400 hover:text-slate-800 transition-colors pointer"><FiChevronRight size={24} /></button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-4 mb-4">
+      <div className="grid grid-cols-7 gap-1 sm:gap-4 mb-4">
         {daysOfWeek.map(dayStr => (
-          <div key={dayStr} className="text-center text-xs font-black text-slate-400 uppercase tracking-widest pb-4">
+          <div key={dayStr} className="text-center text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest pb-2 sm:pb-4">
             {dayStr}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-4">
+      <div className="grid grid-cols-7 gap-1 sm:gap-4">
         {calendarGrid.map((row, rowIdx) => (
           row.map((day, colIdx) => {
             const isCurrent = isCurrentMonth(rowIdx, day);
@@ -69,17 +69,17 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
             }
             if (isToday) {
                 bgClass = "bg-indigo-50 border-[#0062FF]/20 relative";
-                textClass = "font-black text-white bg-[#0062FF] w-6 h-6 flex items-center justify-center rounded-full text-xs mt-1 ml-1";
+                textClass = "font-black text-white bg-[#0062FF] w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full text-[10px] sm:text-xs mt-0.5 sm:mt-1 ml-0.5 sm:ml-1";
             }
 
             return (
-              <div key={`${rowIdx}-${colIdx}`} className={`h-24 rounded-2xl p-2 flex flex-col ${bgClass}`}>
+              <div key={`${rowIdx}-${colIdx}`} className={`h-16 sm:h-24 rounded-lg sm:rounded-2xl p-1 sm:p-2 flex flex-col ${bgClass}`}>
                 <div className="flex justify-between items-start">
-                    <span className={`text-sm ${textClass}`}>
+                    <span className={`text-xs sm:text-sm ${textClass}`}>
                         {day}
                     </span>
-                    {isToday && <span className="text-[#0062FF] text-xs font-bold absolute bottom-2 left-3">Today</span>}
-                    {isMissed && <FiAlertTriangle className="text-orange-400 absolute bottom-3 right-3" size={16} />}
+                    {isToday && <span className="text-[#0062FF] text-[8px] sm:text-xs font-bold absolute bottom-1 sm:bottom-2 left-1 sm:left-3 hidden xs:block">Today</span>}
+                    {isMissed && <FiAlertTriangle className="text-orange-400 absolute bottom-1 sm:bottom-3 right-1 sm:right-3 w-3 h-3 sm:w-4 sm:h-4" />}
                 </div>
 
                 {isCurrent && !isMissed && dayEvents.length > 0 && (
@@ -101,18 +101,18 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
         ))}
       </div>
 
-      <div className="flex items-center gap-6 mt-8 pt-4 border-t border-slate-100">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6 sm:mt-8 pt-4 border-t border-slate-100">
          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#0062FF]" />
-            <span className="text-xs font-bold text-slate-500">Completed</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#0062FF]" />
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500">Completed</span>
          </div>
          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-purple-500" />
-            <span className="text-xs font-bold text-slate-500">Extra Credit</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-purple-500" />
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500">Extra Credit</span>
          </div>
          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-orange-500" />
-            <span className="text-xs font-bold text-slate-500">Missed</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-orange-500" />
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500">Missed</span>
          </div>
       </div>
     </div>

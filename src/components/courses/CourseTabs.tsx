@@ -15,7 +15,7 @@ const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
 
 const CourseTabs: FC<CourseTabsProps> = ({ activeTab, onTabChange }) => {
   return (
-    <div className="bg-white rounded-[16px] px-8 pt-4 mb-8 shadow-sm border border-white flex items-center gap-8">
+    <div className="bg-white rounded-[16px] px-4 sm:px-8 pt-4 mb-8 shadow-sm border border-white flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar flex-nowrap">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (

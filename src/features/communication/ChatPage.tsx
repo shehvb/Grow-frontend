@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { FiChevronLeft } from 'react-icons/fi';
 import { useChatStore } from '../../store/useChatStore';
 import ChatFeed from '../../components/chat/ChatFeed';
 import ChatInput from '../../components/chat/ChatInput';
@@ -12,7 +13,8 @@ const ChatPage: React.FC = () => {
     isSending,
     error,
     fetchMessages,
-    sendMessage 
+    sendMessage,
+    setActiveTeacher 
   } = useChatStore();
 
   const activeMessages = activeTeacherId ? messages[activeTeacherId] || [] : [];
@@ -35,11 +37,17 @@ const ChatPage: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-[#f8f9fc] overflow-hidden">
       {/* Chat Header */}
-      <div className="px-6 py-4 bg-white border-b border-gray-100 flex items-center shrink-0">
-        <div className="w-10 h-10 rounded-full bg-gray-200 mr-4"></div>
-        <div>
-          <h2 className="font-semibold text-[16px]">{activeTeacher?.name}</h2>
-          <p className="text-[12px] text-gray-500">{activeTeacher?.subject}</p>
+      <div className="px-4 sm:px-6 py-4 bg-white border-b border-gray-100 flex items-center shrink-0">
+        <button 
+          onClick={() => setActiveTeacher(null)} 
+          className="md:hidden mr-3 p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <FiChevronLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        <div className="w-10 h-10 rounded-full bg-gray-200 mr-3 sm:mr-4 shrink-0"></div>
+        <div className="min-w-0">
+          <h2 className="font-semibold text-[15px] sm:text-[16px] truncate">{activeTeacher?.name}</h2>
+          <p className="text-[11px] sm:text-[12px] text-gray-500 truncate">{activeTeacher?.subject}</p>
         </div>
       </div>
 
