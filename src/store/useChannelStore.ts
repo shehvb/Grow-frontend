@@ -12,7 +12,7 @@ interface ChannelState {
   error: string | null;
 
   fetchChannels: () => Promise<void>;
-  setActiveChannel: (channelId: string) => void;
+  setActiveChannel: (channelId: string | null) => void;
   fetchPosts: (channelId: string) => Promise<void>;
   toggleReaction: (channelId: string, postId: string, reaction: ReactionType) => Promise<void>;
 }
@@ -38,7 +38,9 @@ export const useChannelStore = create<ChannelState>((set, get) => ({
 
   setActiveChannel: (channelId) => {
     set({ activeChannelId: channelId, error: null });
-    get().fetchPosts(channelId);
+    if (channelId) {
+      get().fetchPosts(channelId);
+    }
   },
 
   fetchPosts: async (channelId) => {

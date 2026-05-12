@@ -11,13 +11,13 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
   const navigate = useNavigate();
   // Default values to avoid any null error
   const safeMetrics = metrics || {
-    gpa: { value: 3.8, changePercentage: 2.4, trend: "from last month" },
+    gpa: { value: 3.8, changePercentage: 2.4, trend: "from last term" },
     studyHours: { value: 12.5, changeLabel: "+1.5 hrs", trend: "vs Weekly goal" },
-    engagementRate: { value: 92, badge: "Excellent", subtitle: "Top 5% of class" },
+    studentXp: { value: 9750, changeLabel: "+15%", trend: "From Yesterday" },
   };
 
   const activeGpa = safeMetrics.gpa;
-  const activeEngagement = safeMetrics.engagementRate;
+  const activeXp = safeMetrics.studentXp;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -42,8 +42,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
         </div>
         
         <div className="flex items-center gap-2 mt-4 relative z-10">
-          <span className="text-[#1600D5] font-extrabold text-[12px] bg-blue-50 px-2 py-0.5 rounded flex items-center gap-1">
-            <FiTrendingUp className="w-3 h-3" />
+          <span className="text-green-600 font-extrabold text-[12px] bg-green-100 px-2 py-0.5 rounded flex items-center gap-1">
             {activeGpa?.changePercentage > 0 ? "+" : ""}{activeGpa?.changePercentage}%
           </span>
           <span className="text-xs text-slate-500 font-bold ml-2">{activeGpa?.trend}</span>
@@ -78,7 +77,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
         </div>
       </div>
 
-      {/* Engagement Rate */}
+      {/* Student Xp */}
       <div 
         onClick={() => navigate("/parent/analytics")}
         className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
@@ -88,9 +87,9 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
 
         <div className="flex justify-between items-start relative z-10">
           <div>
-            <p className="text-[13px] font-bold text-slate-500 mb-1">Engagement Rate</p>
+            <p className="text-[13px] font-bold text-slate-500 mb-1">Student Xp</p>
             <p className="text-[40px] font-extrabold text-slate-900 leading-tight">
-              {activeEngagement?.value || 0}%
+              {activeXp?.value?.toLocaleString() || 0}
             </p>
           </div>
           <div className="w-8 h-8 rounded-full bg-fuchsia-50 text-fuchsia-500 flex items-center justify-center">
@@ -99,10 +98,11 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
         </div>
         
         <div className="flex items-center gap-2 mt-4 relative z-10">
-          <span className="px-3 py-1 bg-fuchsia-100 text-fuchsia-700 text-xs font-bold rounded-md uppercase tracking-wide">
-            {activeEngagement?.badge || "Good"}
+          <span className="px-2 py-1 bg-fuchsia-100 text-fuchsia-700 text-xs font-bold rounded-md">
+            <FiTrendingUp className="w-3 h-3 inline mr-1" />
+            {activeXp?.changeLabel || "+0%"}
           </span>
-          <span className="text-xs font-semibold text-slate-400">{activeEngagement?.subtitle}</span>
+          <span className="text-xs font-semibold text-slate-400">{activeXp?.trend}</span>
         </div>
       </div>
     </div>

@@ -38,7 +38,7 @@ const NotificationsPage: FC = () => {
   const filteredYesterday = filterNotifications(yesterdayNotifications);
 
   return (
-    <div className="max-w-4xl w-full mx-auto space-y-10 pt-8 pb-16">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 space-y-10 pt-8 pb-16">
       <div className="space-y-3">
         <h1 className="text-[36px] font-extrabold text-[#1A1C1E] tracking-tight">{title}</h1>
         <p className="text-[#9E9E9E] font-medium text-[16px] max-w-sm leading-snug">
@@ -46,8 +46,8 @@ const NotificationsPage: FC = () => {
         </p>
       </div>
 
-      <div className="border-b border-slate-200 mb-8 pt-4">
-        <nav className="flex space-x-8">
+      <div className="border-b border-slate-200 mb-8 pt-4 overflow-x-auto no-scrollbar">
+        <nav className="flex space-x-8 min-w-max">
           <button
             onClick={() => setActiveTab('all')}
             className={`pb-3 px-1 border-b-[3px] font-bold text-base transition-colors ${

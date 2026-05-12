@@ -18,7 +18,8 @@ import {
   MOCK_PARENT_PROFILE,
   MOCK_LINKED_STUDENTS,
   MOCK_NOTIFICATION_PREFS,
-  MOCK_AI_TUTOR_SETTINGS
+  MOCK_AI_TUTOR_SETTINGS,
+  MOCK_UPCOMING_SCHEDULE
 } from "../mock/parent.mock";
 import type { Student, DashboardSummary } from "../types/parent";
 
@@ -110,6 +111,7 @@ class ParentApiService {
           recentActivities: data.recentActivities || data.recent_activities || MOCK_RECENT_ACTIVITIES[studentId] || [],
           gpaTrend: data.gpaTrend || data.gpa_trend || MOCK_GPA_TREND[studentId] || [],
           topSubjects: data.topSubjects || data.top_subjects || MOCK_TOP_SUBJECTS[studentId] || [],
+          upcomingSchedule: data.upcomingSchedule || data.upcoming_schedule || MOCK_UPCOMING_SCHEDULE[studentId] || [],
           attendanceMetrics: data.attendanceMetrics || data.attendance_metrics || MOCK_ATTENDANCE_METRICS[studentId],
           calendarEvents: data.calendarEvents || data.calendar_events || MOCK_CALENDAR_EVENTS[studentId] || [],
           actionNeeded: data.actionNeeded || data.action_needed || MOCK_ACTION_NEEDED[studentId],
@@ -145,6 +147,7 @@ class ParentApiService {
         const recentActivities = MOCK_RECENT_ACTIVITIES[studentId] || [];
         const gpaTrend = MOCK_GPA_TREND[studentId] || [];
         const topSubjects = MOCK_TOP_SUBJECTS[studentId] || [];
+        const upcomingSchedule = MOCK_UPCOMING_SCHEDULE[studentId] || [];
 
         const attendanceMetrics = MOCK_ATTENDANCE_METRICS[studentId];
         const calendarEvents = MOCK_CALENDAR_EVENTS[studentId] || [];
@@ -170,6 +173,7 @@ class ParentApiService {
           recentActivities,
           gpaTrend,
           topSubjects,
+          upcomingSchedule,
           attendanceMetrics,
           calendarEvents,
           actionNeeded,

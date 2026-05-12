@@ -1,13 +1,26 @@
 import React, { useState } from "react";
-import { FiX, FiMessageSquare, FiSearch, FiCode, FiFolder, FiLogOut } from "react-icons/fi";
+import { NavLink, useNavigate } from "react-router-dom";
+import { 
+  FiX, FiMessageSquare, FiSearch, FiCode, FiFolder, FiLogOut, 
+  FiPieChart, FiBookOpen, FiCheckSquare, FiCpu, FiSettings 
+} from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
 import { useAIStore } from "../../store/aiStore";
+import { useAuthStore } from "../../store/authStore";
 
 const mainNavItems = [
   { id: 'new-chat', label: "New chat", icon: <FiMessageSquare /> },
   { id: 'search-chats', label: "Search chats", icon: <FiSearch /> },
   { id: 'codex', label: "Codex", icon: <FiCode /> },
   { id: 'projects', label: "Projects", icon: <FiFolder /> },
+];
+
+const appNavItems = [
+  { path: "/student/dashboard", label: "Dashboard", icon: <FiPieChart /> },
+  { path: "/student/courses", label: "Courses", icon: <FiBookOpen /> },
+  { path: "/student/tasks", label: "Tasks", icon: <FiCheckSquare /> },
+  { path: "/student/ai-tutor", label: "AI Tutor", icon: <FiCpu /> },
+  { path: "/student/settings", label: "Settings", icon: <FiSettings /> },
 ];
 
 interface AITutorSidebarProps {
@@ -18,6 +31,16 @@ interface AITutorSidebarProps {
 const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ isOpen, onClose }) => {
   const { chats, activeChatId, setActiveChat, newChat, searchQuery, setSearchQuery } = useAIStore();
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : (user?.username || user?.email?.split('@')[0] || "Student");
+  const initial = (user?.first_name?.[0] || user?.username?.[0] || user?.email?.[0] || "S").toUpperCase();
 
   const filteredHistory = chats.filter(chat => 
     chat.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -52,6 +75,32 @@ const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ isOpen, onClose }) => {
         </div>
         
         <nav className="flex-1 p-4 overflow-y-auto">
+          {/* Main App Navigation (Visible on mobile to fix missing nav) */}
+          <div className="mb-6 lg:hidden">
+            <h3 className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Main Menu</h3>
+            <ul className="space-y-1">
+              {appNavItems.map((item) => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all font-bold text-sm ${
+                        isActive
+                          ? "text-white bg-[#FF8000] shadow-sm"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                      }`
+                    }
+                  >
+                    <span className="text-xl md:text-lg">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 border-t border-slate-100 mx-4" />
+          </div>
+
           <ul className="space-y-4 mb-8 mt-4">
             {mainNavItems.map((item) => (
               <li key={item.id}>
@@ -114,14 +163,21 @@ const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ isOpen, onClose }) => {
         </nav>
         
         <div className="p-4 border-t border-slate-100 flex items-center gap-3 mt-auto">
-          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold shrink-0">
-            <span className="w-9 h-9 rounded-full bg-gray-400 block border-2 border-white"></span>
+          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold shrink-0 uppercase">
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm text-slate-800 leading-tight truncate">Mazen Ali</p>
-            <p className="text-xs text-slate-400 font-medium tracking-wide truncate">Student Account</p>
+            <p className="font-bold text-sm text-slate-800 leading-tight truncate">
+              {displayName}
+            </p>
+            <p className="text-xs text-slate-400 font-medium tracking-wide truncate capitalize">
+              {user?.role || "Student"} Account
+            </p>
           </div>
-          <button className="text-[#FF9500] p-2 hover:bg-orange-50 rounded-lg transition-colors shrink-0">
+          <button 
+            onClick={handleLogout}
+            className="text-[#FF9500] p-2 hover:bg-orange-50 rounded-lg transition-colors shrink-0"
+          >
             <FiLogOut className="w-5 h-5" />
           </button>
         </div>

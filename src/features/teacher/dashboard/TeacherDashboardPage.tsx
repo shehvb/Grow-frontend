@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useAuthStore } from "../../../store/authStore";
 import { 
   FiUsers, 
   FiBookOpen, 
@@ -38,6 +39,7 @@ const MOCK_NEEDS_REVIEW = [
 
 const TeacherDashboardPage: FC = () => {
   const { stats, loading } = useTeacherStats();
+  const { user } = useAuthStore();
 
   if (loading || !stats) {
     return (
@@ -51,7 +53,7 @@ const TeacherDashboardPage: FC = () => {
     <div className="space-y-6 animate-fade-in pb-10">
       {/* Welcome Header */}
       <div>
-        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Welcome back, Mr. Ahmed</h1>
+        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Welcome back, {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : "Teacher"}</h1>
       </div>
       
       {/* KPI Cards */}

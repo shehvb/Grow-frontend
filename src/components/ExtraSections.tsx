@@ -1,4 +1,4 @@
-import {  type FC } from "react";
+import { type FC } from "react";
 import { FadeUp, StatCard, SectionHeader } from "./UI";
 import { SECURITY_PROTOCOLS, STATS } from "../components/data";
 import { RiSettings4Line, RiGraduationCapLine, RiLinkM, RiBarChartBoxLine, RiEarthLine, RiTwitterXLine } from "react-icons/ri";
@@ -60,7 +60,7 @@ export const Stats: FC = () => (
 
 // ── CTA ───────────────────────────────────────────────────────────────────────
 export const CTA: FC = () => (
-  <section className="py-24 px-6 md:px-12 bg-slate-50">
+  <section id="for-school" className="py-24 px-6 md:px-12 bg-slate-50">
     <div className="max-w-[1400px] mx-auto">
       <FadeUp>
         <div className="bg-[#3b6dbf] rounded-[2rem] p-12 md:p-16 text-center shadow-xl">
@@ -82,19 +82,19 @@ export const CTA: FC = () => (
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                 <RiGraduationCapLine className="text-lg" />
               </div>
-              <span className="font-bold text-sm">Structured educator system</span>
+              <span className="font-bold text-sm">Structured education system</span>
             </div>
             <div className="bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-2xl p-5 flex items-center gap-4 text-white">
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                 <RiLinkM className="text-lg" />
               </div>
-              <span className="font-bold text-sm">Secure onboarding via codes & invitations</span>
+              <span className="font-bold text-sm">Secure onboarding using codes & invitations</span>
             </div>
             <div className="bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-2xl p-5 flex items-center gap-4 text-white">
               <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                 <RiBarChartBoxLine className="text-lg" />
               </div>
-              <span className="font-bold text-sm">Performance tracking & reporting</span>
+              <span className="font-bold text-sm">Performance tracking and reporting</span>
             </div>
           </div>
 

@@ -1,40 +1,42 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { 
-  FiAlertTriangle, 
-  FiClipboard, 
-  FiAward
-} from "react-icons/fi";
+import NotificationCard from "../../notifications/NotificationCard";
+import type { Notification } from "../../notifications/types";
 
-const NOTIFICATIONS = [
+// Extend Notification type just for this file to group by date
+interface TeacherNotification extends Notification {
+  dateGroup: string;
+}
+
+const NOTIFICATIONS: TeacherNotification[] = [
   {
-    id: 1,
+    id: "1",
     type: "alert",
     title: "Missing Assignment",
     description: "Liam Wilson has 3 overdue assignments",
-    time: "2 hours ago",
+    timeElapsed: "2 hours ago",
     dateGroup: "Today",
-    isNew: true,
+    isUnread: true,
     actionRequired: true
   },
   {
-    id: 2,
-    type: "submission",
+    id: "2",
+    type: "info",
     title: "New Assignment Submission",
     description: "Emma Watson submitted 'Algebraic Expressions Worksheet'",
-    time: "3 hours ago",
+    timeElapsed: "3 hours ago",
     dateGroup: "Today",
-    isNew: true,
+    isUnread: true,
     actionRequired: false
   },
   {
-    id: 3,
+    id: "3",
     type: "achievement",
     title: "Student Achievement",
     description: "James Smith earned 'Quiz Master' badge",
-    time: "1 day ago",
+    timeElapsed: "1 day ago",
     dateGroup: "Yesterday",
-    isNew: false,
+    isUnread: false,
     actionRequired: false
   }
 ];
@@ -44,7 +46,21 @@ const NotificationsPage: FC = () => {
 
   const tabs = ["All Notifications", "Unread", "Alerts"];
 
-  const groupedNotifications = NOTIFICATIONS.reduce((acc, notif) => {
+  const filterNotifications = (notifications: typeof NOTIFICATIONS) => {
+    switch (activeTab) {
+      case 'Unread':
+        return notifications.filter((n) => n.isUnread);
+      case 'Alerts':
+        return notifications.filter((n) => n.type === 'alert');
+      case 'All Notifications':
+      default:
+        return notifications;
+    }
+  };
+
+  const filteredNotifications = filterNotifications(NOTIFICATIONS);
+
+  const groupedNotifications = filteredNotifications.reduce((acc, notif) => {
     if (!acc[notif.dateGroup]) {
       acc[notif.dateGroup] = [];
     }
@@ -57,7 +73,7 @@ const NotificationsPage: FC = () => {
       {/* Header Area */}
       <div className="space-y-1">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight">Notifications</h1>
-        <p className="text-slate-400 font-medium">Stay updated with important alerts</p>
+        <p className="text-slate-400 font-medium">Stay updated with important alerts and student progress</p>
       </div>
 
       {/* Tabs */}
@@ -67,12 +83,12 @@ const NotificationsPage: FC = () => {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`pb-4 text-sm font-black transition-colors relative ${
-              activeTab === tab ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+              activeTab === tab ? 'text-[#1600D5]' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             {tab}
             {activeTab === tab && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-t-full" />
+              <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#1600D5] rounded-t-full" />
             )}
           </button>
         ))}
@@ -82,71 +98,29 @@ const NotificationsPage: FC = () => {
       <div className="space-y-10">
         {Object.entries(groupedNotifications).map(([group, notifs]) => (
           <div key={group} className="space-y-4">
-            <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
+            <h3 className="text-[26px] font-extrabold text-[#1A1C1E] flex items-center gap-4 mb-2">
               {group}
-              {group === "Today" && (
-                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[9px] font-black uppercase tracking-wider">
-                  2 New
+              {group === "Today" && notifs.some(n => n.isUnread) && (
+                <span className="bg-[#E1EFFF] text-[#1600D5] text-[11px] font-black uppercase px-2.5 py-1 rounded-full">
+                  {notifs.filter(n => n.isUnread).length} New
                 </span>
               )}
             </h3>
             
             <div className="space-y-4">
-              {notifs.map(notif => {
-                let borderClass = "";
-                let iconClass = "";
-                let Icon = FiAlertTriangle;
-
-                if (notif.type === "alert") {
-                  borderClass = "border-l-red-500";
-                  iconClass = "bg-red-100 text-red-500";
-                  Icon = FiAlertTriangle;
-                } else if (notif.type === "submission") {
-                  borderClass = "border-l-[#FF8000]";
-                  iconClass = "bg-orange-100 text-orange-500";
-                  Icon = FiClipboard;
-                } else if (notif.type === "achievement") {
-                  borderClass = "border-l-blue-600";
-                  iconClass = "bg-blue-100 text-blue-600";
-                  Icon = FiAward;
-                }
-
-                return (
-                  <div 
-                    key={notif.id} 
-                    className={`bg-white rounded-3xl p-6 shadow-sm border border-slate-100 border-l-[3px] ${borderClass} flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer`}
-                  >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${iconClass}`}>
-                      <Icon className="text-xl" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start gap-4">
-                        <div>
-                          <h4 className="text-sm font-black text-slate-800 mb-1">{notif.title}</h4>
-                          <p className="text-xs font-bold text-slate-400 mb-4">{notif.description}</p>
-                          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{notif.time}</p>
-                        </div>
-                        
-                        <div className="shrink-0 flex items-center h-full pt-1">
-                          {notif.actionRequired ? (
-                            <button className="px-3 py-1.5 bg-[#FF8000] text-white text-[9px] font-black uppercase tracking-wider rounded-full hover:bg-orange-600 transition-colors shadow-sm">
-                              Action Required
-                            </button>
-                          ) : notif.isNew ? (
-                            <div className="w-3 h-3 rounded-full bg-[#FF8000]" />
-                          ) : (
-                            <div className="w-3 h-3 rounded-full bg-slate-400" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {notifs.map(notif => (
+                <NotificationCard key={notif.id} notification={notif} />
+              ))}
             </div>
           </div>
         ))}
+
+        {filteredNotifications.length === 0 && (
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm mt-4">
+            <p className="text-slate-500 font-bold text-lg">No notifications found.</p>
+            <p className="text-slate-400 text-sm mt-1">You're all caught up!</p>
+          </div>
+        )}
       </div>
     </div>
   );

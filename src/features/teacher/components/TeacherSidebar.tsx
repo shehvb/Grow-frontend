@@ -6,12 +6,14 @@ import {
   FiBookOpen, 
   FiCheckSquare, 
   FiUsers, 
-  FiCalendar, 
+  // FiCalendar, 
   FiSettings, 
   FiLogOut,
   FiAward
 } from "react-icons/fi";
 import Logo from "../../../assets/Logo.png";
+import { useAuthStore } from "../../../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { path: "/teacher/dashboard", label: "Dashboard", icon: <FiPieChart /> },
@@ -19,7 +21,7 @@ const navItems = [
   { path: "/teacher/assignments", label: "Assignments", icon: <FiCheckSquare /> },
   { path: "/teacher/quizzes", label: "Quizzes", icon: <FiAward /> },
   { path: "/teacher/students", label: "Students", icon: <FiUsers /> },
-  { path: "/teacher/attendance", label: "Attendance", icon: <FiCalendar /> },
+  // { path: "/teacher/attendance", label: "Attendance", icon: <FiCalendar /> },
   { path: "/teacher/settings", label: "Settings", icon: <FiSettings /> },
 ];
 
@@ -29,6 +31,16 @@ interface TeacherSidebarProps {
 }
 
 const TeacherSidebar: React.FC<TeacherSidebarProps> = ({ isOpen, onClose }) => {
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : (user?.username || user?.first_name || "Teacher");
+  const initial = (user?.first_name?.[0] || user?.username?.[0] || user?.email?.[0] || "T").toUpperCase();
   return (
     <>
       {/* Mobile Overlay */}
@@ -83,14 +95,21 @@ const TeacherSidebar: React.FC<TeacherSidebarProps> = ({ isOpen, onClose }) => {
         </nav>
 
         <div className="p-4 border-t border-slate-100 flex items-center gap-3 bg-slate-50/50">
-          <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-100">
-            TR
+          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold uppercase">
+            {initial}
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="font-bold text-sm text-slate-800 leading-tight truncate">Mr. Ahmed</p>
-            <p className="text-[10px] text-slate-400 font-medium tracking-wide">Teacher Account</p>
+            <p className="font-bold text-sm text-slate-800 leading-tight truncate">
+              {displayName}
+            </p>
+            <p className="text-[10px] text-slate-400 font-medium tracking-wide capitalize">
+              {user?.role || "Teacher"} Account
+            </p>
           </div>
-          <button className="text-slate-400 p-2 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors">
+          <button 
+            onClick={handleLogout}
+            className="text-[#FF8000] p-2 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+          >
             <FiLogOut className="w-5 h-5" />
           </button>
         </div>

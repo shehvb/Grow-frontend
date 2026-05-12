@@ -1,12 +1,16 @@
 import type { FC } from "react";
 import { FiUser, FiCheckCircle } from "react-icons/fi";
 import type { ParentProfile } from "../../../../types/parent";
+import { useAuthStore } from "../../../../store/authStore";
 
 interface MyProfileCardProps {
   profile: ParentProfile;
 }
 
 const MyProfileCard: FC<MyProfileCardProps> = ({ profile }) => {
+  const { user } = useAuthStore();
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : profile.fullName;
+  
   return (
     <div className="bg-white rounded-[24px] p-8 border border-slate-100 shadow-sm relative w-full">
       <div className="flex justify-between items-center mb-8">
@@ -29,11 +33,11 @@ const MyProfileCard: FC<MyProfileCardProps> = ({ profile }) => {
          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
             <div>
                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
-               <input type="text" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={profile.fullName} />
+               <input type="text" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={displayName} />
             </div>
             <div>
                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
-               <input type="email" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={profile.email} />
+               <input type="email" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={user?.email || profile.email} />
             </div>
             <div>
                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number</label>

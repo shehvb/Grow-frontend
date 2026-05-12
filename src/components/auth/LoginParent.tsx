@@ -2,6 +2,7 @@ import { type FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
+import { useAuthStore } from "../../store/authStore";
 
 
 
@@ -170,73 +171,32 @@ const LoginForm: FC = () => {
     setLoading(true);
 
     try {
-      // TODO: Replace with new backend API
-      /*
-      const response = await fetch("http://127.0.0.1:8000/accounts/login/", { ... });
-      const data = await response.json();
-      */
+      const login = useAuthStore.getState().login;
+      await login({ email, password });
 
-      // MOCK DATA:
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const data = {
-        success: true,
-        access: "mock_parent_token",
-        refresh: "mock_parent_refresh",
-        user_id: 3,
-        username: "Demo Parent",
-        email: email,
-        role: "parent"
-      };
-
-      if (email && password) {
-        // حفظ البيانات في localStorage
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        localStorage.setItem("user", JSON.stringify({
-          user_id: data.user_id,
-          username: data.username,
-          email: data.email,
-          role: data.role
-        }));
-
-        alert(`✅ Login successful! Welcome ${data.username}`);
-
-        // التحقق الذكي للـ Parent (أول مرة → Add Student، بعد كده → Dashboard)
-        if (data.role === 'parent') {
-          try {
-            // TODO: Replace with new backend API
-            /*
-            const checkRes = await fetch("http://127.0.0.1:8000/students/check-has-students/", { ... });
-            const checkData = await checkRes.json();
-            */
-
-            // MOCK DATA:
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const checkData = { has_students: true };
-
-            if (checkData.has_students === true) {
-              navigate("/parent/dashboard");
-            } else {
-              navigate("/parent/add-student");   // أول مرة - مفيش طلاب
-            }
-          } catch (err) {
-            console.error("Check students error:", err);
-            // لو حصل أي خطأ في التحقق، نروح Add Student كـ default
-            navigate("/parent/add-student");
-          }
-        }
-        else if (data.role === 'student') {
-          navigate("/student/dashboard");
-        }
-        else if (data.role === 'teacher') {
-          navigate("/teacher/dashboard");
-        }
-      } else {
-        setError("Invalid email or password");
+      const user = useAuthStore.getState().user;
+      //  
+      if (user?.role !== 'parent') {
+        setError("This account is not registered as a Parent. Please use the correct login portal.");
+        useAuthStore.getState().logout();
+        return;
       }
-    } catch (error) {
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const checkData = { has_students: true }; 
+
+        if (checkData.has_students) {
+          navigate("/parent/dashboard");
+        } else {
+          navigate("/parent/add-student");
+        }
+      } catch (err) {
+        navigate("/parent/add-student");
+      }
+    } catch (error: any) {
       console.error(error);
-      setError("Cannot connect to server. Is Django running?");
+      setError(error.response?.data?.detail || "Invalid email or password");
     } finally {
       setLoading(false);
     }

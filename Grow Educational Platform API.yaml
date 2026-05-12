@@ -782,6 +782,31 @@ paths:
           description: Validation error.
         '403':
           description: Only teachers can create courses.
+  /api/v1/courses/{course_id}/task-summary/:
+    get:
+      operationId: courses_task_summary_retrieve
+      description: Per-student task completion counts for a course. Teacher must own
+        the course.
+      summary: Course task summary
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Tasks
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/courses/{course_pk}/assignments/:
     get:
       operationId: courses_assignments_list
@@ -1277,8 +1302,8 @@ paths:
   /api/v1/courses/{id}/enroll/:
     post:
       operationId: courses_enroll_create
-      description: '**Students only.** Enroll the authenticated student in the course.
-        An `enrollment_created` notification is sent to the student upon success.'
+      description: '**Students only.** Lazy enrollment — creates an engagement record
+        on first interaction. Returns existing record if already enrolled.'
       summary: Enroll in a course
       parameters:
       - in: path
@@ -1297,14 +1322,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Enrollment'
+                $ref: '#/components/schemas/StudentCourse'
           description: Enrolled successfully.
         '403':
           description: Only students can enroll.
         '404':
           description: Course not found.
-        '409':
-          description: Already enrolled in this course.
   /api/v1/courses/{id}/join/:
     post:
       operationId: courses_join_create
@@ -1413,11 +1436,88 @@ paths:
           description: Validation error.
         '403':
           description: You do not own this course.
+  /api/v1/courses/{id}/progress/:
+    get:
+      operationId: courses_progress_list
+      description: '**Teachers only.** Returns progress for all engaged students.'
+      summary: Course progress (teacher)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Unique course ID.
+        required: true
+      tags:
+      - Courses
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseProgress'
+          description: ''
+  /api/v1/courses/{id}/progress_me/:
+    get:
+      operationId: courses_progress_me_retrieve
+      description: '**Students only.** Returns the authenticated student''s progress.'
+      summary: My course progress (student)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Unique course ID.
+        required: true
+      tags:
+      - Courses
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseProgress'
+          description: ''
+  /api/v1/courses/{id}/set_grade/:
+    post:
+      operationId: courses_set_grade_create
+      description: '**Teachers only.** Assign a grade level to this course.'
+      summary: Set course grade
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Unique course ID.
+        required: true
+      tags:
+      - Courses
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+        '403':
+          description: You do not own this course.
+        '404':
+          description: Course or grade not found.
   /api/v1/courses/{id}/students/:
     get:
       operationId: courses_students_list
-      description: '**Teachers only.** Returns all students currently enrolled in
-        this course.'
+      description: '**Teachers only.** Returns all students engaged in this course.'
       summary: List enrolled students
       parameters:
       - in: path
@@ -1438,7 +1538,153 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Enrollment'
+                  $ref: '#/components/schemas/StudentCourse'
+          description: ''
+  /api/v1/dashboard/classes/:
+    get:
+      operationId: dashboard_classes_retrieve
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/classes/{class_id}/:
+    get:
+      operationId: dashboard_classes_retrieve_2
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/insights/{insight_id}/dismiss/:
+    post:
+      operationId: dashboard_insights_dismiss_create
+      parameters:
+      - in: path
+        name: insight_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/overview/:
+    get:
+      operationId: dashboard_overview_retrieve
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/reports/:
+    get:
+      operationId: dashboard_reports_retrieve
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/reports/export/:
+    get:
+      operationId: dashboard_reports_export_retrieve
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/risk-summary/:
+    get:
+      operationId: dashboard_risk_summary_retrieve
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/students/{student_id}/:
+    get:
+      operationId: dashboard_students_retrieve
+      parameters:
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/students/{student_id}/notes/:
+    post:
+      operationId: dashboard_students_notes_create
+      parameters:
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/dashboard/teacher/:
+    get:
+      operationId: dashboard_teacher_retrieve
+      description: |-
+        Returns dynamic statistics for the logged-in teacher:
+        - Total Students: unique students in teacher's courses
+        - Total Courses: courses taught by teacher
+        - Assignments Created: total assignments by teacher
+        - Active Assignments: assignments with future due date
+        - Recent Activity: latest submissions
+      summary: Get teacher dashboard statistics
+      tags:
+      - Dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherDashboard'
           description: ''
   /api/v1/grades/:
     get:
@@ -1539,6 +1785,30 @@ paths:
           description: You do not have permission to view this attendance.
         '404':
           description: Lesson not found.
+  /api/v1/lessons/{id}/complete/:
+    post:
+      operationId: lessons_complete_create
+      description: '**Students only.** Mark a lesson as completed and update course
+        progress.'
+      summary: Complete a lesson
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Lessons
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonActivity'
+          description: ''
   /api/v1/lessons/{id}/join/:
     post:
       operationId: lessons_join_create
@@ -1574,6 +1844,40 @@ paths:
           description: Not enrolled in this course.
         '404':
           description: Lesson not found.
+  /api/v1/lessons/{id}/track/:
+    post:
+      operationId: lessons_track_create
+      description: '**Students only.** Increment watch duration for a lesson.'
+      summary: Track lesson watch time
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Lessons
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonTrackRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonTrackRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonTrackRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonActivity'
+          description: ''
   /api/v1/notifications/:
     get:
       operationId: notifications_retrieve
@@ -1698,6 +2002,155 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Dashboard'
+          description: ''
+  /api/v1/quizzes/:
+    get:
+      operationId: quizzes_list
+      description: |-
+        ViewSet for quiz operations.
+        Routes: /quizzes/{id}/attempt/, /quizzes/{id}/attempts/
+      summary: List quizzes
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+        description: Filter by course ID.
+      tags:
+      - Quizzes
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quiz'
+          description: ''
+    post:
+      operationId: quizzes_create
+      description: '**Teachers only.** Create a quiz for a course you own.'
+      summary: Create a quiz
+      tags:
+      - Quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+        '403':
+          description: Permission denied.
+  /api/v1/quizzes/{id}/:
+    get:
+      operationId: quizzes_retrieve
+      description: |-
+        ViewSet for quiz operations.
+        Routes: /quizzes/{id}/attempt/, /quizzes/{id}/attempts/
+      summary: Get quiz details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Quizzes
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+  /api/v1/quizzes/{id}/attempt/:
+    post:
+      operationId: quizzes_attempt_create
+      description: '**Students only.** Submit a score for a quiz. Attempt number auto-increments.'
+      summary: Submit a quiz attempt
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizSubmitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizSubmitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizSubmitRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttempt'
+          description: ''
+        '403':
+          description: Permission denied.
+        '404':
+          description: Quiz not found.
+        '429':
+          description: Rate limit exceeded.
+  /api/v1/quizzes/{id}/attempts/:
+    get:
+      operationId: quizzes_attempts_list
+      description: '**Student:** own attempts. **Teacher:** all attempts for their
+        quiz.'
+      summary: List quiz attempts
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Quizzes
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuizAttempt'
           description: ''
   /api/v1/sessions/:
     get:
@@ -1839,6 +2292,72 @@ paths:
           description: Submission not found.
         '409':
           description: This submission is already graded.
+  /api/v1/tasks/:
+    get:
+      operationId: tasks_list
+      description: Returns all tasks for the authenticated student, or for teachers
+        — aggregate per-student counts for their courses. Admins see all.
+      summary: List student tasks
+      tags:
+      - Tasks
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTask'
+          description: ''
+  /api/v1/tasks/{id}/complete/:
+    patch:
+      operationId: tasks_complete_partial_update
+      description: Manually mark a pending task as completed.
+      summary: Mark a task as complete
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Tasks
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentTask'
+          description: ''
+        '403':
+          description: Not your task.
+        '404':
+          description: Task not found.
+  /api/v1/tasks/pending/:
+    get:
+      operationId: tasks_pending_list
+      description: Returns only pending tasks for the authenticated student.
+      summary: List pending tasks
+      tags:
+      - Tasks
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTask'
+          description: ''
   /api/v1/xp/add/:
     post:
       operationId: xp_add_create
@@ -2040,6 +2559,16 @@ components:
       required:
       - new_password
       - old_password
+    CompletionStatusEnum:
+      enum:
+      - not_started
+      - in_progress
+      - completed
+      type: string
+      description: |-
+        * `not_started` - Not started
+        * `in_progress` - In progress
+        * `completed` - Completed
     Course:
       type: object
       properties:
@@ -2068,6 +2597,37 @@ components:
       - id
       - teacher
       - title
+    CourseProgress:
+      type: object
+      properties:
+        student_id:
+          type: integer
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        progress_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        study_time_seconds:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        study_time_formatted:
+          type: string
+          readOnly: true
+        last_activity:
+          type: string
+          format: date-time
+          nullable: true
+        completion_status:
+          $ref: '#/components/schemas/CompletionStatusEnum'
+      required:
+      - student_id
+      - student_name
+      - study_time_formatted
     CourseWriteRequest:
       type: object
       properties:
@@ -2104,27 +2664,6 @@ components:
       - recent_activity
       - study_hours
       - subjects
-    Enrollment:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: Enrollment record ID.
-        student:
-          allOf:
-          - $ref: '#/components/schemas/User'
-          readOnly: true
-          description: The enrolled student.
-        enrolled_at:
-          type: string
-          format: date-time
-          readOnly: true
-          description: Enrollment timestamp.
-      required:
-      - enrolled_at
-      - id
-      - student
     EnrollmentCode:
       type: object
       properties:
@@ -2290,6 +2829,36 @@ components:
       - created_at
       - id
       - title
+    LessonActivity:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lesson_id:
+          type: integer
+          readOnly: true
+        lesson_title:
+          type: string
+          readOnly: true
+        watch_duration_seconds:
+          type: integer
+          readOnly: true
+        completed:
+          type: boolean
+          readOnly: true
+        last_opened_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - completed
+      - id
+      - last_opened_at
+      - lesson_id
+      - lesson_title
+      - watch_duration_seconds
     LessonAttendanceSummary:
       type: object
       properties:
@@ -2331,6 +2900,18 @@ components:
       required:
       - content
       - title
+    LessonTrackRequest:
+      type: object
+      properties:
+        watch_duration_seconds:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Incremental watch time in seconds for this session.
+        completed:
+          type: boolean
+          default: false
+          description: Mark lesson as completed.
     LoginRequest:
       type: object
       properties:
@@ -2461,12 +3042,24 @@ components:
           format: date-time
           readOnly: true
           description: Timestamp when the notification was generated.
+        related_course:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: ID of the related course, if applicable.
+        related_content_id:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: ID of the related content item, if applicable.
       required:
       - body
       - created_at
       - event_type
       - id
       - is_read
+      - related_content_id
+      - related_course
       - title
     NotificationListResponse:
       type: object
@@ -2528,6 +3121,83 @@ components:
           type: string
           format: uri
           description: URL to avatar image.
+    Quiz:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course_id:
+          type: integer
+          readOnly: true
+        lesson_id:
+          type: integer
+          nullable: true
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course_id
+      - created_at
+      - id
+      - lesson_id
+      - max_score
+      - title
+    QuizAttempt:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        attempt_number:
+          type: integer
+          readOnly: true
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attempt_number
+      - id
+      - score
+      - submitted_at
+    QuizRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+      required:
+      - max_score
+      - title
+    QuizSubmitRequest:
+      type: object
+      properties:
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Score for this attempt.
+      required:
+      - score
     RegisterRequest:
       type: object
       properties:
@@ -2643,6 +3313,71 @@ components:
       - status
       - student_id
       - student_name
+    StudentCourse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        enrolled_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - enrolled_at
+      - id
+      - is_active
+      - student
+    StudentTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student_id:
+          type: integer
+          readOnly: true
+        course_id:
+          type: integer
+          readOnly: true
+        content_type:
+          type: string
+          readOnly: true
+        content_id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - completed_at
+      - content_id
+      - content_type
+      - course_id
+      - created_at
+      - id
+      - status
+      - student_id
+      - title
     Submission:
       type: object
       properties:
@@ -2701,6 +3436,26 @@ components:
       description: |-
         * `pending` - Pending
         * `graded` - Graded
+    TeacherDashboard:
+      type: object
+      properties:
+        total_students:
+          type: integer
+        total_courses:
+          type: integer
+        assignments_created:
+          type: integer
+        active_assignments:
+          type: integer
+        recent_activity:
+          type: array
+          items: {}
+      required:
+      - active_assignments
+      - assignments_created
+      - recent_activity
+      - total_courses
+      - total_students
     TokenRefresh:
       type: object
       properties:

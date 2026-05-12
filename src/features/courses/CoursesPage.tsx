@@ -19,10 +19,10 @@ const CoursesPage = () => {
   }
   
   return (
-    <div className="max-w-7xl mx-auto pb-20 w-full">
-      <div className="mb-8 mt-2">
-        <h1 className="text-4xl font-extrabold text-[#0F172A] mb-2 tracking-tight">My Courses</h1>
-        <p className="text-slate-500 font-medium text-lg">
+    <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 pb-20">
+      <div className="mb-6 sm:mb-8 mt-2">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-2 tracking-tight">My Courses</h1>
+        <p className="text-slate-500 font-medium text-base sm:text-lg">
           You have <span className="text-[#1600D5] font-extrabold">{filteredCourses.length} active courses</span> this semester
         </p>
       </div>

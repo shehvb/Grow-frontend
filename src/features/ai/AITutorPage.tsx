@@ -36,7 +36,7 @@ const AITutorPage: FC = () => {
       <div className="flex-1 flex flex-col min-h-0">
 
         {/* Chat Messages Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center">
           {/* Today Pill */}
           <div className="bg-[#E2E2E2] text-[#8C8C8C] text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-wide shrink-0">
             Today
@@ -46,16 +46,16 @@ const AITutorPage: FC = () => {
             {messages.map((msg) => (
               msg.role === "assistant" ? (
                 /* AI Message */
-                <div key={msg.id} className="flex flex-col items-start gap-1">
-                  <div className="flex items-center gap-2 ml-16 mb-1">
+                <div key={msg.id} className="flex flex-col items-start gap-1 w-full max-w-full">
+                  <div className="flex items-center gap-2 ml-12 sm:ml-16 mb-1">
                     <span className="font-extrabold text-[#1600D5] text-sm">Grow AI</span>
                     <span className="text-[10px] text-slate-400 font-bold">{msg.timestamp}</span>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#1600D5] flex items-center justify-center text-white shrink-0 shadow-sm transition-transform hover:scale-105">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1600D5] flex items-center justify-center text-white shrink-0 shadow-sm transition-transform hover:scale-105">
                       ✨
                     </div>
-                    <div className="bg-white rounded-2xl rounded-tl-sm p-6 shadow-sm max-w-[85%] mt-1 border border-white hover:border-blue-50 transition-colors group">
+                    <div className="bg-white rounded-2xl rounded-tl-sm p-4 sm:p-6 shadow-sm max-w-[80%] sm:max-w-[85%] mt-1 border border-white hover:border-blue-50 transition-colors group">
                       <div className="font-bold text-slate-900 leading-relaxed text-sm tracking-wide whitespace-pre-wrap">
                         {msg.content}
                       </div>
@@ -64,18 +64,18 @@ const AITutorPage: FC = () => {
                 </div>
               ) : (
                 /* User Message */
-                <div key={msg.id} className="flex flex-col items-end gap-1">
-                  <div className="flex items-center gap-2 mr-16 mb-1">
+                <div key={msg.id} className="flex flex-col items-end gap-1 w-full max-w-full">
+                  <div className="flex items-center gap-2 mr-12 sm:mr-16 mb-1">
                     <span className="text-[10px] text-slate-400 font-bold">{msg.timestamp}</span>
                     <span className="font-extrabold text-slate-900 text-sm">You</span>
                   </div>
                   <div className="flex items-start justify-end gap-4 w-full">
-                    <div className="bg-[#1600D5] text-white rounded-2xl rounded-tr-sm p-6 shadow-sm max-w-[85%] mt-1 hover:bg-[#1e0cdb] transition-colors">
+                    <div className="bg-[#1600D5] text-white rounded-2xl rounded-tr-sm p-4 sm:p-6 shadow-sm max-w-[80%] sm:max-w-[85%] mt-1 hover:bg-[#1e0cdb] transition-colors">
                       <p className="font-bold leading-relaxed text-sm tracking-wider">
                         {msg.content}
                       </p>
                     </div>
-                    <div className="w-12 h-12 rounded-xl bg-slate-400 shrink-0 shadow-sm flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-400 shrink-0 shadow-sm flex items-center justify-center text-white font-bold">
                       M
                     </div>
                   </div>
@@ -84,8 +84,8 @@ const AITutorPage: FC = () => {
             ))}
 
             {isTyping && (
-              <div className="flex items-start gap-4 animate-pulse">
-                <div className="w-12 h-12 rounded-xl bg-[#1600D5] flex items-center justify-center text-white shrink-0 shadow-sm">
+              <div className="flex items-start gap-4 animate-pulse w-full">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1600D5] flex items-center justify-center text-white shrink-0 shadow-sm">
                   ✨
                 </div>
                 <div className="bg-white rounded-2xl rounded-tl-sm px-6 py-4 shadow-sm mt-1">
@@ -103,13 +103,13 @@ const AITutorPage: FC = () => {
         </div>
 
         {/* Bottom Input Area - Fixed at bottom */}
-        <div className="bg-white px-8 py-6 border-t border-slate-100 flex flex-col items-center relative shrink-0">
+        <div className="bg-white px-4 sm:px-8 py-4 sm:py-6 border-t border-slate-100 flex flex-col items-center relative shrink-0">
           {/* Suggestions */}
-          <div className={`absolute -top-14 left-0 right-0 flex items-center justify-center gap-4 z-20 transition-all ${messages.length > 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100'}`}>
-            <div className="flex items-center gap-4">
-              <button onClick={() => handleSend("Explain Chloroplasts")} className="px-5 py-2.5 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-xs font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none">Explain Chloroplasts</button>
-              <button onClick={() => handleSend("Give me an example")} className="px-5 py-2.5 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-xs font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none">Give me an example</button>
-              <button onClick={() => handleSend("Why is oxygen released?")} className="px-5 py-2.5 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-xs font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none">Why is oxygen released?</button>
+          <div className={`absolute -top-14 left-0 right-0 overflow-x-auto no-scrollbar flex items-center justify-start sm:justify-center gap-3 px-4 z-20 transition-all ${messages.length > 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100'}`}>
+            <div className="flex items-center gap-3 whitespace-nowrap">
+              <button onClick={() => handleSend("Explain Chloroplasts")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Explain Chloroplasts</button>
+              <button onClick={() => handleSend("Give me an example")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Give me an example</button>
+              <button onClick={() => handleSend("Why is oxygen released?")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Why is oxygen released?</button>
             </div>
           </div>
 

@@ -128,7 +128,7 @@ export const AUDIENCE_CARDS: AudienceCard[] = [
     bgGrad: "from-blue-100 to-blue-200",
     dotColor: "bg-blue-500",
     title: "Gamified Learning & AI Assistance",
-    desc: "Interactive modules that make studying feel like a game and provide instant homework assistance.",
+    desc: "Make learning addictive. Earn rewards for studying, beat your daily goals, and get help from your personal AI tutor whenever you're stuck.",
     items: [
       "Daily XP Goals & Streaks",
       "Instant Homework Help",
@@ -142,8 +142,8 @@ export const AUDIENCE_CARDS: AudienceCard[] = [
     illustration: "🏡",
     bgGrad: "from-orange-100 to-amber-200",
     dotColor: "bg-orange-400",
-    title: "Total Transparency & Peace",
-    desc: "Parents receive weekly reports and real-time alerts to monitor attendance and grades from a dedicated dashboard.",
+    title: "Total Transparency & Peace of Mind",
+    desc: "Stop guessing how your child is doing. Get real-time updates on grades, attendance, and behavior directly to your dashboard.",
     items: [
       "Real-time Performance Tracking",
       "Smart Alert System",
@@ -168,11 +168,10 @@ export const AUDIENCE_CARDS: AudienceCard[] = [
 ];
 
 export const NAV_LINKS: string[] = [
+  "How it works",
   "Features",
-  "How it Works",
-  "For Parents",
-  "For Students",
-  "Security",
+  "Who We Serve",
+  "For School",
 ];
 
 export const FOOTER_LINKS: string[] = [

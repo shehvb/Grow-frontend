@@ -2,6 +2,8 @@ import { type FC, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
+import { useAuthStore } from "../../store/authStore";
+import { authApi } from "../../services/authApi";
 
 interface School {
   id: number;
@@ -148,23 +150,20 @@ const StudentLoginForm: FC = () => {
   const [selectedSchoolCode, setSelectedSchoolCode] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSchools = async () => {
       try {
-        // TODO: Replace with new backend API
-        // const res = await fetch("http://127.0.0.1:8000/students/schools/");
-        // if (res.ok) setSchools(await res.json());
-
-        // MOCK DATA:
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const data = await authApi.getSchool();
+        setSchools(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load schools", err);
+        // Fallback for UI if backend is not ready
         setSchools([
           { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
           { id: 2, name: "Westside High School", school_code: "WHS-002" },
         ]);
-      } catch (err) {
-        console.error("Failed to load schools", err);
       }
     };
-    fetchData();
+    fetchSchools();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -177,50 +176,31 @@ const StudentLoginForm: FC = () => {
     }
 
     if (!studentId.trim() || !password) {
-
-      setError("Please enter Student ID and password");
+      setError("Please enter your Student ID (email) and password");
       return;
     }
 
     setLoading(true);
 
     try {
-      // TODO: Replace with new backend API
-      /*
-      const response = await fetch("http://127.0.0.1:8000/accounts/login/", { ... });
-      const data = await response.json();
-      */
+      const login = useAuthStore.getState().login;
+      // Note: The backend schema expects "email" and "password".
+      // The UI refers to "Code" or "Student ID", so we map it to email as requested by the schema.
+      await login({ email: studentId, password });
+      
+      const user = useAuthStore.getState().user;
 
-      // MOCK DATA:
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const data = {
-        success: true,
-        access: "mock_student_token",
-        refresh: "mock_student_refresh",
-        user_id: 2,
-        username: studentId || "Demo Student",
-        role: "student"
-      };
-
-      if (studentId && password) {
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        localStorage.setItem("user", JSON.stringify({
-          user_id: data.user_id,
-          username: data.username,
-          role: data.role
-        }));
-
-        alert(`✅ Login successful! Welcome ${data.username}`);
-
-        // Redirect لـ Student Dashboard
-        navigate("/student/dashboard");
-      } else {
-        setError((data as any).message || "Invalid Student ID or password");
+      if (user?.role !== 'student') {
+        setError("This account is not registered as a Student. Please use the correct login portal.");
+        useAuthStore.getState().logout();
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      setError("Cannot connect to server. Make sure Django is running on port 8000.");
+
+      // alert(`✅ Login successful! Welcome ${user?.first_name || user?.username || 'Student'}`);
+      navigate("/student/dashboard");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.detail || "Invalid credentials or cannot connect to server.");
     } finally {
       setLoading(false);
     }
@@ -241,14 +221,13 @@ const StudentLoginForm: FC = () => {
         <div className="mb-8">
           {/* Level badge */}
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-full px-4 py-1.5 mb-4">
-            <span className="text-base">🎮</span>
             <span className="text-blue-600 font-black text-xs" style={{ fontFamily: "'Nunito', sans-serif" }}>Student Portal</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
             Welcome Back!
           </h1>
           <p className="text-slate-400 text-sm font-semibold" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Ready to continue your learning adventure? 🚀
+            Ready to continue your learning adventure?
           </p>
         </div>
 
@@ -275,37 +254,20 @@ const StudentLoginForm: FC = () => {
           </select>
         </div>
 
-        {/* Username */}
         <div className="mb-4">
           <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Username
-          </label>
-          <input
-            type="text"
-            value={studentId}
-            onChange={(e) => setStudentId(e.target.value)}
-            placeholder="Enter your Code"
-            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            style={{ fontFamily: "'Nunito', sans-serif" }}
-          />
-        </div>
-
-        {/* Email */}
-
-
-        {/* <div className="mb-4">
-          <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
             Email address
           </label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
             placeholder="Enter your email"
-            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400"
             style={{ fontFamily: "'Nunito', sans-serif" }}
+            required
           />
-        </div> */}
+        </div>
 
         {/* Password */}
 
@@ -361,7 +323,7 @@ const StudentLoginForm: FC = () => {
             boxShadow: "0 8px 32px rgba(26, 47, 160, 0.4)",
           }}
         >
-          {loading ? "Logging in..." : "Log In 🚀"}
+          {loading ? "Logging in..." : "Log In "}
         </button>
 
         {/* Divider */}
@@ -389,11 +351,11 @@ const StudentLoginForm: FC = () => {
             Facebook
           </button> */}
         {/* </div> */}
-        {/* 
+
         <p className="text-center text-slate-500 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
           Don't have an account?{" "}
-          <button type="button" onClick={() => navigate('/signup/student')} className="text-blue-600 font-black hover:text-blue-800 transition-colors">Sign Up</button>
-        </p> */}
+          <button type="button" onClick={() => navigate('/signup/student')} className="mt-6 text-blue-600 font-black hover:text-blue-800 transition-colors">Sign Up</button>
+        </p>
       </div>
 
       {/* Footer */}

@@ -180,12 +180,12 @@ export const MOCK_DASHBOARD_METRICS: Record<string, DashboardMetrics> = {
   "s1": {
     gpa: { value: 3.8, changePercentage: 2.4, trend: "from last term" },
     studyHours: { value: 12.5, changeLabel: "+1.5 hrs", trend: "vs Weekly goal" },
-    engagementRate: { value: 92, badge: "Excellent", subtitle: "Top 5% of class" }
+    studentXp: { value: 9750, changeLabel: "+15%", trend: "From Yesterday" }
   },
   "s2": {
     gpa: { value: 3.9, changePercentage: 1.2, trend: "from last term" },
     studyHours: { value: 14.0, changeLabel: "+2.0 hrs", trend: "vs Weekly goal" },
-    engagementRate: { value: 96, badge: "Excellent", subtitle: "Top 2% of class" }
+    studentXp: { value: 12450, changeLabel: "+10%", trend: "From Yesterday" }
   }
 };
 
@@ -229,6 +229,19 @@ export const MOCK_TOP_SUBJECTS: Record<string, SubjectPerformance[]> = {
   ]
 };
 
+export const MOCK_UPCOMING_SCHEDULE: Record<string, any[]> = {
+  "s1": [
+    { id: "us1", date: "Tue, May 10", subject: "Math", type: "Quiz", title: "Algebra Quiz", status: "Upcoming" },
+    { id: "us2", date: "Mon, May 9", subject: "English", type: "Assignment", title: "Essay Writing", status: "Pending" },
+    { id: "us3", date: "Tue, May 10", subject: "Science", type: "Exam", title: "Chapter 3 Test", status: "Completed" },
+    { id: "us4", date: "Tue, May 10", subject: "Math", type: "Assignment", title: "Geometry Homework", status: "Overdue" },
+  ],
+  "s2": [
+    { id: "us5", date: "Wed, May 11", subject: "Biology", type: "Lab", title: "Dissection Prep", status: "Upcoming" },
+    { id: "us6", date: "Thu, May 12", subject: "English", type: "Assignment", title: "Literature Review", status: "Pending" },
+  ]
+};
+
 // --- Attendance Mock Data ---
 export const MOCK_ATTENDANCE_METRICS: Record<string, any> = {
   "s1": {
@@ -254,10 +267,19 @@ export const MOCK_CALENDAR_EVENTS: Record<string, any[]> = {
     { date: "2026-01-14", status: "Completed" },
     { date: "2026-01-17", status: "Completed" },
     { date: "2026-01-19", status: "Completed" },
-    { date: "2026-01-08", status: "Extra Credit" },
-    { date: "2026-01-11", status: "Extra Credit" },
     { date: "2026-01-07", status: "Missed" },
     { date: "2026-01-18", status: "Missed" },
+    // Feb 2026
+    { date: "2026-02-02", status: "Completed" },
+    { date: "2026-02-04", status: "Completed" },
+    { date: "2026-02-05", status: "Completed" },
+    { date: "2026-02-09", status: "Missed" },
+    { date: "2026-02-12", status: "Completed" },
+    // Dec 2025
+    { date: "2025-12-15", status: "Completed" },
+    { date: "2025-12-16", status: "Completed" },
+    { date: "2025-12-24", status: "Missed" },
+    { date: "2025-12-25", status: "Completed" },
   ],
   "s2": [
     { date: "2026-01-01", status: "Completed" },
