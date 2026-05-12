@@ -13,6 +13,7 @@ const AttendancePage: FC = () => {
   const { dashboardSummary } = useParentStore();
   const attendanceRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // Default to Jan 2026 as per mockup
 
   if (!dashboardSummary || !dashboardSummary.attendanceMetrics) {
     return (
@@ -68,7 +69,9 @@ const AttendancePage: FC = () => {
       <div ref={attendanceRef} className="bg-[#F8F9FA] rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-slate-100">
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8">
             <div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F172A] tracking-tight">January 2026</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F172A] tracking-tight capitalize">
+                {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </h2>
               <p className="text-slate-500 font-medium text-sm sm:text-base mt-2">
                 Monitor {student.name.split(' ')[0]}'s study sessions and platform engagement.
               </p>
@@ -97,7 +100,12 @@ const AttendancePage: FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Calendar Section */}
             {calendarEvents && (
-              <ActivityCalendar events={calendarEvents} />
+              <ActivityCalendar 
+                events={calendarEvents} 
+                currentDate={currentMonth}
+                onPrevMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+                onNextMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+              />
             )}
 
             {/* Right Sidebar Section */}

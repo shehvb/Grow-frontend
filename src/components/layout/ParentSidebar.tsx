@@ -1,9 +1,8 @@
 import type { FC } from "react";
-import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiX, FiPieChart, FiFileText, FiSettings, FiCalendar, FiBarChart2, FiLogOut } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/Logo.png";
+import { useAuthStore } from "../../store/authStore";
 
 const navItems = [
   { path: "/parent/dashboard", label: "Dashboard", icon: <FiPieChart /> },
@@ -20,22 +19,15 @@ interface ParentSidebarProps {
 
 const ParentSidebar: FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [parentName, setParentName] = useState("Parent");
+  const { user, logout } = useAuthStore();
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const parsed = JSON.parse(user);
-      setParentName(parsed.username || parsed.email?.split('@')[0] || "Parent");
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user");
-    navigate("/login/parent");
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
   };
+
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : (user?.username || user?.email?.split('@')[0] || "Parent");
+  const initial = (user?.first_name?.[0] || user?.username?.[0] || user?.email?.[0] || "P").toUpperCase();
 
   return (
     <>
@@ -89,14 +81,16 @@ const ParentSidebar: FC<ParentSidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Bottom Parent Info - Dynamic */}
         <div className="p-4 border-t border-slate-100 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold text-lg">
-            {parentName.charAt(0).toUpperCase()}
+          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold text-lg uppercase">
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-sm text-slate-800 leading-tight truncate">
-              {parentName}
+              {displayName}
             </p>
-            <p className="text-xs text-slate-400 font-medium tracking-wide">Parent Account</p>
+            <p className="text-xs text-slate-400 font-medium tracking-wide capitalize">
+              {user?.role || "Parent"} Account
+            </p>
           </div>
           <button 
             onClick={handleLogout}

@@ -74,33 +74,44 @@ const AssignmentListPage: FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <span className="text-4xl font-black text-slate-800 tracking-tight">{assignments.length}</span>
-          <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center">
-            <FiCheckSquare className="text-xl" />
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Total Assignments</span>
+            <div className="w-8 h-8 rounded-lg bg-[#FFEAD1] text-[#FF8000] flex items-center justify-center">
+              <FiCheckSquare className="text-sm" />
+            </div>
           </div>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">28</span>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <span className="text-4xl font-black text-slate-800 tracking-tight">
-            {assignments.filter(a => a.status === 'Active').length}
-          </span>
-          <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
-            <FiClock className="text-xl" />
+
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Active</span>
+            <div className="w-8 h-8 rounded-lg bg-[#E2E1FF] text-[#1600D5] flex items-center justify-center">
+              <FiClock className="text-sm" />
+            </div>
           </div>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">3</span>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Pending Review</span>
+            <div className="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-500 flex items-center justify-center">
+              <FiUsers className="text-sm" />
+            </div>
+          </div>
           <span className="text-4xl font-black text-slate-800 tracking-tight">12</span>
-          <div className="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center">
-            <FiUsers className="text-xl" />
-          </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <span className="text-4xl font-black text-slate-800 tracking-tight">
-            {assignments.filter(a => a.status === 'Completed').length}
-          </span>
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-500 flex items-center justify-center">
-            <FiCheckCircle className="text-xl" />
+
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Completed</span>
+            <div className="w-8 h-8 rounded-lg bg-green-100 text-green-500 flex items-center justify-center">
+              <FiCheckCircle className="text-sm" />
+            </div>
           </div>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">1</span>
         </div>
       </div>
 
@@ -132,19 +143,19 @@ const AssignmentListPage: FC = () => {
                 </div>
 
                 <div className="flex items-center gap-8 md:w-[450px]">
-                  <div className="flex-1">
-                    <div className="flex justify-between items-end mb-2">
-                      <div>
-                        <span className="text-sm font-black text-slate-800">{assignment.submissions}/{assignment.totalStudents}</span>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Submissions</p>
-                      </div>
-                      <span className="text-xs font-bold text-slate-800">{progress}%</span>
+                  <div className="flex-1 flex items-center gap-6">
+                    <div>
+                      <span className="text-sm font-black text-slate-800">{assignment.submissions}/{assignment.totalStudents}</span>
+                      <p className="text-[8px] font-black text-slate-400 uppercase mt-0.5">Submissions</p>
                     </div>
-                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full ${isActive ? 'bg-orange-500' : 'bg-green-500'}`} 
-                        style={{ width: `${progress}%` }} 
-                      />
+                    <div className="flex-1 flex flex-col items-center gap-1.5">
+                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${isActive ? 'bg-[#FF8000]' : 'bg-green-500'}`} 
+                          style={{ width: `${progress}%` }} 
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-800">{progress}%</span>
                     </div>
                   </div>
 
@@ -154,7 +165,7 @@ const AssignmentListPage: FC = () => {
                     </div>
                     <Link 
                       to={`/teacher/assignments/${assignment.id}/review`}
-                      className="px-6 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                      className="px-6 py-2 bg-white border border-slate-200 text-slate-800 font-black text-[13px] rounded-full hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
                     >
                       Review
                     </Link>

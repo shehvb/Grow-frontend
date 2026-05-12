@@ -39,7 +39,7 @@ const LinkedStudentsCard: FC<LinkedStudentsCardProps> = ({ students }) => {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-800 text-lg">{student.name}</h3>
-                    <p className="text-sm font-medium text-slate-500">Grade {student.grade} • {student.school}</p>
+                    <p className="text-sm font-medium text-slate-500">Grade {student.grade} • Class {student.grade === 5 ? '9A' : '8C'}</p>
                   </div>
                </div>
                <div className="flex items-center gap-4 mr-2">

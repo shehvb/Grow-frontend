@@ -1,24 +1,31 @@
 import { useState, useEffect, useMemo } from "react";
-import type { Course } from "../types";
+import type { Course as UICourse } from "../types";
 import type { FilterType } from "../components/ui/FilterBar";
-import { courseService } from "../services/courseService";
+import { useCourseStore } from "../store/useCourseStore";
 import { filterCourses } from "../features/courses/courseFilters";
 
 export const useCourses = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { courses: apiCourses, isLoading, listCourses } = useCourseStore();
   const [filter, setFilter] = useState<FilterType>("all");
   
   useEffect(() => {
-    const loadCourses = async () => {
-      setLoading(true);
-      const data = await courseService.getAllCourses();
-      setCourses(data);
-      setLoading(false);
-    };
-    
-    loadCourses();
-  }, []);
+    listCourses();
+  }, [listCourses]);
+  
+  // Map API Course to UI Course format
+  const courses: UICourse[] = useMemo(() => {
+    return apiCourses.map(c => ({
+      id: c.id.toString(),
+      title: c.title,
+      instructor: {
+        id: c.teacher?.id?.toString() || '0',
+        name: c.teacher?.username || `Teacher ${c.teacher?.id || 'Unknown'}`,
+      },
+      progress: 0,
+      status: "not_started",
+      lessonsCount: 0,
+    }));
+  }, [apiCourses]);
   
   const filteredCourses = useMemo(() => {
     return filterCourses(courses, filter);
@@ -27,7 +34,7 @@ export const useCourses = () => {
   return {
     courses,
     filteredCourses,
-    loading,
+    loading: isLoading,
     filter,
     setFilter,
   };

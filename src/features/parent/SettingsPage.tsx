@@ -23,9 +23,7 @@ const SettingsPage: FC = () => {
     <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-          <div className="text-sm font-bold text-slate-400 mb-2 mt-4 tracking-wide">
-             Dashboard / <span className="text-slate-800">Setting</span>
-          </div>
+
           <h1 className="text-5xl font-black text-[#0F172A] tracking-tight">Settings</h1>
           <p className="text-slate-500 font-medium mt-3 text-lg">
             Manage your profile, linked students, and notification preferences.

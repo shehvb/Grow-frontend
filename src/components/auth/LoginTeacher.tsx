@@ -2,6 +2,8 @@ import { type FC, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
+import { useAuthStore } from "../../store/authStore";
+import { authApi } from "../../services/authApi";
 
 interface School {
   id: number;
@@ -112,72 +114,55 @@ const LoginForm: FC = () => {
   const [selectedSchoolCode, setSelectedSchoolCode] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSchools = async () => {
       try {
-        // TODO: Replace with new backend API
-        // const res = await fetch("http://127.0.0.1:8000/students/schools/");
-        // if (res.ok) setSchools(await res.json());
-
-        // MOCK DATA:
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const data = await authApi.getSchool();
+        setSchools(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load schools", err);
+        // Fallback for UI if backend is not ready
         setSchools([
           { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
           { id: 2, name: "Westside High School", school_code: "WHS-002" },
         ]);
-      } catch (err) {
-        console.error("Failed to load schools", err);
       }
     };
-    fetchData();
+    fetchSchools();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     if (!selectedSchoolCode) {
       setError("Please choose your school");
       return;
     }
 
+    if (!email.trim() || !password) {
+      setError("Please enter your email and password");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // TODO: Replace with new backend API
-      /*
-      const response = await fetch("http://127.0.0.1:8000/accounts/login/", { ... });
-      const data = await response.json();
-      */
+      const login = useAuthStore.getState().login;
+      await login({ email, password });
 
-      // MOCK DATA:
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const data = {
-        success: true,
-        access: "mock_access_token",
-        refresh: "mock_refresh_token",
-        user_id: 1,
-        username: "Demo Teacher",
-        role: "teacher"
-      };
-
-      if (email && password) {
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        localStorage.setItem("user", JSON.stringify({
-          user_id: data.user_id,
-          username: data.username,
-          role: data.role
-        }));
-
-        alert(`✅ Login successful! Welcome ${data.username}`);
-
-        // Redirect لـ Teacher Dashboard
-        navigate("/teacher/dashboard");
-      } else {
-        setError((data as any).message || "Invalid email or password");
+      const user = useAuthStore.getState().user;
+      
+      if (user?.role !== 'teacher') {
+        setError("This account is not registered as a Teacher. Please use the correct login portal.");
+        useAuthStore.getState().logout();
+        return;
       }
-    } catch (error) {
-      console.error(error);
-      setError("Cannot connect to server. Make sure Django is running.");
+
+      // alert(`✅ Login successful! Welcome ${user?.first_name || user?.username || 'Teacher'}`);
+      navigate("/teacher/dashboard");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.detail || "Invalid credentials or cannot connect to server.");
     } finally {
       setLoading(false);
     }
@@ -225,7 +210,7 @@ const LoginForm: FC = () => {
 
         <div className="mb-4">
           <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Username
+            Email address
           </label>
           <input
             type="email"
@@ -310,8 +295,10 @@ const LoginForm: FC = () => {
             </svg>
             Facebook
           </button> */}
-        {/* </div> */}
-
+        <p className="text-center text-slate-500 text-sm mt-6" style={{ fontFamily: "'Nunito', sans-serif" }}>
+          Don't have an account?{" "}
+          <button type="button" onClick={() => navigate('/signup/teacher')} className="text-emerald-600 font-black hover:text-emerald-800 transition-colors">Sign Up</button>
+        </p>
       </div>
 
       <div className="flex justify-center gap-6 mt-8">

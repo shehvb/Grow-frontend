@@ -4,40 +4,89 @@ import type { CalendarDayEvent } from "../../../../types/parent";
 
 interface ActivityCalendarProps {
   events: CalendarDayEvent[];
+  currentDate: Date;
+  onPrevMonth: () => void;
+  onNextMonth: () => void;
 }
 
-const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
+const ActivityCalendar: FC<ActivityCalendarProps> = ({ events, currentDate, onPrevMonth, onNextMonth }) => {
   const daysOfWeek = ["TUE", "WED", "THU", "FRI", "SAT", "SUN", "MON"];
   
-  // Hardcoded for Jan 2026 to match the exact mockup
-  const calendarGrid = [
-    [30, 31, 1, 2, 3, 4, 5],
-    [6, 7, 8, 9, 10, 11, 12],
-    [13, 14, 15, 16, 17, 18, 19],
-    [20, 21, 22, 23, 24, 25, 26],
-    [27, 28, 29, 30, 31, 1, 2]
-  ];
-
-  const isCurrentMonth = (rowIdx: number, day: number) => {
-    if (rowIdx === 0 && day > 15) return false;
-    if (rowIdx === 4 && day < 15) return false;
-    return true;
+  // Calculate dynamic grid
+  const generateGrid = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // First day of current month
+    const firstDay = new Date(year, month, 1);
+    // JS Day: 0 (Sun) - 6 (Sat)
+    // Our target day 0 is Tuesday (2 in JS)
+    let startDayIdx = firstDay.getDay() - 2;
+    if (startDayIdx < 0) startDayIdx += 7; // Adjust if it's Sun/Mon
+    
+    const grid: { day: number; month: 'prev' | 'curr' | 'next' }[] = [];
+    
+    // Previous month days
+    const prevMonthLast = new Date(year, month, 0).getDate();
+    for (let i = startDayIdx - 1; i >= 0; i--) {
+      grid.push({ day: prevMonthLast - i, month: 'prev' });
+    }
+    
+    // Current month days
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 1; i <= daysInMonth; i++) {
+      grid.push({ day: i, month: 'curr' });
+    }
+    
+    // Next month days
+    let nextDay = 1;
+    while (grid.length < 35) { // 5 rows of 7
+      grid.push({ day: nextDay++, month: 'next' });
+    }
+    
+    // Group into rows
+    const rows = [];
+    for (let i = 0; i < grid.length; i += 7) {
+      rows.push(grid.slice(i, i + 7));
+    }
+    return rows;
   };
 
-  const getDayEvents = (day: number, isCurrent: boolean) => {
-    if (!isCurrent) return [];
-    // Assuming events map to dates like "2026-01-08" -> day 8.
+  const calendarRows = generateGrid();
+
+  const getDayEvents = (day: number, monthType: 'prev' | 'curr' | 'next') => {
+    if (monthType !== 'curr') return [];
+    
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
     const paddedDay = day.toString().padStart(2, '0');
-    return events.filter(e => e.date === `2026-01-${paddedDay}`);
+    const dateStr = `${year}-${month}-${paddedDay}`;
+    
+    return events.filter(e => e.date === dateStr);
   };
 
   return (
     <div className="bg-white rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm col-span-full lg:col-span-2 overflow-hidden">
       <div className="flex justify-between items-center mb-6 sm:mb-8">
-        <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Activity Calendar</h3>
+        <div className="flex flex-col">
+          <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Activity Calendar</h3>
+          <p className="text-slate-400 font-bold text-xs sm:text-sm">
+            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </p>
+        </div>
         <div className="flex gap-4">
-          <button className="p-2 text-slate-400 hover:text-slate-800 transition-colors pointer"><FiChevronLeft size={24} /></button>
-          <button className="p-2 text-slate-400 hover:text-slate-800 transition-colors pointer"><FiChevronRight size={24} /></button>
+          <button 
+            onClick={onPrevMonth}
+            className="p-2 text-slate-400 hover:text-slate-800 transition-colors pointer"
+          >
+            <FiChevronLeft size={24} />
+          </button>
+          <button 
+            onClick={onNextMonth}
+            className="p-2 text-slate-400 hover:text-slate-800 transition-colors pointer"
+          >
+            <FiChevronRight size={24} />
+          </button>
         </div>
       </div>
 
@@ -50,12 +99,18 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
       </div>
 
       <div className="grid grid-cols-7 gap-1 sm:gap-4">
-        {calendarGrid.map((row, rowIdx) => (
-          row.map((day, colIdx) => {
-            const isCurrent = isCurrentMonth(rowIdx, day);
-            const dayEvents = getDayEvents(day, isCurrent);
+        {calendarRows.map((row, rowIdx) => (
+          row.map((item, colIdx) => {
+            const isCurrent = item.month === 'curr';
+            const dayEvents = getDayEvents(item.day, item.month);
             const isMissed = dayEvents.some(e => e.status === "Missed");
-            const isToday = day === 22 && isCurrent;
+            
+            // Check if it's today
+            const today = new Date();
+            const isToday = isCurrent && 
+                           item.day === today.getDate() && 
+                           currentDate.getMonth() === today.getMonth() && 
+                           currentDate.getFullYear() === today.getFullYear();
 
             let bgClass = "bg-slate-50 border border-slate-100 text-slate-400 opacity-50";
             let textClass = "font-medium text-slate-400";
@@ -76,7 +131,7 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
               <div key={`${rowIdx}-${colIdx}`} className={`h-16 sm:h-24 rounded-lg sm:rounded-2xl p-1 sm:p-2 flex flex-col ${bgClass}`}>
                 <div className="flex justify-between items-start">
                     <span className={`text-xs sm:text-sm ${textClass}`}>
-                        {day}
+                        {item.day}
                     </span>
                     {isToday && <span className="text-[#0062FF] text-[8px] sm:text-xs font-bold absolute bottom-1 sm:bottom-2 left-1 sm:left-3 hidden xs:block">Today</span>}
                     {isMissed && <FiAlertTriangle className="text-orange-400 absolute bottom-1 sm:bottom-3 right-1 sm:right-3 w-3 h-3 sm:w-4 sm:h-4" />}
@@ -88,9 +143,7 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
                             if (ev.status === "Completed") {
                                 return <div key={i} className="h-1.5 w-full bg-[#0062FF] rounded-full" />;
                             }
-                            if (ev.status === "Extra Credit") {
-                                return <div key={i} className="h-1.5 w-3/4 bg-purple-500 rounded-full" />;
-                            }
+
                             return null;
                         })}
                     </div>
@@ -106,10 +159,7 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events }) => {
             <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[#0062FF]" />
             <span className="text-[10px] sm:text-xs font-bold text-slate-500">Completed</span>
          </div>
-         <div className="flex items-center gap-2">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-purple-500" />
-            <span className="text-[10px] sm:text-xs font-bold text-slate-500">Extra Credit</span>
-         </div>
+
          <div className="flex items-center gap-2">
             <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-orange-500" />
             <span className="text-[10px] sm:text-xs font-bold text-slate-500">Missed</span>

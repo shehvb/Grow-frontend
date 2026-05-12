@@ -1,6 +1,8 @@
 import type { FC } from "react";
 
-export type FilterType = "all" | "in_progress" | "completed" | "archives";
+export type FilterType = "all" | "in_progress" | "completed" 
+// | "archives"
+;
 
 interface FilterBarProps {
   activeFilter: FilterType;
@@ -11,7 +13,7 @@ const filters: { key: FilterType; label: string }[] = [
   { key: "all", label: "All Courses" },
   { key: "in_progress", label: "In Progress" },
   { key: "completed", label: "Completed" },
-  { key: "archives", label: "Archives" },
+  // { key: "archives", label: "Archives" },
 ];
 
 const FilterBar: FC<FilterBarProps> = ({ activeFilter, onFilterChange }) => {

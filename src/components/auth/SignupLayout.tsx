@@ -2,6 +2,8 @@ import { type FC, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 // import growLogo from "../../assets/Grow logo.png";
 import Logo from "../../assets/Logo.png";
+import signup from "../../assets/GROW SIGNUP.png";
+
 
 interface SignupLayoutProps {
   children: ReactNode;
@@ -32,9 +34,11 @@ const SignupLayout: FC<SignupLayoutProps> = ({ children, loginPath }) => {
         </div>
 
         {/* Right Panel */}
-        <div className="relative hidden lg:flex flex-col justify-end p-12 bg-slate-900 border-l border-slate-100">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80')] bg-cover bg-center opacity-30 mix-blend-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1d115e]/90 via-[#2d1b8a]/50 to-transparent" />
+        <div className="relative hidden lg:flex flex-col justify-end p-12  border-l border-slate-100">
+          {/* <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80')] bg-cover bg-center opacity-30 mix-blend-overlay" /> */}
+          {/*  */}
+          <img src={signup} alt="" className="absolute inset-0 bg-cover bg-center w-full h-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0231]/100 to-transparent" />
 
           <div className="relative z-10 text-white">
             <h2 className="text-4xl font-black mb-4 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>

@@ -1,10 +1,11 @@
 import type { FC } from "react";
-import { useState, useEffect } from "react";
+
 import DashboardMetricsRow from "./components/DashboardMetricsRow";
-import GpaTrendChart from "./components/GpaTrendChart";
+import UpcomingScheduleList from "./components/UpcomingScheduleList";
 import RecentActivityList from "./components/RecentActivityList";
 import DashboardSubjectsList from "./components/DashboardSubjectsList";
 import { useParentStore } from "../../store/parentStore";
+import { useAuthStore } from "../../store/authStore";
 
 const ParentDashboardPage: FC = () => {
   const { students, selectedStudentId, dashboardSummary, loading, error } = useParentStore();
@@ -12,20 +13,8 @@ const ParentDashboardPage: FC = () => {
   // Find current student based on store selection
   const currentStudent = students.find((s) => s.id === selectedStudentId);
   
-  const [parentName, setParentName] = useState("Parent");
-
-  // اسم الـ Parent ديناميكي
-  useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        const name = user.username || user.email?.split("@")[0] || "Parent";
-        // Extract first name for that "Sarah" look
-        setParentName(name.split(" ")[0]);
-      } catch (e) { }
-    }
-  }, []);
+  const { user } = useAuthStore();
+  const parentName = user?.first_name || "Parent";
 
   // Show loading if we are fetching OR if the summary doesn't match the selected student yet
   const isDataMismatch = dashboardSummary && selectedStudentId && dashboardSummary.student.id !== selectedStudentId;
@@ -57,7 +46,7 @@ const ParentDashboardPage: FC = () => {
   const firstName = displayedStudent?.name?.split(" ")[0] || "Student";
   
   const metrics = dashboardSummary?.metrics || null;
-  const gpaTrend = dashboardSummary?.gpaTrend || [];
+  const upcomingSchedule = dashboardSummary?.upcomingSchedule || [];
   const recentActivities = dashboardSummary?.recentActivities || [];
   const topSubjects = dashboardSummary?.topSubjects || [];
 
@@ -79,9 +68,7 @@ const ParentDashboardPage: FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <div className="h-80">
-            <GpaTrendChart data={gpaTrend} metrics={metrics} />
-          </div>
+          <UpcomingScheduleList schedule={upcomingSchedule} />
           <RecentActivityList activities={recentActivities} />
         </div>
 

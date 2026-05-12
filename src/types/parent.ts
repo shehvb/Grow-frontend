@@ -76,10 +76,10 @@ export interface DashboardMetrics {
     changeLabel: string;
     trend: string;
   };
-  engagementRate: {
+  studentXp: {
     value: number;
-    badge: string;
-    subtitle: string;
+    changeLabel: string;
+    trend: string;
   };
 }
 
@@ -94,6 +94,15 @@ export interface RecentActivity {
 export interface GpaTrendPoint {
   month: string;
   value: number;
+}
+
+export interface UpcomingScheduleEvent {
+  id: string;
+  date: string;
+  subject: string;
+  type: string;
+  title: string;
+  status: 'Upcoming' | 'Pending' | 'Completed' | 'Overdue';
 }
 
 export interface AnalyticsData {
@@ -130,6 +139,7 @@ export interface DashboardSummary {
   recentActivities?: RecentActivity[];
   gpaTrend?: GpaTrendPoint[];
   topSubjects?: SubjectPerformance[];
+  upcomingSchedule?: UpcomingScheduleEvent[];
   
   // New section aggregates (mocked together for ease of frontend wiring)
   attendanceMetrics?: AttendanceMetrics;

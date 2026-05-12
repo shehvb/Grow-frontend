@@ -1,4 +1,4 @@
-import  { type FC } from "react";
+import { type FC } from "react";
 import { FadeUp, SectionHeader } from "./UI";
 import { FEATURES, STEPS, AUDIENCE_CARDS } from "../components/data";
 // import learn1 from "../assets/learn.png"
@@ -8,9 +8,8 @@ export const Features: FC = () => (
   <section id="features" className="py-24 px-6 md:px-12 bg-slate-50">
     <div className="max-w-[1400px] mx-auto">
       <SectionHeader
-        label="Core Features"
         title="Everything You Need to Succeed"
-        sub="Powered by advanced algorithms and intuitive design, built for students, parents, and educators."
+        sub="Everything you need to succeed, Powered by advanced algorithms and intuitive design"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {FEATURES.map((f, i) => (
@@ -21,7 +20,7 @@ export const Features: FC = () => (
               <div
                 className={`w-12 h-12 ${f.bgColor} rounded-[0.6rem] flex items-center justify-center text-2xl mb-5`}
               >
-                {typeof f.icon === "string" ? f.icon : <f.icon  />}
+                {typeof f.icon === "string" ? f.icon : <f.icon />}
               </div>
               <h3 className="font-bold text-[15px] mb-2 text-slate-900">{f.title}</h3>
               <p className="text-slate-400 text-xs leading-relaxed">{f.desc}</p>
@@ -38,8 +37,7 @@ export const HowItWorks: FC = () => (
   <section id="how-it-works" className="py-24 px-6 md:px-12">
     <div className="max-w-[1400px] mx-auto">
       <SectionHeader
-        label="Simple Process"
-        title="How Grow Works"
+        title="How GROW Works"
         sub="Three simple steps from learning to insight — our AI does the heavy lifting."
       />
       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 ">
@@ -66,13 +64,12 @@ export const HowItWorks: FC = () => (
 
 // ── Audience ──────────────────────────────────────────────────────────────────
 export const Audience: FC = () => (
-  <section id="for-parents" className="py-24 px-6 md:px-12 bg-slate-50">
+  <section id="who-we-serve" className="py-24 px-6 md:px-12 bg-slate-50">
     <div className="max-w-[1400px] mx-auto">
-      <SectionHeader
-        label="Built For Everyone"
+      <SectionHeader 
         title="Designed for Students & Parents"
         sub="Whether you're a student chasing goals or a parent seeking peace of mind, Grow has you covered."
-      />
+       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {AUDIENCE_CARDS.map((card, i) => (
           <FadeUp key={card.tag} delay={i * 100}>
@@ -97,8 +94,8 @@ export const Audience: FC = () => (
               <ul className="space-y-3 list-none p-0 m-0">
                 {card.items.map((item: string) => (
                   <li
-                  key={item}
-                  className="flex items-start gap-3 text-[13px] font-bold text-slate-700"
+                    key={item}
+                    className="flex items-start gap-3 text-[13px] font-bold text-slate-700"
                   >
                     <span
                       className={`w-[18px] h-[18px] rounded-full ${card.dotColor} flex-shrink-0 flex items-center justify-center text-white text-[10px] mt-0.5`}

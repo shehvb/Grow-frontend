@@ -16,6 +16,7 @@ import {
   FiVolume2
 } from "react-icons/fi";
 import { useState, useEffect } from "react";
+import { useCourseStore } from "../../../store/useCourseStore";
 
 const MOCK_LESSONS = [
   {
@@ -43,11 +44,24 @@ const MOCK_LESSONS = [
 const CourseEditorPage: FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { selectedCourse: course, courseStudents, getCourseById, getCourseStudents } = useCourseStore();
+
   const [lessons, setLessons] = useState<any[]>(() => {
-    const saved = sessionStorage.getItem(`course-${id}-lessons`);
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = sessionStorage.getItem(`course-${id}-lessons`);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse lessons from sessionStorage", e);
+    }
     return MOCK_LESSONS;
   });
+
+  useEffect(() => {
+    if (id) {
+      getCourseById(parseInt(id, 10));
+      getCourseStudents(parseInt(id, 10));
+    }
+  }, [id, getCourseById, getCourseStudents]);
 
   useEffect(() => {
     sessionStorage.setItem(`course-${id}-lessons`, JSON.stringify(lessons));
@@ -75,12 +89,12 @@ const CourseEditorPage: FC = () => {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-black text-slate-800 tracking-tight">Algebra Fundamentals</h1>
+              <h1 className="text-3xl font-black text-slate-800 tracking-tight">{course?.title || 'Loading...'}</h1>
               <span className="bg-emerald-50 text-emerald-500 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md">
                 published
               </span>
             </div>
-            <p className="text-slate-400 font-medium">Master the basics of algebraic expressions and equations</p>
+            <p className="text-slate-400 font-medium">{course?.description || 'No description available'}</p>
           </div>
           
           <button 
@@ -207,7 +221,7 @@ const CourseEditorPage: FC = () => {
               </div>
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Enrolled Students</p>
-                <p className="text-3xl font-black text-slate-800 tracking-tight">42</p>
+                <p className="text-3xl font-black text-slate-800 tracking-tight">{courseStudents.length}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total XP</p>
@@ -217,6 +231,28 @@ const CourseEditorPage: FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Enrolled Students List */}
+          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <h3 className="text-lg font-black text-slate-800 mb-6">Students</h3>
+            {courseStudents.length === 0 ? (
+              <p className="text-sm text-slate-400 font-medium">No students enrolled yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {courseStudents.map(enrollment => (
+                  <div key={enrollment.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">
+                      {enrollment.student?.username?.charAt(0).toUpperCase() || 'S'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800">{enrollment.student?.first_name} {enrollment.student?.last_name}</p>
+                      <p className="text-xs text-slate-400">{enrollment.student?.username || enrollment.student?.email}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Course Syllabus Card */}

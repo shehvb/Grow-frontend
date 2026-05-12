@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useAuthStore } from "../../store/authStore";
 import { getDashboardData } from "../../mock/dashboard.mock";
 import XPCard from "./XPCard";
 import StreakCounter from "./StreakCounter";
@@ -10,15 +11,12 @@ import UpcomingSessionWidget from "./UpcomingSessionWidget";
 
 const DashboardPage: FC = () => {
   const data = getDashboardData();
-  const user = {
-    name: "Mazen",
-    email: "mazen@example.com",
-    avatar: "https://via.placeholder.com/150",
-  };
+  const { user } = useAuthStore();
+  
   return (
     <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-8">
       <div className="mt-2 sm:mt-4">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2 sm:mb-3 tracking-tight">Welcome back, {user.name}</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2 sm:mb-3 tracking-tight">Welcome back, {user?.first_name || "Student"}</h1>
         <p className="text-slate-500 font-medium text-base sm:text-lg">You've completed <span className="text-[#FF8000] font-bold">70%</span> of your daily goal. Keep it up!</p>
       </div>
       

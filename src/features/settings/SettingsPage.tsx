@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useAuthStore } from "../../store/authStore";
 import StudentProfileCard from "./components/StudentProfileCard";
 import AccountSettingsCard from "./components/AccountSettingsCard";
 import LearningPreferencesCard from "./components/LearningPreferencesCard";
@@ -9,6 +10,8 @@ const SettingsPage: FC = () => {
   const student = MOCK_STUDENTS[0];
   const profile = MOCK_STUDENT_PROFILE_DATA["s1"];
   const preferences = MOCK_STUDENT_LEARNING_PREFS["s1"];
+  const { user } = useAuthStore();
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : student.name;
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 pb-12">
@@ -22,7 +25,7 @@ const SettingsPage: FC = () => {
         <div className="lg:col-span-4 h-full">
           <StudentProfileCard 
             profile={profile} 
-            studentName={student.name} 
+            studentName={displayName} 
             gradeLevel={student.gradeLevel} 
           />
         </div>
@@ -32,7 +35,7 @@ const SettingsPage: FC = () => {
           <div className="flex-1">
             <AccountSettingsCard 
               profile={profile} 
-              studentName={student.name} 
+              studentName={displayName} 
             />
           </div>
           <div className="lg:h-auto">

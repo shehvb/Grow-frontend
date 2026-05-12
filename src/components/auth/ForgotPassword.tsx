@@ -4,13 +4,15 @@ import Logo from "../../assets/Logo.png";
 import lockPng from "../../assets/lockpng.png";
 import { MdLockReset } from "react-icons/md";
 
-type Step = "email" | "verify";
+type Step = "email" | "verify" | "new_password";
 
 const ForgotPassword: FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -84,10 +86,24 @@ const ForgotPassword: FC = () => {
       setLoading(false);
       if (fullCode === "111111") {
         setSuccess(true);
-        setTimeout(() => navigate("/login/student"), 1500);
+        setTimeout(() => setStep("new_password"), 1000);
       } else {
         setError(true);
       }
+    }, 800);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password || password.length < 8) return;
+    setLoading(true);
+
+    // TODO(Backend): Integrate the "Reset Password" endpoint here.
+    // POST to /accounts/reset-password/ with { email, code, new_password: password }
+
+    setTimeout(() => {
+      setLoading(false);
+      navigate("/login/student");
     }, 800);
   };
 
@@ -139,18 +155,18 @@ const ForgotPassword: FC = () => {
       </header>
 
       <div className="flex-1 flex items-center justify-center p-4">
-        <div 
+        <div
           className="w-full max-w-[1200px] bg-white rounded-[2rem] shadow-xl overflow-hidden flex flex-col lg:grid lg:grid-cols-[40%_60%] min-h-[600px]"
         >
-          
+
           {/* Left Panel */}
-          <div 
+          <div
             className="hidden lg:flex p-12 lg:p-16 flex-col items-center justify-center relative overflow-hidden"
             style={{ background: "linear-gradient(135deg, #0B006F 0%, #1600D5 100%)" }}
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
-            
+
             <div className="relative z-10 w-full flex flex-col items-start">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center mb-12 border border-white/20">
                 <MdLockReset className="w-6 h-6 text-blue-200" />
@@ -167,10 +183,10 @@ const ForgotPassword: FC = () => {
 
               {/* Decorative Lock Image */}
               <div className="mt-12 w-full flex justify-end pr-4 lg:pr-10">
-                <img 
-                  src={lockPng} 
-                  alt="Secure" 
-                  className="w-64 h-auto object-contain drop-shadow-2xl" 
+                <img
+                  src={lockPng}
+                  alt="Secure"
+                  className="w-64 h-auto object-contain drop-shadow-2xl"
                 />
               </div>
             </div>
@@ -224,7 +240,7 @@ const ForgotPassword: FC = () => {
                   </Link>
                 </div>
               </form>
-            ) : (
+            ) : step === "verify" ? (
               <form onSubmit={handleVerify} className="w-full max-w-sm mx-auto relative z-10 transition-all duration-300 animate-in fade-in slide-in-from-right-4">
                 <h2 className="text-2xl font-black text-slate-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                   Enter Verification Code
@@ -243,9 +259,8 @@ const ForgotPassword: FC = () => {
                         value={digit}
                         onChange={(e) => handleCodeChange(i, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, i)}
-                        className={`w-9 h-12 sm:w-12 sm:h-14 text-center text-lg font-black rounded-xl border focus:outline-none transition-all shadow-sm ${
-                          digit ? "border-blue-600 bg-blue-50 text-blue-800" : "border-slate-200 bg-slate-50 text-slate-900"
-                        } ${error ? "border-red-400 bg-red-50 text-red-600" : ""} ${success ? "border-emerald-400 bg-emerald-50 text-emerald-600" : ""}`}
+                        className={`w-9 h-12 sm:w-12 sm:h-14 text-center text-lg font-black rounded-xl border focus:outline-none transition-all shadow-sm ${digit ? "border-blue-600 bg-blue-50 text-blue-800" : "border-slate-200 bg-slate-50 text-slate-900"
+                          } ${error ? "border-red-400 bg-red-50 text-red-600" : ""} ${success ? "border-emerald-400 bg-emerald-50 text-emerald-600" : ""}`}
                       />
                       {i === 2 && <span className="text-slate-300 font-black px-0.5 sm:px-1">-</span>}
                     </div>
@@ -279,6 +294,64 @@ const ForgotPassword: FC = () => {
 
                 <div className="mt-8 text-center">
                   <button type="button" onClick={() => setStep("email")} className="text-slate-500 text-sm font-bold hover:text-slate-700 transition-colors flex items-center justify-center gap-2 mx-auto">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Log In
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPassword} className="w-full max-w-sm mx-auto relative z-10 transition-all duration-300 animate-in fade-in slide-in-from-right-4">
+                <h2 className="text-2xl font-black text-slate-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  Create New Password
+                </h2>
+                <p className="text-slate-500 text-sm mb-8 font-medium">
+                  Create a new password for your account. Make sure it's strong, secure, and easy for you to remember.
+                </p>
+
+                <div className="mb-8">
+                  <label className="block text-slate-900 font-black text-xs mb-2">New password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Create a strong password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || password.length < 8}
+                  className="w-full py-4 rounded-xl font-black text-white text-sm transition-all hover:-translate-y-0.5 shadow-md disabled:opacity-50"
+                  style={{ backgroundColor: "#1600D5" }}
+                >
+                  {loading ? "Resetting..." : "Reset Password"}
+                </button>
+
+                <div className="mt-8 text-center">
+                  <button type="button" onClick={() => navigate("/login/student")} className="text-slate-500 text-sm font-bold hover:text-slate-700 transition-colors flex items-center justify-center gap-2 mx-auto">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>

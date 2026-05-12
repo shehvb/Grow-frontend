@@ -1,5 +1,6 @@
 import type { FC } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuthStore } from "../../../store/authStore";
 import { 
   FiEdit2, 
   FiUser, 
@@ -9,13 +10,26 @@ import {
 } from "react-icons/fi";
 
 const SettingsPage: FC = () => {
+  const { user } = useAuthStore();
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : "Teacher";
+
   const [formData, setFormData] = useState({
-    fullName: "Ahmed",
-    email: "663254", // From mockup
+    fullName: displayName,
+    email: user?.email || "teacher@example.com", 
     phone: "+20 1254684364",
     password: "••••••••",
     language: "English (United States)"
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: displayName,
+        email: user.email || prev.email,
+      }));
+    }
+  }, [user]);
 
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
@@ -42,8 +56,10 @@ const SettingsPage: FC = () => {
                 <FiEdit2 className="w-4 h-4" />
               </button>
             </div>
-            <h2 className="text-xl font-black text-slate-800 mb-1">Mr.Ahmed</h2>
-            <p className="text-sm font-bold text-slate-400">Math Teacher</p>
+            <h2 className="text-xl font-black text-slate-800 mb-1 uppercase tracking-wide">
+               {displayName}
+            </h2>
+            <p className="text-sm font-bold text-slate-400 capitalize">{user?.role || "Teacher"} Account</p>
           </div>
 
           {/* About Me Card */}

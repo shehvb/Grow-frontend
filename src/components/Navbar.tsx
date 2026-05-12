@@ -1,4 +1,4 @@
-import  { type FC , useState } from "react";
+import  { type FC , useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScrolled } from "../components/hooks";
 import { NAV_LINKS } from "../components/data";
@@ -8,6 +8,38 @@ const Navbar: FC = () => {
   const navigate = useNavigate();
   const scrolled = useScrolled();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      
+      // If we are at the top (Hero section), no active state
+      if (scrollPosition < 200) {
+        setActiveSection("");
+        return;
+      }
+
+      const spyPosition = scrollPosition + 250;
+      let currentSection = "";
+
+      for (const link of NAV_LINKS) {
+        const id = link.toLowerCase().replace(/ /g, "-");
+        const element = document.getElementById(id);
+        if (element) {
+          const { offsetTop } = element;
+          if (spyPosition >= offsetTop) {
+            currentSection = id;
+          }
+        }
+      }
+      setActiveSection(currentSection);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Check on mount
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <nav
@@ -22,17 +54,25 @@ const Navbar: FC = () => {
 
       {/* Desktop Links */}
       <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
-        {NAV_LINKS.map((link) => (
-          <li key={link}>
-            <a
-              href={`#${link.toLowerCase().replace(/ /g, "-")}`}
-              className="text-slate-500 hover:text-blue-600 font-bold text-sm transition-colors no-underline relative group"
-            >
-              {link}
-              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full" />
-            </a>
-          </li>
-        ))}
+        {NAV_LINKS.map((link) => {
+          const id = link.toLowerCase().replace(/ /g, "-");
+          const isActive = activeSection === id;
+          return (
+            <li key={link}>
+              <a
+                href={`#${id}`}
+                className={`font-bold text-sm transition-all duration-300 no-underline relative group ${
+                  isActive ? "text-blue-600 scale-105" : "text-slate-500 hover:text-blue-600"
+                }`}
+              >
+                {link}
+                <span className={`absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-600 transition-transform duration-300 rounded-full ${
+                  isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`} />
+              </a>
+            </li>
+          );
+        })}
       </ul>
 
       {/* Actions */}
@@ -40,7 +80,7 @@ const Navbar: FC = () => {
         <button onClick={() => navigate('/login/parent')} className="hidden md:block px-5 py-2 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-sm hover:border-blue-400 hover:text-blue-600 transition-all">
           Login
         </button>
-        <button onClick={() => navigate('/login/student')} className="px-5 py-2 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-500 hover:-translate-y-0.5 transition-all">
+        <button onClick={() => navigate('/signup/student')} className="px-5 py-2 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-500 hover:-translate-y-0.5 transition-all">
           Get Started
         </button>
         {/* Mobile menu toggle */}
@@ -59,17 +99,23 @@ const Navbar: FC = () => {
       {menuOpen && (
         <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-100 shadow-lg md:hidden">
           <ul className="list-none m-0 p-4 flex flex-col gap-3">
-            {NAV_LINKS.map((link) => (
-              <li key={link}>
-                <a
-                  href={`#${link.toLowerCase().replace(/ /g, "-")}`}
-                  onClick={() => setMenuOpen(false)}
-                  className="block text-slate-600 hover:text-blue-600 font-bold text-sm py-2 no-underline transition-colors"
-                >
-                  {link}
-                </a>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const id = link.toLowerCase().replace(/ /g, "-");
+              const isActive = activeSection === id;
+              return (
+                <li key={link}>
+                  <a
+                    href={`#${id}`}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block font-bold text-sm py-2 no-underline transition-colors ${
+                      isActive ? "text-blue-600" : "text-slate-600 hover:text-blue-600"
+                    }`}
+                  >
+                    {link}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

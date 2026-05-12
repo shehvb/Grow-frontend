@@ -5,11 +5,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/landingPage";
 
 // Auth
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import LoginParent from "./components/auth/LoginParent";
 import LoginStudent from "./components/auth/LoginStudent";
 import LoginTeacher from "./components/auth/LoginTeacher";
-import SignupParent from "./components/auth/SignupParent";
-import SignupStudent from "./components/auth/SignupStudent";
+import Signup from "./components/auth/Signup";
 import ForgotPassword from "./components/auth/ForgotPassword";
 
 // Layouts
@@ -52,10 +52,16 @@ import ReviewSubmissionsPage from "./features/teacher/assignments/ReviewSubmissi
 import QuizListPage from "./features/teacher/quizzes/QuizListPage";
 import QuizBuilderPage from "./features/teacher/quizzes/QuizBuilderPage";
 import QuizResultsPage from "./features/teacher/quizzes/QuizResultsPage";
-import TeacherAttendancePage from "./features/teacher/attendance/AttendancePage";
+// import TeacherAttendancePage from "./features/teacher/attendance/AttendancePage";
 import TeacherNotificationsPage from "./features/teacher/notifications/NotificationsPage";
 import TeacherSettingsPage from "./features/teacher/settings/SettingsPage";
 import TeacherStudentsPage from "./features/teacher/students/StudentsPage";
+
+// Admin Module
+import AdminLayout from "./layouts/AdminLayout";
+import { AdminDashboardPage } from "./features/admin/pages/AdminDashboardPage";
+import { ClassDetailsPage } from "./features/admin/pages/ClassDetailsPage";
+import { ReportsAnalyticsPage } from "./features/admin/pages/ReportsAnalyticsPage";
 
 const App: FC = () => {
   return (
@@ -68,15 +74,14 @@ const App: FC = () => {
       <Route path="/signup" element={<Navigate to="/signup/student" replace />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      <Route path="/signup/parent" element={<SignupParent />} />
-      <Route path="/signup/student" element={<SignupStudent />} />
+      <Route path="/signup/:role" element={<Signup />} />
 
       <Route path="/login/parent" element={<LoginParent />} />
       <Route path="/login/student" element={<LoginStudent />} />
       <Route path="/login/teacher" element={<LoginTeacher />} />
 
       {/* Student Routes */}
-      <Route path="/student" element={<StudentLayout />}>
+      <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="courses" element={<CoursesPage />} />
@@ -86,26 +91,25 @@ const App: FC = () => {
       </Route>
 
       {/* Courses Dedicated Route */}
-      <Route path="/student/courses" element={<CourseLayout />}>
-
+      <Route path="/student/courses" element={<ProtectedRoute allowedRoles={['student']}><CourseLayout /></ProtectedRoute>}>
         <Route path=":id" element={<CourseDetailsPage />} />
         <Route path=":courseId/quiz/:quizId" element={<QuizPlayerPage />} />
       </Route>
 
       {/* AI Tutor Dedicated Route */}
-      <Route path="/student/ai-tutor" element={<AITutorLayout />}>
+      <Route path="/student/ai-tutor" element={<ProtectedRoute allowedRoles={['student']}><AITutorLayout /></ProtectedRoute>}>
         <Route index element={<AITutorPage />} />
       </Route>
 
       {/* Communication Dedicated Route */}
-      <Route path="/student/communication" element={<CommunicationLayout />}>
+      <Route path="/student/communication" element={<ProtectedRoute allowedRoles={['student']}><CommunicationLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="chat" replace />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="channels" element={<ChannelsPage />} />
       </Route>
 
       {/* Parent Routes */}
-      <Route path="/parent" element={<ParentLayout />}>
+      <Route path="/parent" element={<ProtectedRoute allowedRoles={['parent']}><ParentLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ParentDashboardPage />} />
         <Route path="reports" element={<ParentReportsPage />} />
@@ -117,13 +121,13 @@ const App: FC = () => {
       </Route>
 
       {/* Parent Communication Dedicated Route */}
-      <Route path="/parent/communication" element={<ParentCommunicationLayout />}>
+      <Route path="/parent/communication" element={<ProtectedRoute allowedRoles={['parent']}><ParentCommunicationLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="chat" replace />} />
         <Route path="chat" element={<ParentChatPage />} />
       </Route>
 
       {/* Teacher Routes */}
-      <Route path="/teacher" element={<TeacherLayout />}>
+      <Route path="/teacher" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<TeacherDashboardPage />} />
         <Route path="courses" element={<CourseListPage />} />
@@ -138,9 +142,16 @@ const App: FC = () => {
         <Route path="quizzes/:id/edit" element={<QuizBuilderPage />} />
         <Route path="quizzes/:id/results" element={<QuizResultsPage />} />
         <Route path="students" element={<TeacherStudentsPage />} />
-        <Route path="attendance" element={<TeacherAttendancePage />} />
+        {/* <Route path="attendance" element={<TeacherAttendancePage />} /> */}
         <Route path="settings" element={<TeacherSettingsPage />} />
         <Route path="notifications" element={<TeacherNotificationsPage />} />
+      </Route>
+
+      {/* Admin Routes */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboardPage />} />
+        <Route path="class/:id" element={<ClassDetailsPage />} />
+        <Route path="reports" element={<ReportsAnalyticsPage />} />
       </Route>
 
       {/* Fallback */}

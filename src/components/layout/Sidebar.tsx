@@ -1,6 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FiX, FiPieChart, FiBookOpen, FiCheckSquare, FiCpu, FiSettings, FiLogOut } from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
+import { useAuthStore } from "../../store/authStore";
 
 const navItems = [
   { path: "/student/dashboard", label: "Dashboard", icon: <FiPieChart /> },
@@ -16,6 +17,16 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  const displayName = user?.first_name ? `${user.first_name} ${user.last_name || ""}` : (user?.username || user?.email?.split('@')[0] || "Student");
+  const initial = (user?.first_name?.[0] || user?.username?.[0] || user?.email?.[0] || "S").toUpperCase();
   return (
     <>
       <div 
@@ -66,14 +77,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </ul>
         </nav>
         <div className="p-4 border-t border-slate-100 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold">
-            <span className="w-9 h-9 rounded-full bg-gray-400 block border-2 border-white"></span>
+          <div className="w-10 h-10 rounded-full bg-slate-400 flex items-center justify-center text-white font-bold uppercase">
+            {initial}
           </div>
-          <div className="flex-1">
-            <p className="font-bold text-sm text-slate-800 leading-tight">Sarah Ahmed</p>
-            <p className="text-xs text-slate-400 font-medium tracking-wide">Parent Account</p>
+          <div className="flex-1 overflow-hidden">
+            <p className="font-bold text-sm text-slate-800 leading-tight truncate">
+              {displayName}
+            </p>
+            <p className="text-xs text-slate-400 font-medium tracking-wide capitalize">
+              {user?.role || "Student"} Account
+            </p>
           </div>
-          <button className="text-[#0062FF] p-2 hover:bg-blue-50 rounded-lg transition-colors">
+          <button 
+            onClick={handleLogout}
+            className="text-[#0062FF] p-2 hover:bg-blue-50 rounded-lg transition-colors"
+          >
             <FiLogOut className="w-5 h-5" />
           </button>
         </div>

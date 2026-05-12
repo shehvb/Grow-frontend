@@ -73,7 +73,7 @@ export const StatCard: FC<StatCardProps> = ({ val, suffix, label, delay = 0 }) =
 
 // ── SectionHeader ─────────────────────────────────────────────────────────────
 interface SectionHeaderProps {
-  label: string;
+  label?: string;
   title: string;
   sub: string;
   dark?: boolean;
@@ -81,11 +81,13 @@ interface SectionHeaderProps {
 
 export const SectionHeader: FC<SectionHeaderProps> = ({ label, title, sub, dark = false }) => (
   <>
-    <FadeUp>
-      <p className={`text-center font-black text-xl uppercase tracking-widest mb-3 ${dark ? "text-blue-300" : "text-blue-600"}`}>
-        {label}
-      </p>
-    </FadeUp>
+    {label && (
+      <FadeUp>
+        <p className={`text-center font-black text-xl uppercase tracking-widest mb-3 ${dark ? "text-blue-300" : "text-blue-600"}`}>
+          {label}
+        </p>
+      </FadeUp>
+    )}
     <FadeUp delay={80}>
       <h2 className={`font-display text-4xl font-black text-center mb-4 ${dark ? "text-white" : "text-slate-800"}`}>
         {title}
