@@ -19,45 +19,69 @@ const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ profile, studentNam
 
       <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-8">
         {/* Full Name */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Full Name</label>
-          <div className="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl">
-            <span className="text-slate-800 text-sm font-medium">{studentName}</span>
-          </div>
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Full Name</label>
+          <input 
+            type="text" 
+            defaultValue={studentName}
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+          />
         </div>
 
         {/* Email Address */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Email Address</label>
-          <div className="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl flex items-center justify-between">
-            <span className="text-slate-800 text-sm font-medium">{profile.email}</span>
-          </div>
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Email Address</label>
+          <input 
+            type="text" 
+            defaultValue="muhamed.fawzi@gmail.com"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+          />
         </div>
 
-        {/* Phone Number */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Phone Number</label>
-          <div className="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl">
-            <span className="text-slate-800 text-sm font-medium">{profile.phone}</span>
-          </div>
+        {/* id */}
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">id</label>
+          <input 
+            type="text" 
+            defaultValue="stu-826526"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+          />
         </div>
 
-        {/* Password */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Password</label>
-          <div className="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl flex items-center justify-between">
-            <span className="text-slate-800 text-sm font-medium">********</span>
-          </div>
-          <button className="text-[#1600D5] text-xs font-bold hover:underline self-end mt-1 inline-block w-full text-right">Change Password</button>
+        {/* Grade */}
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Grade</label>
+          <input 
+            type="text" 
+            defaultValue="Grade 5"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+          />
         </div>
 
         {/* Preferred Language */}
-        <div className="space-y-1.5 col-span-2">
-          <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Preferred Language</label>
-          <div className="px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl flex items-center justify-between cursor-pointer hover:border-slate-300 transition-colors">
-            <span className="text-slate-800 text-sm font-medium">{profile.preferredLanguage}</span>
-            <span className="text-slate-400">▼</span>
-          </div>
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Preferred Language</label>
+          <select 
+            defaultValue="English (United States)"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors appearance-none"
+          >
+            <option value="English (United States)">English (United States)</option>
+            <option value="Arabic">Arabic</option>
+            <option value="French">French</option>
+          </select>
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-800 pointer-events-none w-4 h-4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </div>
+
+        {/* School */}
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">School</label>
+          <input 
+            type="text" 
+            defaultValue="elqawmua"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+          />
         </div>
       </div>
 

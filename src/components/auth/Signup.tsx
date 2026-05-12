@@ -1,20 +1,23 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignupLayout from "./SignupLayout";
 import { useAuthStore } from "../../store/authStore";
 import { FaGraduationCap } from "react-icons/fa";
 import { RiParentFill } from "react-icons/ri";
 import { FaUserTie } from "react-icons/fa";
+import { FaEye } from "react-icons/fa6";
+import { IoIosEyeOff } from "react-icons/io";
+import toast from "react-hot-toast";
 
 type AuthRole = "student" | "parent" | "teacher";
 
 const Signup: FC = () => {
   const navigate = useNavigate();
   const { role } = useParams<{ role: string }>();
-  
+
   // Ensure the role is valid, default to student
-  const currentRole: AuthRole = ["student", "parent", "teacher"].includes(role || "") 
-    ? (role as AuthRole) 
+  const currentRole: AuthRole = ["student", "parent", "teacher"].includes(role || "")
+    ? (role as AuthRole)
     : "student";
 
   const [fullName, setFullName] = useState("");
@@ -25,6 +28,25 @@ const Signup: FC = () => {
   const [loading, setLoading] = useState(false);
   const [schoolCode, setSchoolCode] = useState("");
   const [signupCode, setSignupCode] = useState("");
+  const [error, setError] = useState("");
+  const [schools, setSchools] = useState<{ id: number, name: string, school_code: string }[]>([]);
+
+  useEffect(() => {
+    const fetchSchools = async () => {
+      try {
+        const { authApi } = await import("../../services/authApi");
+        const data = await authApi.getSchools();
+        setSchools(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load schools", err);
+        setSchools([
+          { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
+          { id: 2, name: "Westside High School", school_code: "WHS-002" },
+        ]);
+      }
+    };
+    fetchSchools();
+  }, []);
 
   const handleRoleChange = (newRole: AuthRole) => {
     navigate(`/signup/${newRole}`);
@@ -32,7 +54,25 @@ const Signup: FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // if (!agreed) return alert("Please agree to the Term of Services");
+    setError("");
+
+    if (!fullName.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!agreed) {
+      setError("You must agree to the Terms of Service.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -40,14 +80,14 @@ const Signup: FC = () => {
       const names = fullName.trim().split(" ");
       const firstName = names[0] || fullName;
       const lastName = names.slice(1).join(" ") || "User";
-      
-      // The API only accepts lowercase alphanumeric and @/./+/-/_
-      // We create a valid username from the email
-      const safeUsername = email.split('@')[0].replace(/[^a-zA-Z0-9@.+-_]/g, '') || `user_${Date.now()}`;
+
+      // The API accepts letters, digits, and @/./+/-/_ in the username.
+      // Using the email itself as the username ensures uniqueness and avoids generation errors.
+      const username = email.trim().toLowerCase();
 
       // 1. Register with strict API schema fields
       await authStore.register({
-        username: safeUsername,
+        username: username,
         email: email,
         password: password,
         role: currentRole,
@@ -76,6 +116,8 @@ const Signup: FC = () => {
         }
       }
 
+      toast.success(`Welcome to GROW, ${firstName}! 🎉`);
+
       // 5. Redirect to respective dashboard
       if (currentRole === 'student') {
         navigate("/student/dashboard");
@@ -86,7 +128,24 @@ const Signup: FC = () => {
       }
     } catch (error: any) {
       console.error(error);
-      // alert(error.response?.data?.detail || "❌ Signup failed. Please try again.");
+      // Extract the most useful error message from the backend response
+      const data = error.response?.data;
+      let msg = "Signup failed. Please try again.";
+      if (data) {
+        if (typeof data.detail === "string") {
+          msg = data.detail;
+        } else if (data.email) {
+          msg = `Email: ${Array.isArray(data.email) ? data.email[0] : data.email}`;
+        } else if (data.username) {
+          msg = `Username: ${Array.isArray(data.username) ? data.username[0] : data.username}`;
+        } else if (data.password) {
+          msg = `Password: ${Array.isArray(data.password) ? data.password[0] : data.password}`;
+        } else if (data.non_field_errors) {
+          msg = Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : data.non_field_errors;
+        }
+      }
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -98,7 +157,7 @@ const Signup: FC = () => {
         Create your<br />account
       </h1>
       <p className="text-slate-400 text-xs mb-8 font-semibold">
-        Join GROW today to unlock AI-<br/>powered learning tools.
+        Join GROW today to unlock AI-<br />powered learning tools.
       </p>
 
       {/* Role Selector */}
@@ -110,37 +169,34 @@ const Signup: FC = () => {
           <button
             type="button"
             onClick={() => handleRoleChange('student')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${
-              currentRole === 'student'
+            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${currentRole === 'student'
                 ? 'bg-white text-orange-500 shadow-sm'
                 : 'text-slate-400 hover:text-slate-600'
-            }`}
+              }`}
             style={{ fontFamily: "'Nunito', sans-serif" }}
           >
             <span className="text-lg"><FaGraduationCap /></span> Student
           </button>
-          
+
           <button
             type="button"
             onClick={() => handleRoleChange('parent')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${
-              currentRole === 'parent'
+            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${currentRole === 'parent'
                 ? 'bg-white text-orange-500 shadow-sm'
                 : 'text-slate-400 hover:text-slate-600'
-            }`}
+              }`}
             style={{ fontFamily: "'Nunito', sans-serif" }}
           >
             <span className="text-lg"><RiParentFill /></span> Parent
           </button>
-          
+
           <button
             type="button"
             onClick={() => handleRoleChange('teacher')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${
-              currentRole === 'teacher'
+            className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${currentRole === 'teacher'
                 ? 'bg-white text-orange-500 shadow-sm'
                 : 'text-slate-400 hover:text-slate-600'
-            }`}
+              }`}
             style={{ fontFamily: "'Nunito', sans-serif" }}
           >
             <span className="text-lg"><FaUserTie /></span> Teacher
@@ -157,7 +213,7 @@ const Signup: FC = () => {
               value={schoolCode}
               onChange={(e) => setSchoolCode(e.target.value)}
               className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all appearance-none"
-              style={{ 
+              style={{
                 backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'right 1rem top 50%',
@@ -165,8 +221,9 @@ const Signup: FC = () => {
               }}
             >
               <option value="">Choose your school...</option>
-              <option value="SPR-001">Springfield Elementary</option>
-              <option value="WHS-002">Westside High School</option>
+              {schools.map(s => (
+                <option key={s.id} value={s.school_code}>{s.name}</option>
+              ))}
             </select>
           </div>
         )}
@@ -215,9 +272,9 @@ const Signup: FC = () => {
               className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               {showPass ? (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  <IoIosEyeOff className="w-5 h-5" />
+                ) : (
+                  <FaEye className="w-5 h-5" />
               )}
             </button>
           </div>
@@ -229,22 +286,22 @@ const Signup: FC = () => {
             <label className="block text-slate-900 font-extrabold text-xs mb-1.5">Code</label>
             <div className="relative">
               <input
-                type={showPass ? "text" : "password"}
-                placeholder="Enter your code"
+                type="text"
+                placeholder="Enter your enrollment code"
                 value={signupCode}
                 onChange={(e) => setSignupCode(e.target.value)}
                 className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all pr-12 placeholder:text-slate-400"
               />
-               <button
+              <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showPass ? (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                )}
+                <IoIosEyeOff className="w-5 h-5" />
+              ) : (
+                <FaEye className="w-5 h-5" />
+              )}
               </button>
             </div>
           </div>
@@ -262,13 +319,13 @@ const Signup: FC = () => {
             />
             {agreed && (
               <svg className="w-3 h-3 absolute pointer-events-none text-orange-500" viewBox="0 0 14 14" fill="none">
-                <path d="M1 7L5 11L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 7L5 11L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             )}
             {!agreed && (
-               <svg className="w-3 h-3 absolute pointer-events-none text-orange-500" viewBox="0 0 14 14" fill="none">
-               <path d="M4 2V1M8 2V1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-             </svg>
+              <svg className="w-3 h-3 absolute pointer-events-none text-orange-500" viewBox="0 0 14 14" fill="none">
+                <path d="M4 2V1M8 2V1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
             )}
           </div>
           <label htmlFor="terms" className="text-[10px] font-bold text-slate-800 leading-tight cursor-pointer">
@@ -276,6 +333,13 @@ const Signup: FC = () => {
             <a href="#" className="text-orange-500 hover:underline">Term of Services</a>
           </label>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs font-semibold">
+            {error}
+          </div>
+        )}
 
         {/* Submit Button */}
         <button

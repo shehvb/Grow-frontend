@@ -4,6 +4,8 @@ import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
 import { useAuthStore } from "../../store/authStore";
 import { authApi } from "../../services/authApi";
+import toast from "react-hot-toast";
+import { IoIosEyeOff ,IoIosEye } from "react-icons/io";
 
 interface School {
   id: number;
@@ -152,7 +154,7 @@ const StudentLoginForm: FC = () => {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const data = await authApi.getSchool();
+        const data = await authApi.getSchools();
         setSchools(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load schools", err);
@@ -185,9 +187,8 @@ const StudentLoginForm: FC = () => {
     try {
       const login = useAuthStore.getState().login;
       // Note: The backend schema expects "email" and "password".
-      // The UI refers to "Code" or "Student ID", so we map it to email as requested by the schema.
       await login({ email: studentId, password });
-      
+
       const user = useAuthStore.getState().user;
 
       if (user?.role !== 'student') {
@@ -196,11 +197,13 @@ const StudentLoginForm: FC = () => {
         return;
       }
 
-      // alert(`✅ Login successful! Welcome ${user?.first_name || user?.username || 'Student'}`);
+      toast.success(`Welcome back, ${user?.first_name || user?.username || 'Student'}!`);
       navigate("/student/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.detail || "Invalid credentials or cannot connect to server.");
+      const msg = err.response?.data?.detail || err.response?.data?.message || "Invalid credentials or cannot connect to server.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -216,10 +219,9 @@ const StudentLoginForm: FC = () => {
         <span className="font-black text-xl text-blue-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full ">
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         {/* Heading */}
         <div className="mb-8">
-          {/* Level badge */}
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-full px-4 py-1.5 mb-4">
             <span className="text-blue-600 font-black text-xs" style={{ fontFamily: "'Nunito', sans-serif" }}>Student Portal</span>
           </div>
@@ -234,127 +236,109 @@ const StudentLoginForm: FC = () => {
         {/* Role selector */}
         <AuthTabs currentRole="student" onRoleChange={(r) => navigate(`/login/${r}`)} />
 
-        {/* School Selector */}
-        <div className="mb-4">
-          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            School Selector
-          </label>
-          <select
-            value={selectedSchoolCode}
-            onChange={(e) => setSelectedSchoolCode(e.target.value)}
-            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            style={{ fontFamily: "'Nunito', sans-serif" }}
-          >
-            <option value="">Choose your school...</option>
-            {schools.map((school) => (
-              <option key={school.id} value={school.school_code}>
-                {school.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <form onSubmit={handleSubmit}>
+          {/* School Selector */}
+          <div className="mb-4">
+            <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              School Selector
+            </label>
+            <select
+              value={selectedSchoolCode}
+              onChange={(e) => setSelectedSchoolCode(e.target.value)}
+              className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              style={{ fontFamily: "'Nunito', sans-serif" }}
+            >
+              <option value="">Select your school</option>
+              {schools.map((s) => (
+                <option key={s.id} value={s.school_code}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="mb-4">
-          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Email address
-          </label>
-          <input
-            type="email"
-            value={studentId}
-            onChange={(e) => setStudentId(e.target.value)}
-            placeholder="Enter your email"
-            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-400"
-            style={{ fontFamily: "'Nunito', sans-serif" }}
-            required
-          />
-        </div>
-
-        {/* Password */}
-
-
-        <div className="mb-2">
-          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            password
-          </label>
-          <div className="relative">
+          {/* Student ID */}
+          <div className="mb-4">
+            <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              Email
+            </label>
             <input
-              type={showPass ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full px-4 py-3.5 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              type="text"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               style={{ fontFamily: "'Nunito', sans-serif" }}
             />
+          </div>
+
+          {/* Password */}
+          <div className="mb-2">
+            <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full px-4 py-3.5 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                style={{ fontFamily: "'Nunito', sans-serif" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPass ? (
+                  <IoIosEyeOff className="w-5 h-5" />
+                ) : (
+                  <IoIosEye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Forgot password */}
+          <div className="flex justify-end mb-6">
             <button
-              onClick={() => setShowPass(!showPass)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              className="text-blue-600 font-extrabold text-sm hover:text-blue-800 transition-colors"
+              style={{ fontFamily: "'Nunito', sans-serif" }}
             >
-              {showPass ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-              )}
+              Forget password?
             </button>
           </div>
-        </div>
 
-        {/* Forgot */}
-        <div className="flex justify-end mb-4">
-          <button type="button" onClick={() => navigate('/forgot-password')} className="text-blue-600 font-black text-sm hover:text-blue-800 transition-colors" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Forget password?
+          {/* Error message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-semibold">
+              {error}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 rounded-2xl font-black text-white text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+            style={{
+              fontFamily: "'Nunito', sans-serif",
+              background: "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)",
+              boxShadow: "0 8px 32px rgba(37,99,235,0.35)",
+            }}
+          >
+            {loading ? "Logging in..." : "Log In"}
           </button>
-        </div>
-
-        {/* Error message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-semibold">
-            {error}
-          </div>
-        )}
-
-        {/* Submit — student gradient */}
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full py-4 rounded-2xl font-black text-white text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            fontFamily: "'Nunito', sans-serif",
-            background: "linear-gradient(135deg, rgb(15, 27, 107) 0%, rgb(26, 47, 160) 40%, rgb(45, 27, 138) 70%, rgb(76, 29, 149) 100%)",
-            boxShadow: "0 8px 32px rgba(26, 47, 160, 0.4)",
-          }}
-        >
-          {loading ? "Logging in..." : "Log In "}
-        </button>
-
-        {/* Divider */}
-        {/* OAuth */}
-        {/* <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-slate-400 text-xs font-bold" style={{ fontFamily: "'Nunito', sans-serif" }}>Or continue with</span>
-          <div className="flex-1 h-px bg-slate-200" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          <button className="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border-2 border-slate-200 bg-white font-black text-slate-700 text-sm hover:border-blue-300 hover:bg-slate-50 transition-all" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            Google
-          </button>
-          <button className="flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border-2 border-slate-200 bg-white font-black text-slate-700 text-sm hover:border-blue-300 hover:bg-slate-50 transition-all" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-            </svg>
-            Facebook
-          </button> */}
-        {/* </div> */}
+        </form>
 
         <p className="text-center text-slate-500 text-sm" style={{ fontFamily: "'Nunito', sans-serif" }}>
           Don't have an account?{" "}
-          <button type="button" onClick={() => navigate('/signup/student')} className="mt-6 text-blue-600 font-black hover:text-blue-800 transition-colors">Sign Up</button>
+          <button type="button" onClick={() => navigate('/signup/student')} className="text-blue-600 font-black hover:text-blue-800 transition-colors">
+            Sign Up
+          </button>
         </p>
       </div>
 
@@ -370,10 +354,9 @@ const StudentLoginForm: FC = () => {
   );
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 const LoginStudent: FC = () => {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[45%_55%]" style={{ fontFamily: "'Nunito', sans-serif" }}>
+    <div className="min-h-screen grid lg:grid-cols-[45%_55%]">
       <StudentLeftPanel />
       <StudentLoginForm />
     </div>

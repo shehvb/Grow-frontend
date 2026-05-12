@@ -2,8 +2,10 @@ import { type FC, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
+import toast from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
 import { authApi } from "../../services/authApi";
+import { IoIosEyeOff ,IoIosEye } from "react-icons/io";
 
 interface School {
   id: number;
@@ -26,7 +28,7 @@ const GrowLogo: FC = () => (
 const LeftPanel: FC = () => (
   <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden"
     style={{
-      background: "linear-gradient(135deg, #064e3b 0%, #047857 40%, #059669 70%, #10b981 100%)",
+      background: "linear-gradient(135deg, #312e81 0%, #3730a3 40%, #4338ca 70%, #4f46e5 100%)",
     }}
   >
     <style>{`
@@ -50,12 +52,12 @@ const LeftPanel: FC = () => (
       {[
         [12, 15], [25, 40], [70, 20], [80, 55], [40, 70], [60, 80], [15, 65], [85, 35],
       ].map(([x, y], i) => (
-        <div key={i} className="star absolute w-1.5 h-1.5 rounded-full bg-emerald-300/60" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${i * 0.4}s` }} />
+        <div key={i} className="star absolute w-1.5 h-1.5 rounded-full bg-indigo-300/60" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${i * 0.4}s` }} />
       ))}
     </div>
 
-    <div className="absolute bottom-32 right-8 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-    <div className="absolute top-20 left-8 w-48 h-48 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="absolute bottom-32 right-8 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="absolute top-20 left-8 w-48 h-48 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
 
     <GrowLogo />
 
@@ -67,13 +69,13 @@ const LeftPanel: FC = () => (
         <line x1="20" y1="210" x2="300" y2="210" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
 
         {[
-          { x: 30, h: 40, colors: ["#34d399", "#6ee7b7"] },
-          { x: 65, h: 70, colors: ["#34d399", "#6ee7b7"] },
-          { x: 100, h: 90, colors: ["#10b981", "#34d399"] },
-          { x: 135, h: 115, colors: ["#059669", "#10b981"] },
-          { x: 170, h: 140, colors: ["#059669", "#10b981"] },
-          { x: 205, h: 165, colors: ["#047857", "#059669"] },
-          { x: 240, h: 195, colors: ["#065f46", "#047857"] },
+          { x: 30, h: 40, colors: ["#818cf8", "#a5b4fc"] },
+          { x: 65, h: 70, colors: ["#818cf8", "#a5b4fc"] },
+          { x: 100, h: 90, colors: ["#6366f1", "#818cf8"] },
+          { x: 135, h: 115, colors: ["#4f46e5", "#6366f1"] },
+          { x: 170, h: 140, colors: ["#4f46e5", "#6366f1"] },
+          { x: 205, h: 165, colors: ["#4338ca", "#4f46e5"] },
+          { x: 240, h: 195, colors: ["#3730a3", "#4338ca"] },
         ].map((b, i) => (
           <g key={i}>
             <defs>
@@ -86,9 +88,9 @@ const LeftPanel: FC = () => (
           </g>
         ))}
 
-        <path className="arrow-path" d="M31 200 Q102 182 162 142 Q222 105 274 55" stroke="#a7f3d0" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-        <path d="M265 52 L278 52 L275 65" stroke="#a7f3d0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <path d="M30 205 Q130 185 240 130 Q265 118 278 105" stroke="rgba(167,243,208,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 4" fill="none" />
+        <path className="arrow-path" d="M31 200 Q102 182 162 142 Q222 105 274 55" stroke="#c7d2fe" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+        <path d="M265 52 L278 52 L275 65" stroke="#c7d2fe" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M30 205 Q130 185 240 130 Q265 118 278 105" stroke="rgba(199,210,254,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 4" fill="none" />
       </svg>
     </div>
 
@@ -96,7 +98,7 @@ const LeftPanel: FC = () => (
       <h2 className="text-white text-3xl font-black leading-tight mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
         Empowering our<br />educators.
       </h2>
-      <p className="text-emerald-100 text-sm leading-relaxed max-w-xs">
+      <p className="text-indigo-100 text-sm leading-relaxed max-w-xs">
         Manage your courses, assist students across subjects, and deliver excellence with real-time class analytics.
       </p>
     </div>
@@ -151,7 +153,7 @@ const LoginForm: FC = () => {
       await login({ email, password });
 
       const user = useAuthStore.getState().user;
-      
+
       if (user?.role !== 'teacher') {
         setError("This account is not registered as a Teacher. Please use the correct login portal.");
         useAuthStore.getState().logout();
@@ -159,10 +161,13 @@ const LoginForm: FC = () => {
       }
 
       // alert(`✅ Login successful! Welcome ${user?.first_name || user?.username || 'Teacher'}`);
+      toast.success(`Welcome back, ${user?.first_name || user?.username || 'Teacher'}!`);
       navigate("/teacher/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.detail || "Invalid credentials or cannot connect to server.");
+      const msg = err.response?.data?.detail || "Invalid credentials or cannot connect to server.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -170,10 +175,10 @@ const LoginForm: FC = () => {
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16">
       <div className="lg:hidden flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center">
           <span className="text-white font-black text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>G</span>
         </div>
-        <span className="font-black text-xl text-emerald-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
+        <span className="font-black text-xl text-indigo-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
       </div>
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
@@ -187,91 +192,93 @@ const LoginForm: FC = () => {
         </div>
 
         <AuthTabs currentRole="teacher" onRoleChange={(r) => navigate(`/login/${r}`)} />
+        <form onSubmit={handleSubmit}>
+          {/* School Selector */}
+          <div className="mb-4">
+            <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              School Selector
+            </label>
+            <select
+              value={selectedSchoolCode}
+              onChange={(e) => setSelectedSchoolCode(e.target.value)}
+              className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              style={{ fontFamily: "'Nunito', sans-serif" }}
+            >
+              <option value="">Choose your school...</option>
+              {schools.map((school) => (
+                <option key={school.id} value={school.school_code}>
+                  {school.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* School Selector */}
-        <div className="mb-4">
-          <label className="block text-slate-700 font-extrabold text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            School Selector
-          </label>
-          <select
-            value={selectedSchoolCode}
-            onChange={(e) => setSelectedSchoolCode(e.target.value)}
-            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-            style={{ fontFamily: "'Nunito', sans-serif" }}
-          >
-            <option value="">Choose your school...</option>
-            {schools.map((school) => (
-              <option key={school.id} value={school.school_code}>
-                {school.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Email address
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-            style={{ fontFamily: "'Nunito', sans-serif" }}
-          />
-        </div>
-
-        <div className="mb-2">
-          <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Password
-          </label>
-          <div className="relative">
+          <div className="mb-4">
+            <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              Email address
+            </label>
             <input
-              type={showPass ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className="w-full px-4 py-3.5 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               style={{ fontFamily: "'Nunito', sans-serif" }}
             />
-            <button
-              onClick={() => setShowPass(!showPass)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              {showPass ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-              )}
+          </div>
+
+          <div className="mb-2">
+            <label className="block text-slate-700 font-black text-sm mb-2" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full px-4 py-3.5 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                style={{ fontFamily: "'Nunito', sans-serif" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPass ? (
+                  <IoIosEyeOff className="w-5 h-5" />
+                ) : (
+                  <IoIosEye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-end mb-4">
+            <button type="button" onClick={() => navigate('/forgot-password')} className="text-indigo-600 font-black text-sm hover:text-indigo-800 transition-colors" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              Forget password?
             </button>
           </div>
-        </div>
 
-        <div className="flex justify-end mb-4">
-          <button type="button" onClick={() => navigate('/forgot-password')} className="text-emerald-600 font-black text-sm hover:text-emerald-800 transition-colors" style={{ fontFamily: "'Nunito', sans-serif" }}>
-            Forget password?
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-semibold">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 rounded-2xl font-black text-white text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+            style={{
+              fontFamily: "'Nunito', sans-serif",
+              background: "linear-gradient(135deg, #4f46e5 0%, #3f39cf 100%)",
+              boxShadow: "0 8px 32px rgba(79,70,229,0.35)",
+            }}
+          >
+            {loading ? "Educating..." : "Log In"}
           </button>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-semibold">
-            {error}
-          </div>
-        )}
-
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full py-4 rounded-2xl font-black text-white text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            fontFamily: "'Nunito', sans-serif",
-            background: "linear-gradient(135deg, #047857 0%, #059669 100%)",
-            boxShadow: "0 8px 32px rgba(4,120,87,0.35)",
-          }}
-        >
-          {loading ? "Logging in..." : "Log In"}
-        </button>
+        </form>
 
         {/* <div className="flex items-center gap-4 my-6">
           <div className="flex-1 h-px bg-slate-200" />
@@ -297,7 +304,7 @@ const LoginForm: FC = () => {
           </button> */}
         <p className="text-center text-slate-500 text-sm mt-6" style={{ fontFamily: "'Nunito', sans-serif" }}>
           Don't have an account?{" "}
-          <button type="button" onClick={() => navigate('/signup/teacher')} className="text-emerald-600 font-black hover:text-emerald-800 transition-colors">Sign Up</button>
+          <button type="button" onClick={() => navigate('/signup/teacher')} className="text-indigo-600 font-black hover:text-indigo-800 transition-colors">Sign Up</button>
         </p>
       </div>
 

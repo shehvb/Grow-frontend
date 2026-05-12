@@ -201,7 +201,7 @@ const TeacherDashboardPage: FC = () => {
                 <th className="pb-3">Student Name</th>
                 <th className="pb-3">Task Name</th>
                 <th className="pb-3">Status</th>
-                <th className="pb-3 text-center">Grade</th>
+                <th className="pb-3 text-center">Score</th>
                 <th className="pb-3 text-right">Time</th>
               </tr>
             </thead>

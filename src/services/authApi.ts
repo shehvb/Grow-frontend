@@ -13,8 +13,9 @@ export const authApi = {
     return response.data;
   },
 
+  // GET /api/v1/auth/me/ — fetch the current authenticated user's profile
   getProfile: async (): Promise<User> => {
-    const response = await apiClient.get<User>('/auth/profile/');
+    const response = await apiClient.get<User>('/auth/me/');
     return response.data;
   },
 
@@ -22,7 +23,16 @@ export const authApi = {
     await apiClient.post('/auth/logout/', { refresh: refreshToken });
   },
 
-  // Advanced Auth (Prepared for Phase 5)
+  // OAuth — POST /api/v1/auth/oauth/ — social login for Parent accounts (Google/Facebook)
+  oauthLogin: async (provider: 'google' | 'facebook', accessToken: string): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>('/auth/oauth/', {
+      provider,
+      access_token: accessToken,
+    });
+    return response.data;
+  },
+
+  // Advanced Auth
   changePassword: async (data: any): Promise<void> => {
     await apiClient.post('/auth/change-password/', data);
   },
@@ -50,6 +60,14 @@ export const authApi = {
 
   getSchool: async (): Promise<any> => {
     const response = await apiClient.get('/auth/school/');
+    return response.data;
+  },
+
+  getSchools: async (): Promise<any[]> => {
+    // The YAML shows /api/schools/ (no v1). Since apiClient has v1, we use a relative path or full URL.
+    // However, if the backend is consistent, it might be /api/v1/schools/ or just /api/schools/.
+    // We'll try /schools/ first as it will be appended to /api/v1.
+    const response = await apiClient.get('/schools/');
     return response.data;
   },
 

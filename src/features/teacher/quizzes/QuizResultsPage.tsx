@@ -10,11 +10,13 @@ import {
   FiClock,
   FiMessageSquare
 } from "react-icons/fi";
+import { BsFilter } from "react-icons/bs";
 
 const MOCK_RESULTS = [
   {
     id: "r1",
     studentName: "Emma Watson",
+    class: "Class A",
     isTopPerformer: true,
     score: 98,
     status: "Completed",
@@ -24,6 +26,7 @@ const MOCK_RESULTS = [
   {
     id: "r2",
     studentName: "Emma Watson", // In image 3 it shows her 3 times, let's just make it a list
+    class: "Class A",
     isTopPerformer: true,
     score: 98,
     status: "Completed",
@@ -33,6 +36,7 @@ const MOCK_RESULTS = [
   {
     id: "r3",
     studentName: "Liam Wilson",
+    class: "Class B",
     isTopPerformer: false,
     score: 65,
     status: "Completed",
@@ -42,6 +46,7 @@ const MOCK_RESULTS = [
   {
     id: "r4",
     studentName: "Ava Johnson",
+    class: "Class C",
     isTopPerformer: false,
     score: 0,
     status: "Pending",
@@ -62,22 +67,43 @@ const QuizResultsPage: FC = () => {
     xp: 200
   };
 
+  const [selectedClass, setSelectedClass] = useState<string>("All");
+  const classes = ["All", ...Array.from(new Set(MOCK_RESULTS.map(r => r.class)))];
+  const filteredResults = MOCK_RESULTS.filter(r => selectedClass === "All" || r.class === selectedClass);
+
   return (
     <div className="space-y-8 animate-fade-in pb-20">
       {/* Header Area */}
-      <div className="space-y-3">
-        <Link to="/teacher/quizzes" className="flex items-center text-slate-800 font-black text-2xl hover:text-blue-600 transition-colors w-fit">
-          <FiArrowLeft className="mr-3 text-xl" />
-          {quizDetails.title}
-          <span className="ml-3 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-500 relative -top-0.5">
-            {quizDetails.status}
-          </span>
-        </Link>
-        <div className="flex flex-wrap items-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-9">
-          <div>{quizDetails.course}</div>
-          <div className="flex items-center gap-1.5"><FiBookOpen /> {quizDetails.questions} questions</div>
-          <div className="flex items-center gap-1.5"><FiClock /> {quizDetails.duration} min</div>
-          <div className="text-blue-500 lowercase">+{quizDetails.xp} Xp</div>
+      <div className="flex items-start justify-between">
+        <div className="space-y-3">
+          <Link to="/teacher/quizzes" className="flex items-center text-slate-800 font-black text-2xl hover:text-blue-600 transition-colors w-fit">
+            <FiArrowLeft className="mr-3 text-xl" />
+            {quizDetails.title}
+            <span className="ml-3 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-500 relative -top-0.5">
+              {quizDetails.status}
+            </span>
+          </Link>
+          <div className="flex flex-wrap items-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-9">
+            <div>{quizDetails.course}</div>
+            <div className="flex items-center gap-1.5"><FiBookOpen /> {quizDetails.questions} questions</div>
+            <div className="flex items-center gap-1.5"><FiClock /> {quizDetails.duration} min</div>
+            <div className="text-blue-500 lowercase">+{quizDetails.xp} Xp</div>
+          </div>
+        </div>
+        
+        <div className="relative flex items-center">
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm cursor-pointer hover:border-slate-300 transition-colors">
+            <BsFilter className="text-slate-500 mr-2 text-lg" />
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer appearance-none pr-4"
+            >
+              {classes.map(c => (
+                <option key={c} value={c}>{c === "All" ? "All Classes" : c}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -141,7 +167,7 @@ const QuizResultsPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {MOCK_RESULTS.map((result, idx) => {
+              {filteredResults.map((result, idx) => {
                 const initials = result.studentName.split(' ').map(n => n[0]).join('');
                 const isTopPerformer = result.isTopPerformer;
                 const isCompleted = result.status === 'Completed';
