@@ -1,4 +1,4 @@
-﻿# GROW-back-up Development Guidelines
+# GROW-back-up Development Guidelines
 
 Auto-generated from all feature plans. Last updated: 2026-03-16
 
@@ -28,3 +28,8 @@ TypeScript ~5.9 (per package.json): Follow standard conventions
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->

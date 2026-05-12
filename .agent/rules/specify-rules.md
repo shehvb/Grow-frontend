@@ -10,6 +10,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-12
 - N/A (Frontend only, mock data in memory) (010-school-admin)
 - TypeScript / React ^19.2.0 + Axios, Zustand, react-hot-toast, react-hook-form, zod (011-auth-api-integration)
 - localStorage (Tokens, User Profile) (011-auth-api-integration)
+- TypeScript 5+, React 19.2.0 + Axios, Zustand, React Router, React Hot Toast (012-auth-api-modernization)
+- Browser LocalStorage (JWT persistence) (012-auth-api-modernization)
 
 - [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (005-parent-dashboard)
 
@@ -30,9 +32,9 @@ cd src; pytest; ruff check .
 [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]: Follow standard conventions
 
 ## Recent Changes
+- 012-auth-api-modernization: Added TypeScript 5+, React 19.2.0 + Axios, Zustand, React Router, React Hot Toast
 - 011-auth-api-integration: Added TypeScript / React ^19.2.0 + Axios, Zustand, react-hot-toast, react-hook-form, zod
 - 011-auth-api-integration: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
-- 010-school-admin: Added TypeScript / React ^19.2.0 + Vite, Tailwind CSS ^3.4.0, React Router DOM, React Icons
 
 
 <!-- MANUAL ADDITIONS START -->

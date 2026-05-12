@@ -10,6 +10,7 @@ import {
   FiDownload,
   FiClock
 } from "react-icons/fi";
+import { BsFilter } from "react-icons/bs";
 
 const MOCK_SUBMISSIONS = [
   {
@@ -50,6 +51,11 @@ const MOCK_SUBMISSIONS = [
 const ReviewSubmissionsPage: FC = () => {
   const [submissions, setSubmissions] = useState(MOCK_SUBMISSIONS);
   const [gradingState, setGradingState] = useState<Record<string, { grade: string, xp: string, feedback: string }>>({});
+  const [selectedClass, setSelectedClass] = useState<string>("All");
+
+  const classes = ["All", ...Array.from(new Set(MOCK_SUBMISSIONS.map(sub => sub.class)))];
+
+  const filteredSubmissions = submissions.filter(sub => selectedClass === "All" || sub.class === selectedClass);
 
   const handleGradeChange = (subId: string, field: string, value: string) => {
     setGradingState(prev => ({
@@ -82,12 +88,29 @@ const ReviewSubmissionsPage: FC = () => {
   return (
     <div className="space-y-8 animate-fade-in pb-20">
       {/* Header */}
-      <div className="space-y-2">
-        <Link to="/teacher/assignments" className="flex items-center text-slate-800 font-black text-2xl hover:text-blue-600 transition-colors w-fit">
-          <FiArrowLeft className="mr-3 text-xl" />
-          Review Submissions
-        </Link>
-        <p className="text-slate-400 font-medium ml-9">Algebraic Expressions Worksheet</p>
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <Link to="/teacher/assignments" className="flex items-center text-slate-800 font-black text-2xl hover:text-blue-600 transition-colors w-fit">
+            <FiArrowLeft className="mr-3 text-xl" />
+            Review Submissions
+          </Link>
+          <p className="text-slate-400 font-medium ml-9">Algebraic Expressions Worksheet</p>
+        </div>
+        
+        <div className="relative flex items-center">
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm cursor-pointer hover:border-slate-300 transition-colors">
+            <BsFilter className="text-slate-500 mr-2 text-lg" />
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer appearance-none pr-4"
+            >
+              {classes.map(c => (
+                <option key={c} value={c}>{c === "All" ? "All Classes" : c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* KPI Stats */}
@@ -114,7 +137,7 @@ const ReviewSubmissionsPage: FC = () => {
 
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Graded</p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Scored</p>
             <span className="text-3xl font-black text-slate-800">12</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-pink-50 text-pink-500 flex items-center justify-center">
@@ -138,7 +161,7 @@ const ReviewSubmissionsPage: FC = () => {
         <h3 className="text-lg font-black text-slate-800">Student Submissions</h3>
         
         <div className="space-y-6">
-          {submissions.map(sub => {
+          {filteredSubmissions.map(sub => {
             const initials = sub.studentName.split(' ').map(n => n[0]).join('');
             
             return (
@@ -182,7 +205,7 @@ const ReviewSubmissionsPage: FC = () => {
                   <div className="bg-white rounded-3xl p-6 border border-slate-100 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Grade(%)</label>
+                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Score(%)</label>
                         <input 
                           type="number" 
                           placeholder="0-100"
@@ -225,7 +248,7 @@ const ReviewSubmissionsPage: FC = () => {
                 {sub.status === 'Graded' && (
                   <div className="bg-white rounded-3xl p-6 border border-slate-100 space-y-2">
                     <p className="text-xs font-black text-slate-800 tracking-wider">
-                      Grade: <span className="text-green-500 ml-1">{sub.grade}</span>
+                      Score: <span className="text-green-500 ml-1">{sub.grade}</span>
                     </p>
                     <div>
                       <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">Feedback:</p>

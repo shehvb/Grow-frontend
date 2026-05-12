@@ -23,7 +23,7 @@ import {
 } from "../mock/parent.mock";
 import type { Student, DashboardSummary } from "../types/parent";
 
-const BASE_URL = 'https://edugrow.pythonanywhere.com/api/v1';
+const BASE_URL = 'https://ahmeddali.pythonanywhere.com/api/v1';
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
   // Use localStorage tokens (check both 'token' and 'access_token' depending on how auth is implemented)

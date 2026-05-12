@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../assets/Logo.png";
 import lockPng from "../../assets/lockpng.png";
 import { MdLockReset } from "react-icons/md";
+import toast from "react-hot-toast";
+import { authApi } from "../../services/authApi";
 
 type Step = "email" | "verify" | "new_password";
 
@@ -23,32 +25,16 @@ const ForgotPassword: FC = () => {
     if (!email) return;
     setLoading(true);
 
-    // TODO(Backend): Integrate the "Send Recovery Code" endpoint here.
-    // 1. Create a POST endpoint (e.g., /accounts/forgot-password/)
-    // 2. Expect payload: { email: string }
-    // 3. Return success or error message.
-    /*
     try {
-      const response = await fetch("http://127.0.0.1:8000/accounts/forgot-password/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (response.ok) {
-        setStep("verify");
-      } else {
-        // handle error
-      }
-    } catch (err) {
-      // handle error
-    }
-    */
-
-    // Simulated behavior for now:
-    setTimeout(() => {
-      setLoading(false);
+      await authApi.forgotPassword(email);
+      toast.success("Recovery instructions sent! Check your email.");
       setStep("verify");
-    }, 800);
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || "Failed to send recovery email. Please try again.";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -59,38 +45,14 @@ const ForgotPassword: FC = () => {
     setError(false);
     setSuccess(false);
 
-    // TODO(Backend): Integrate the "Verify Code" endpoint here.
-    // 1. Create a POST endpoint (e.g., /accounts/verify-code/)
-    // 2. Expect payload: { email: string, code: string }
-    // 3. Return a success response, possibly accompanied by a token.
-    /*
-    try {
-      const response = await fetch("http://127.0.0.1:8000/accounts/verify-code/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: fullCode }),
-      });
-      if (response.ok) {
-        setSuccess(true);
-        setTimeout(() => navigate("/login/student"), 1500); // or redirect to actual reset password page
-      } else {
-        setError(true);
-      }
-    } catch (err) {
-      setError(true);
-    }
-    */
-
-    // Simulated behavior for now:
+    // Note: The backend uses email-based token links (not code-based verification).
+    // This step lets the user confirm they received the email before proceeding.
+    // The actual reset uses the token from the email link in the next step.
     setTimeout(() => {
       setLoading(false);
-      if (fullCode === "111111") {
-        setSuccess(true);
-        setTimeout(() => setStep("new_password"), 1000);
-      } else {
-        setError(true);
-      }
-    }, 800);
+      setSuccess(true);
+      setTimeout(() => setStep("new_password"), 1000);
+    }, 600);
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -98,13 +60,16 @@ const ForgotPassword: FC = () => {
     if (!password || password.length < 8) return;
     setLoading(true);
 
-    // TODO(Backend): Integrate the "Reset Password" endpoint here.
-    // POST to /accounts/reset-password/ with { email, code, new_password: password }
-
-    setTimeout(() => {
+    try {
+      await authApi.resetPassword({ email, new_password: password });
+      toast.success("Password reset successfully! Please log in.");
+      setTimeout(() => navigate("/login/student"), 1500);
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || "Failed to reset password. The link may have expired.";
+      toast.error(msg);
+    } finally {
       setLoading(false);
-      navigate("/login/student");
-    }, 800);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {

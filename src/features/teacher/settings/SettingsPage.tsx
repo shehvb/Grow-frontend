@@ -15,9 +15,9 @@ const SettingsPage: FC = () => {
 
   const [formData, setFormData] = useState({
     fullName: displayName,
-    email: user?.email || "teacher@example.com", 
-    phone: "+20 1254684364",
-    password: "••••••••",
+    email: user?.email || "Ahmed Mohamed", 
+    school: "elqawmia",
+    id: "663254",
     language: "English (United States)"
   });
 
@@ -49,9 +49,9 @@ const SettingsPage: FC = () => {
         {/* Left Column: Profile Info */}
         <div className="lg:w-[320px] shrink-0 space-y-6">
           {/* Profile Card */}
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col items-center text-center">
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
             <div className="relative mb-6">
-              <div className="w-32 h-32 rounded-full bg-slate-200"></div>
+              <div className="w-32 h-32 rounded-full bg-[#D9D9D9]"></div>
               <button className="absolute bottom-1 right-1 w-8 h-8 bg-[#FF8000] text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:bg-orange-600 transition-colors">
                 <FiEdit2 className="w-4 h-4" />
               </button>
@@ -63,7 +63,7 @@ const SettingsPage: FC = () => {
           </div>
 
           {/* About Me Card */}
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-4">
             <h3 className="text-base font-black text-slate-800">About Me</h3>
             <p className="text-sm font-medium text-slate-500 leading-relaxed">
               Passionate Math teacher with 8 years of experience.
@@ -77,7 +77,7 @@ const SettingsPage: FC = () => {
         {/* Right Column: Settings */}
         <div className="flex-1 space-y-6">
           {/* Account Settings Form */}
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-8">
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="w-8 h-8 rounded-full bg-orange-100 text-[#FF8000] flex items-center justify-center">
                 <FiUser />
@@ -86,63 +86,58 @@ const SettingsPage: FC = () => {
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Full Name</label>
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Full Name</label>
                 <input 
                   type="text" 
                   value={formData.fullName}
                   onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="w-full bg-transparent border-b-2 border-slate-200 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#FF8000] transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#FF8000] transition-colors"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Email Address</label>
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Email Address</label>
                 <input 
                   type="text" 
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-transparent border-b-2 border-slate-200 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#FF8000] transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#FF8000] transition-colors"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Phone Number</label>
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">School</label>
                 <input 
                   type="text" 
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full bg-transparent border-b-2 border-slate-200 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#FF8000] transition-colors"
+                  value={formData.school}
+                  onChange={(e) => setFormData({...formData, school: e.target.value})}
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#FF8000] transition-colors"
                 />
               </div>
 
-              <div className="space-y-2 relative">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Password</label>
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Id</label>
                 <input 
-                  type="password" 
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full bg-transparent border-b-2 border-slate-200 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#FF8000] transition-colors"
+                  type="text" 
+                  value={formData.id}
+                  onChange={(e) => setFormData({...formData, id: e.target.value})}
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#FF8000] transition-colors"
                 />
-                <button className="absolute right-0 bottom-2 text-[#FF8000] text-xs font-bold hover:text-orange-600 transition-colors">
-                  Change Password
-                </button>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Preferred Language</label>
-                <div className="relative">
-                  <select 
-                    value={formData.language}
-                    onChange={(e) => setFormData({...formData, language: e.target.value})}
-                    className="w-full bg-transparent border-b-2 border-slate-200 py-2 text-sm font-bold text-slate-800 outline-none focus:border-[#FF8000] transition-colors appearance-none"
-                  >
-                    <option value="English (United States)">English (United States)</option>
-                    <option value="Arabic">Arabic</option>
-                    <option value="French">French</option>
-                  </select>
-                  <FiChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none stroke-[3]" />
-                </div>
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Preferred Language</label>
+                <select 
+                  value={formData.language}
+                  onChange={(e) => setFormData({...formData, language: e.target.value})}
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#FF8000] transition-colors appearance-none"
+                >
+                  <option value="English (United States)">English (United States)</option>
+                  <option value="Arabic">Arabic</option>
+                  <option value="French">French</option>
+                </select>
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-800 pointer-events-none stroke-[3] w-4 h-4" />
               </div>
             </div>
 
@@ -157,7 +152,7 @@ const SettingsPage: FC = () => {
           </div>
 
           {/* Learning Preferences */}
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-8">
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="w-8 h-8 rounded-full bg-orange-100 text-[#FF8000] flex items-center justify-center">
                 <FiSliders />
@@ -165,50 +160,46 @@ const SettingsPage: FC = () => {
               Learning Preferences
             </h3>
             
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Toggle 1 */}
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-black text-slate-800 mb-0.5">Email Notifications</h4>
-                  <p className="text-xs font-medium text-slate-400">Weekly progress summaries and reminders</p>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-slate-900 leading-tight">Email Notifications</h4>
+                  <p className="text-xs text-slate-400">Weekly progress summaries and reminders</p>
                 </div>
                 <button 
                   onClick={() => setPreferences({...preferences, emailNotifications: !preferences.emailNotifications})}
-                  className={`w-12 h-6 rounded-full p-1 transition-colors relative shrink-0 ${preferences.emailNotifications ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+                  className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.emailNotifications ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
                 >
-                  <div className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${preferences.emailNotifications ? 'left-[26px]' : 'left-1'}`} />
+                  <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.emailNotifications ? 'translate-x-7' : 'translate-x-0'}`} />
                 </button>
               </div>
-
-              <hr className="border-slate-100" />
 
               {/* Toggle 2 */}
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-black text-slate-800 mb-0.5">Missing assignments</h4>
-                  <p className="text-xs font-medium text-slate-400">Activate assignment submission</p>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-slate-900 leading-tight">Missing assignments</h4>
+                  <p className="text-xs text-slate-400">Activate assignment submission</p>
                 </div>
                 <button 
                   onClick={() => setPreferences({...preferences, missingAssignments: !preferences.missingAssignments})}
-                  className={`w-12 h-6 rounded-full p-1 transition-colors relative shrink-0 ${preferences.missingAssignments ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+                  className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.missingAssignments ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
                 >
-                  <div className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${preferences.missingAssignments ? 'left-[26px]' : 'left-1'}`} />
+                  <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.missingAssignments ? 'translate-x-7' : 'translate-x-0'}`} />
                 </button>
               </div>
 
-              <hr className="border-slate-100" />
-
               {/* Toggle 3 */}
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-black text-slate-800 mb-0.5">New submissions</h4>
-                  <p className="text-xs font-medium text-slate-400">Activate to send notifications for new submissions</p>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-slate-900 leading-tight">New submissions</h4>
+                  <p className="text-xs text-slate-400">Activate to send notifications for new submissions</p>
                 </div>
                 <button 
                   onClick={() => setPreferences({...preferences, newSubmissions: !preferences.newSubmissions})}
-                  className={`w-12 h-6 rounded-full p-1 transition-colors relative shrink-0 ${preferences.newSubmissions ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+                  className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.newSubmissions ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
                 >
-                  <div className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${preferences.newSubmissions ? 'left-[26px]' : 'left-1'}`} />
+                  <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.newSubmissions ? 'translate-x-7' : 'translate-x-0'}`} />
                 </button>
               </div>
             </div>

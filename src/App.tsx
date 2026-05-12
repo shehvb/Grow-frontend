@@ -66,7 +66,7 @@ import { ReportsAnalyticsPage } from "./features/admin/pages/ReportsAnalyticsPag
 const App: FC = () => {
   return (
     <Routes>
-      {/* Landing Page - الصفحة الرئيسية */}
+      {/* Landing Page */}
       <Route path="/" element={<LandingPage />} />
 
       {/* Auth Routes */}
