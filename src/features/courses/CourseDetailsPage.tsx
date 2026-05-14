@@ -8,12 +8,13 @@ import QuizTab from "../../components/courses/QuizTab";
 import AssignmentTab from "../../components/courses/AssignmentTab";
 import { useCourseStore } from "../../store/useCourseStore";
 import EnrollButton from "../../components/courses/EnrollButton";
-
+import { useLessonStore } from "../../store/useLessonStore";
 const CourseDetailsPage: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const { selectedCourse: apiCourse, isLoading, getCourseById, listLessons, lessons: apiLessons } = useCourseStore();
+  const { selectedCourse: apiCourse, isLoading: isCourseLoading, getCourseById } = useCourseStore();
+  const { lessons: apiLessons, fetchLessons } = useLessonStore();
   const [course, setCourse] = useState<CourseDetails | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("lessons");
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null); // null means checking
@@ -24,23 +25,25 @@ const CourseDetailsPage: FC = () => {
       getCourseById(courseId);
       
       // Attempt to fetch lessons - if successful, student is enrolled
-      listLessons(courseId)
+      fetchLessons(courseId)
         .then(() => setIsEnrolled(true))
-        .catch((err) => {
+        .catch((err: any) => {
           // If 403, definitely not enrolled. Other errors (404, etc) handled by selectedCourse check.
           if (err.response?.status === 403) {
             setIsEnrolled(false);
           } else {
-            // Default to not showing enrollment button if it's a general error, 
-            // or we can be conservative and set to false.
             setIsEnrolled(false);
           }
         });
     }
-  }, [id, getCourseById, listLessons]);
+  }, [id, getCourseById, fetchLessons]);
 
   useEffect(() => {
     if (apiCourse) {
+      // Calculate progress
+      const completedCount = apiLessons.filter(l => l.is_completed).length;
+      const progress = apiLessons.length > 0 ? Math.round((completedCount / apiLessons.length) * 100) : 0;
+
       // Map API Course to UI CourseDetails format
       setCourse({
         id: apiCourse.id.toString(),
@@ -49,24 +52,19 @@ const CourseDetailsPage: FC = () => {
           id: apiCourse.teacher?.id?.toString() || '0',
           name: apiCourse.teacher?.username || `Teacher ${apiCourse.teacher?.id || 'Unknown'}`,
         },
-        progress: 0,
-        status: "not_started",
+        progress,
+        status: progress === 100 ? "completed" : progress > 0 ? "in_progress" : "not_started",
         lessonsCount: apiLessons.length,
-        lessons: apiLessons.map((l: any) => ({
-          id: l.id.toString(),
-          title: l.title,
-          duration: "15 min", // Default duration as it's not in schema
-          status: isEnrolled ? "completed" : "locked",
-        })),
+        lessons: [], // We won't map here anymore, we'll pass apiLessons to LessonTab
         quizzes: [],
         assignments: [],
       });
-    } else if (!isLoading) {
+    } else if (!isCourseLoading) {
       setCourse(null);
     }
-  }, [apiCourse, isLoading, apiLessons, isEnrolled]);
+  }, [apiCourse, isCourseLoading, apiLessons, isEnrolled]);
 
-  if (isLoading) {
+  if (isCourseLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[300px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1600D5]"></div>
@@ -134,7 +132,7 @@ const CourseDetailsPage: FC = () => {
                 courseId={parseInt(course.id, 10)} 
                 onEnrollSuccess={() => {
                   setIsEnrolled(true);
-                  listLessons(parseInt(course.id, 10));
+                  fetchLessons(parseInt(course.id, 10));
                 }} 
               />
             ) : null /* Loading state for enrollment check */}
@@ -147,7 +145,7 @@ const CourseDetailsPage: FC = () => {
       
       {/* Content */}
       <div className="animate-fade-up">
-        {activeTab === "lessons" && <LessonTab lessons={course.lessons} />}
+        {activeTab === "lessons" && <LessonTab lessons={apiLessons} isEnrolled={!!isEnrolled} />}
         {activeTab === "quizzes" && <QuizTab courseId={course.id} quizzes={course.quizzes} />}
         {activeTab === "assignments" && (
           <AssignmentTab assignments={course.assignments} />

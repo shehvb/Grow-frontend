@@ -16,6 +16,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-14
 - N/A (State management via Zustand, API fetching via Axios) (014-courses-api-integration)
 - TypeScript 5.x (as declared in project) + React ^19.2.0, Zustand 5.0.12, Axios 1.16.0, react-hot-toast (existing) (015-session-management)
 - `localStorage` (existing — `auth_tokens` key) (015-session-management)
+- TypeScript 5.x / React ^19.2.0 + Vite, Tailwind CSS ^3.4.0, Zustand, Axios (016-lesson-management)
+- N/A (Backend API driven) (016-lesson-management)
 
 - [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (005-parent-dashboard)
 
@@ -36,9 +38,9 @@ cd src; pytest; ruff check .
 [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]: Follow standard conventions
 
 ## Recent Changes
+- 016-lesson-management: Added TypeScript 5.x / React ^19.2.0 + Vite, Tailwind CSS ^3.4.0, Zustand, Axios
 - 015-session-management: Added TypeScript 5.x (as declared in project) + React ^19.2.0, Zustand 5.0.12, Axios 1.16.0, react-hot-toast (existing)
 - 014-courses-api-integration: Added TypeScript / React 19.2.0 + Vite, Tailwind CSS 3.4.0, Axios 1.16.0, Zustand 5.0.12, React Router DOM 7.13.1, React Hot Toast 2.6.0
-- 012-auth-api-modernization: Added TypeScript 5+, React 19.2.0 + Axios, Zustand, React Router, React Hot Toast
 
 
 <!-- MANUAL ADDITIONS START -->

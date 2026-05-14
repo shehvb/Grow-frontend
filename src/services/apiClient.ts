@@ -70,9 +70,9 @@ apiClient.interceptors.response.use(
       error.response.data = { detail: 'Too many requests. Please wait a moment before trying again.' };
     }
 
-    const isLoginEndpoint = originalRequest?.url?.includes('/auth/login/') ||
-      originalRequest?.url?.includes('/auth/refresh/') ||
-      originalRequest?.url?.includes('/token/refresh/');
+    const isLoginEndpoint = originalRequest?.url?.includes('auth/login/') ||
+      originalRequest?.url?.includes('auth/refresh/') ||
+      originalRequest?.url?.includes('token/refresh/');
 
     if (error.response?.status === 401 && !originalRequest._retry && !isLoginEndpoint) {
       originalRequest._retry = true;

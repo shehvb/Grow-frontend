@@ -37,11 +37,12 @@ const CourseListPage: FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveCourse = async (data: { title: string; description: string }) => {
+  const handleSaveCourse = async (data: { title: string; description: string; grade?: number | null }) => {
+    const payload = { ...data, is_published: true };
     if (editingCourse) {
-      await updateCourse(editingCourse.id, data);
+      await updateCourse(editingCourse.id, payload);
     } else {
-      await createCourse(data);
+      await createCourse(payload);
     }
   };
 
