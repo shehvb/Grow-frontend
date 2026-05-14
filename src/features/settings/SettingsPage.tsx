@@ -26,7 +26,6 @@ const SettingsPage: FC = () => {
           <StudentProfileCard 
             profile={profile} 
             studentName={displayName} 
-            gradeLevel={student.gradeLevel} 
           />
         </div>
 
@@ -34,7 +33,6 @@ const SettingsPage: FC = () => {
         <div className="lg:col-span-8 flex flex-col gap-8 h-full">
           <div className="flex-1">
             <AccountSettingsCard 
-              profile={profile} 
               studentName={displayName} 
             />
           </div>

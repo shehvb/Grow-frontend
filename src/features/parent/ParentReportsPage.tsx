@@ -57,7 +57,7 @@ const ParentReportsPage: FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
+    <div className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       <div className="mb-8">
         <h1 className="text-[36px] font-black text-[#1A1C1E] tracking-tight mb-1 leading-none">Monthly Reports</h1>
         <p className="text-[#9E9E9E] font-bold text-[16px]">

@@ -222,9 +222,9 @@ const StudentLoginForm: FC = () => {
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         {/* Heading */}
         <div className="mb-8">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-full px-4 py-1.5 mb-4">
-            <span className="text-blue-600 font-black text-xs" style={{ fontFamily: "'Nunito', sans-serif" }}>Student Portal</span>
-          </div>
+          {/* <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-full px-4 py-1.5 mb-4"> */}
+            {/* <span className="text-blue-600 font-black text-xs" style={{ fontFamily: "'Nunito', sans-serif" }}>Student Portal</span> */}
+          {/* </div> */}
           <h1 className="text-3xl font-black text-slate-900 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
             Welcome Back!
           </h1>

@@ -153,7 +153,6 @@ const LoginForm: FC = () => {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'facebook' | null>(null);
 
-  const isParent = true;
 
   const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
     setOauthLoading(provider);

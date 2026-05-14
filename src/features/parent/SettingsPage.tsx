@@ -20,7 +20,7 @@ const SettingsPage: FC = () => {
   const { parentProfile, linkedStudents, notificationPrefs, aiTutorSettings } = dashboardSummary;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
+    <div className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
 

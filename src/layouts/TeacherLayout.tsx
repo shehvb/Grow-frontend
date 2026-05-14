@@ -4,9 +4,11 @@ import { Outlet } from "react-router-dom";
 import TeacherSidebar from "../features/teacher/components/TeacherSidebar";
 import TeacherTopbar from "../features/teacher/components/TeacherTopbar";
 import PageContainer from "../components/layout/PageContainer";
+import useIdleTimeout from "../hooks/useIdleTimeout";
 
 const TeacherLayout: FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  useIdleTimeout();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -27,7 +29,7 @@ const TeacherLayout: FC = () => {
         />
         
         <PageContainer className="flex-1 overflow-y-auto w-full">
-          <div className="max-w-[1600px] mx-auto">
+          <div className="max-w-[1320px] w-full mx-auto">
             <Outlet />
           </div>
         </PageContainer>

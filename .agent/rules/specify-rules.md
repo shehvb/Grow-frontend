@@ -1,6 +1,6 @@
 ﻿# GROW-back-up Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-05-12
+Auto-generated from all feature plans. Last updated: 2026-05-14
 
 ## Active Technologies
 - [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (007-role-based-auth)
@@ -12,6 +12,10 @@ Auto-generated from all feature plans. Last updated: 2026-05-12
 - localStorage (Tokens, User Profile) (011-auth-api-integration)
 - TypeScript 5+, React 19.2.0 + Axios, Zustand, React Router, React Hot Toast (012-auth-api-modernization)
 - Browser LocalStorage (JWT persistence) (012-auth-api-modernization)
+- TypeScript / React 19.2.0 + Vite, Tailwind CSS 3.4.0, Axios 1.16.0, Zustand 5.0.12, React Router DOM 7.13.1, React Hot Toast 2.6.0 (014-courses-api-integration)
+- N/A (State management via Zustand, API fetching via Axios) (014-courses-api-integration)
+- TypeScript 5.x (as declared in project) + React ^19.2.0, Zustand 5.0.12, Axios 1.16.0, react-hot-toast (existing) (015-session-management)
+- `localStorage` (existing — `auth_tokens` key) (015-session-management)
 
 - [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (005-parent-dashboard)
 
@@ -32,9 +36,9 @@ cd src; pytest; ruff check .
 [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]: Follow standard conventions
 
 ## Recent Changes
+- 015-session-management: Added TypeScript 5.x (as declared in project) + React ^19.2.0, Zustand 5.0.12, Axios 1.16.0, react-hot-toast (existing)
+- 014-courses-api-integration: Added TypeScript / React 19.2.0 + Vite, Tailwind CSS 3.4.0, Axios 1.16.0, Zustand 5.0.12, React Router DOM 7.13.1, React Hot Toast 2.6.0
 - 012-auth-api-modernization: Added TypeScript 5+, React 19.2.0 + Axios, Zustand, React Router, React Hot Toast
-- 011-auth-api-integration: Added TypeScript / React ^19.2.0 + Axios, Zustand, react-hot-toast, react-hook-form, zod
-- 011-auth-api-integration: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
 
 <!-- MANUAL ADDITIONS START -->

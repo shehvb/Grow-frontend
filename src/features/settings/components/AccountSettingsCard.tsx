@@ -1,13 +1,11 @@
 import type { FC } from "react";
 import { FiUser } from "react-icons/fi";
-import type { StudentProfileData } from "../../../types/parent";
 
 interface AccountSettingsCardProps {
-  profile: StudentProfileData;
   studentName: string;
 }
 
-const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ profile, studentName }) => {
+const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName }) => {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col">
       <div className="flex items-center gap-3 mb-8">

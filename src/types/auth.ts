@@ -13,6 +13,8 @@ export interface User {
 export interface AuthTokens {
   access: string;
   refresh: string;
+  role?: 'student' | 'teacher' | 'parent' | 'school_admin';
+  loginFlow?: 'standard' | 'otp'; // determines which student refresh endpoint to use
 }
 
 export interface LoginResponse {
