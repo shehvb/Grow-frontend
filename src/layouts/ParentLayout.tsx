@@ -5,12 +5,13 @@ import ParentSidebar from "../components/layout/ParentSidebar";
 import Topbar from "../components/layout/Topbar";
 import PageContainer from "../components/layout/PageContainer";
 import { useParentStore } from "../store/parentStore";
-
 import StudentSelector from "../features/parent/components/StudentSelector";
+import useIdleTimeout from "../hooks/useIdleTimeout";
 
 const ParentLayout: FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { fetchStudents } = useParentStore();
+  useIdleTimeout();
 
 
   useEffect(() => {
@@ -37,7 +38,9 @@ const ParentLayout: FC = () => {
           <StudentSelector />
         </Topbar>
         <PageContainer className="flex-1 overflow-y-auto w-full">
-          <Outlet />
+          <div className="max-w-[1320px] w-full mx-auto">
+            <Outlet />
+          </div>
         </PageContainer>
         {/* Floating Message Button Removed */}
       </div>

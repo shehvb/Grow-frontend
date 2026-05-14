@@ -58,7 +58,7 @@ const AttendancePage: FC = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-8 pb-10 mt-2 sm:mt-6 relative px-4 sm:px-6">
+    <div className="w-full space-y-8 pb-10 mt-2 sm:mt-6 relative px-4 sm:px-6">
       <div className="mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight">Attendance & Activity</h1>
         <p className="text-slate-500 font-medium text-sm sm:text-base mt-1">

@@ -184,7 +184,7 @@ const LoginForm: FC = () => {
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-black text-slate-900 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Welcome, Educator
+            Welcome, Back
           </h1>
           <p className="text-slate-400 text-sm font-semibold" style={{ fontFamily: "'Nunito', sans-serif" }}>
             Ready to lead and inspire today?

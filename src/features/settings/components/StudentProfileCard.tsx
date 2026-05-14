@@ -5,10 +5,9 @@ import type { StudentProfileData } from "../../../types/parent";
 interface StudentProfileCardProps {
   profile: StudentProfileData;
   studentName: string;
-  gradeLevel: number;
 }
 
-const StudentProfileCard: FC<StudentProfileCardProps> = ({ profile, studentName, gradeLevel }) => {
+const StudentProfileCard: FC<StudentProfileCardProps> = ({ profile, studentName }) => {
   return (
     <div className="space-y-6">
       {/* Profile Info */}

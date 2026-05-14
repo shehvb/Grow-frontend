@@ -7,9 +7,9 @@ export const Features: FC = () => (
   <section id="features" className="py-24 px-8 md:px-16 bg-slate-50">
     <div className="max-w-5xl mx-auto">
       <SectionHeader
-        label="Core Features"
-        title="Everything You Need to Succeed"
-        sub="Powered by advanced algorithms and intuitive design, built for students, parents, and educators."
+        label="Features"
+        title="Core Features"
+        sub="Powered by advanced algorithms and intuitive design"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {FEATURES.map((f, i) => (
@@ -43,7 +43,7 @@ export const HowItWorks: FC = () => (
       />
       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
         {/* Connector line */}
-        <div className="absolute top-10 left-[calc(16.66%+20px)] right-[calc(16.66%+20px)] h-0.5 bg-gradient-to-r from-blue-500 to-orange-400 hidden md:block" />
+        <div className="absolute top-10 left-[calc(16.66%+20px)] right-[calc(16.66%+20px)] h-0.5 bg-slate-200 hidden md:block" />
 
         {STEPS.map((s, i) => (
           <FadeUp key={s.title} delay={i * 120}>
@@ -67,11 +67,7 @@ export const HowItWorks: FC = () => (
 export const Audience: FC = () => (
   <section id="for-parents" className="py-24 px-8 md:px-16 bg-slate-50">
     <div className="max-w-5xl mx-auto">
-      <SectionHeader
-        label="Built For Everyone"
-        title="Designed for Students & Parents"
-        sub="Whether you're a student chasing goals or a parent seeking peace of mind, Grow has you covered."
-      />
+
       <div className="grid md:grid-cols-2 gap-6">
         {AUDIENCE_CARDS.map((card, i) => (
           <FadeUp key={card.tag} delay={i * 100}>

@@ -8,8 +8,8 @@ export const Features: FC = () => (
   <section id="features" className="py-24 px-6 md:px-12 bg-slate-50">
     <div className="max-w-[1400px] mx-auto">
       <SectionHeader
-        title="Everything You Need to Succeed"
-        sub="Everything you need to succeed, Powered by advanced algorithms and intuitive design"
+        title="Core Features"
+        sub="Powered by advanced algorithms and intuitive design"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {FEATURES.map((f, i) => (
@@ -46,7 +46,7 @@ export const HowItWorks: FC = () => (
 
         {STEPS.map((s, i) => (
           <FadeUp key={s.title} delay={i * 120}>
-            <div className={`text-center relative bg-white border ${i === 1 ? 'border-blue-500 shadow-[0_0_0_1px_rgba(59,130,246,1)]' : 'border-slate-200'} rounded-xl w-full p-8 z-10 min-h-[14rem] flex flex-col justify-start`}>
+            <div className="text-center relative bg-white border border-slate-200 rounded-xl w-full p-8 z-10 min-h-[14rem] flex flex-col justify-start">
               <div
                 className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.grad} flex items-center justify-center text-2xl text-white mx-auto mb-6 flex-shrink-0`}
               >
@@ -66,10 +66,7 @@ export const HowItWorks: FC = () => (
 export const Audience: FC = () => (
   <section id="who-we-serve" className="py-24 px-6 md:px-12 bg-slate-50">
     <div className="max-w-[1400px] mx-auto">
-      <SectionHeader 
-        title="Designed for Students & Parents"
-        sub="Whether you're a student chasing goals or a parent seeking peace of mind, Grow has you covered."
-       />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {AUDIENCE_CARDS.map((card, i) => (
           <FadeUp key={card.tag} delay={i * 100}>

@@ -20,8 +20,8 @@ import CourseLayout from "./layouts/CourseLayout";
 
 // Features
 import DashboardPage from "./features/dashboard/DashboardPage";
-import CoursesPage from "./features/courses/CoursesPage";
-import CourseDetailsPage from "./features/courses/CourseDetailsPage";
+import { StudentCourseList } from "./features/courses/components/StudentCourseList";
+import { StudentCourseDetails } from "./features/courses/components/StudentCourseDetails";
 import QuizPlayerPage from "./features/quiz/QuizPlayerPage";
 import TasksPage from "./features/tasks/TasksPage";
 import AITutorPage from "./features/ai/AITutorPage";
@@ -35,6 +35,7 @@ import AttendancePage from "./features/parent/AttendancePage";
 import AnalyticsPage from "./features/parent/AnalyticsPage";
 import AddStudentPage from "./features/parent/add-student/AddStudentPage";
 import ParentSettingsPage from "./features/parent/SettingsPage";
+import { ParentCourseList } from "./features/courses/components/ParentCourseList";
 
 import NotificationsPage from "./features/notifications/NotificationsPage";
 import ParentCommunicationLayout from "./features/parent/communication/ParentCommunicationLayout";
@@ -46,6 +47,8 @@ import TeacherDashboardPage from "./features/teacher/dashboard/TeacherDashboardP
 import CourseListPage from "./features/teacher/courses/CourseListPage";
 import CourseEditorPage from "./features/teacher/courses/CourseEditorPage";
 import LessonEditorPage from "./features/teacher/courses/LessonEditorPage";
+// import { AttendanceViewer } from "./features/courses/components/AttendanceViewer";
+import { CourseAnalytics } from "./features/courses/components/CourseAnalytics";
 import AssignmentListPage from "./features/teacher/assignments/AssignmentListPage";
 import CreateAssignmentPage from "./features/teacher/assignments/CreateAssignmentPage";
 import ReviewSubmissionsPage from "./features/teacher/assignments/ReviewSubmissionsPage";
@@ -84,7 +87,7 @@ const App: FC = () => {
       <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="courses" element={<CoursesPage />} />
+        <Route path="courses" element={<StudentCourseList />} />
         <Route path="tasks" element={<TasksPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
@@ -92,7 +95,7 @@ const App: FC = () => {
 
       {/* Courses Dedicated Route */}
       <Route path="/student/courses" element={<ProtectedRoute allowedRoles={['student']}><CourseLayout /></ProtectedRoute>}>
-        <Route path=":id" element={<CourseDetailsPage />} />
+        <Route path=":id" element={<StudentCourseDetails />} />
         <Route path=":courseId/quiz/:quizId" element={<QuizPlayerPage />} />
       </Route>
 
@@ -112,6 +115,7 @@ const App: FC = () => {
       <Route path="/parent" element={<ProtectedRoute allowedRoles={['parent']}><ParentLayout /></ProtectedRoute>}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ParentDashboardPage />} />
+        <Route path="courses" element={<ParentCourseList />} />
         <Route path="reports" element={<ParentReportsPage />} />
         <Route path="attendance" element={<AttendancePage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
@@ -134,6 +138,7 @@ const App: FC = () => {
         <Route path="courses/:id" element={<CourseEditorPage />} />
         <Route path="courses/:id/lessons/new" element={<LessonEditorPage />} />
         <Route path="courses/:id/lessons/:lessonId" element={<LessonEditorPage />} />
+        <Route path="courses/:id/analytics" element={<CourseAnalytics />} />
         <Route path="assignments" element={<AssignmentListPage />} />
         <Route path="assignments/new" element={<CreateAssignmentPage />} />
         <Route path="assignments/:id/review" element={<ReviewSubmissionsPage />} />

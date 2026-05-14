@@ -51,7 +51,7 @@ const ParentDashboardPage: FC = () => {
   const topSubjects = dashboardSummary?.topSubjects || [];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
+    <div className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

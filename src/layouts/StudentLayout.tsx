@@ -4,6 +4,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
 import PageContainer from "../components/layout/PageContainer";
+import useIdleTimeout from "../hooks/useIdleTimeout";
 
 
 interface StudentLayoutProps {
@@ -13,6 +14,7 @@ interface StudentLayoutProps {
 const StudentLayout: FC<StudentLayoutProps> = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  useIdleTimeout();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -36,7 +38,7 @@ const StudentLayout: FC<StudentLayoutProps> = () => {
               : 'overflow-y-auto'
             }`}
         >
-          <div className={`flex-1 flex flex-col min-h-0 ${location.pathname.includes('/ai-tutor') || location.pathname.includes('/communication') ? 'h-full' : ''}`}>
+          <div className={`max-w-[1320px] mx-auto w-full flex-1 flex flex-col min-h-0 ${location.pathname.includes('/ai-tutor') || location.pathname.includes('/communication') ? 'h-full' : ''}`}>
             <Outlet />
           </div>
         </PageContainer>
