@@ -59,7 +59,25 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const newCourse = await courseService.createCourse(data);
       set((state) => ({ courses: [...state.courses, newCourse], isLoading: false }));
     } catch (error: any) {
-      set({ isLoading: false, error: error.response?.data?.detail || 'Failed to create course.' });
+      const status = error.response?.status;
+      const errorData = error.response?.data;
+      let errorMessage = `Failed to create course${status ? ` (${status})` : ''}.`;
+      
+      if (errorData) {
+        if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail;
+        } else if (typeof errorData === 'object') {
+          // Extract field-specific errors: { "title": ["error"], "grade": ["error"] }
+          const fieldErrors = Object.entries(errorData)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join(' | ');
+          if (fieldErrors) errorMessage = fieldErrors;
+        }
+      }
+      
+      set({ isLoading: false, error: errorMessage });
       throw error;
     }
   },

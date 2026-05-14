@@ -15,6 +15,8 @@ import {
   FiVolume2
 } from "react-icons/fi";
 import { useEffect } from "react";
+import { useLessonStore } from "../../../store/useLessonStore";
+import { toast } from "react-hot-toast";
 
 const LessonEditorPage: FC = () => {
   const { id, lessonId } = useParams();
@@ -27,54 +29,69 @@ const LessonEditorPage: FC = () => {
     status: "Draft",
     videoType: "File",
     rewardXp: 50,
-    bonusXp: 0
+    bonusXp: 0,
+    order: 1
   });
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+
+  const { createLesson, updateLesson, isLoading, lessons, fetchLessons } = useLessonStore();
 
   useEffect(() => {
-    if (isEditMode) {
-      const savedLessons = JSON.parse(sessionStorage.getItem(`course-${id}-lessons`) || "[]");
-      const existing = savedLessons.find((l: any) => l.id === lessonId);
+    if (id) {
+      fetchLessons(parseInt(id, 10));
+    }
+  }, [id, fetchLessons]);
+
+  useEffect(() => {
+    if (isEditMode && lessons.length > 0) {
+      const existing = lessons.find((l: any) => l.id.toString() === lessonId);
       if (existing) {
         setLessonData({
           title: existing.title,
-          description: existing.description || "",
-          status: existing.status.charAt(0).toUpperCase() + existing.status.slice(1),
-          videoType: "File",
-          rewardXp: existing.xp,
-          bonusXp: existing.bonusXp
+          description: existing.content || "",
+          status: existing.status ? (existing.status.charAt(0).toUpperCase() + existing.status.slice(1)) : "Draft",
+          videoType: existing.video_url ? "Link" : "File",
+          rewardXp: existing.xp_reward || 0,
+          bonusXp: existing.bonus_xp || 0,
+          order: existing.order || 1
         });
       }
+    } else if (!isEditMode && lessons.length >= 0) {
+      setLessonData(prev => ({ ...prev, order: lessons.length + 1 }));
     }
-  }, [isEditMode, id, lessonId]);
+  }, [isEditMode, lessons, lessonId]);
 
-  const handleSave = () => {
-    const savedLessons = JSON.parse(sessionStorage.getItem(`course-${id}-lessons`) || "[]");
-    
-    if (isEditMode) {
-      const updated = savedLessons.map((l: any) => l.id === lessonId ? { 
-        ...l, 
-        title: lessonData.title || "Untitled Lesson", 
-        description: lessonData.description, 
-        xp: lessonData.rewardXp, 
-        bonusXp: lessonData.bonusXp, 
-        status: lessonData.status.toLowerCase() 
-      } : l);
-      sessionStorage.setItem(`course-${id}-lessons`, JSON.stringify(updated));
-    } else {
-      const newLesson = {
-        id: `l${Date.now()}`,
-        number: savedLessons.length + 1,
-        title: lessonData.title || "New Lesson",
-        status: lessonData.status.toLowerCase(),
-        duration: "15 min",
-        xp: lessonData.rewardXp,
-        bonusXp: lessonData.bonusXp,
-        isLocked: false
-      };
-      sessionStorage.setItem(`course-${id}-lessons`, JSON.stringify([...savedLessons, newLesson]));
+  const handleSave = async () => {
+    if (!lessonData.title) {
+      toast.error("Please enter a lesson title");
+      return;
     }
-    
-    navigate(`/teacher/courses/${id}`);
+
+    try {
+      const formData = new FormData();
+      formData.append('title', lessonData.title);
+      formData.append('content', lessonData.description);
+      formData.append('order', lessonData.order.toString());
+      formData.append('status', lessonData.status.toLowerCase());
+      formData.append('xp_reward', lessonData.rewardXp.toString());
+      formData.append('bonus_xp', lessonData.bonusXp.toString());
+
+      if (videoFile) formData.append('video_file', videoFile);
+      if (pdfFile) formData.append('pdf_file', pdfFile);
+
+      if (isEditMode) {
+        await updateLesson(parseInt(lessonId!, 10), formData);
+        toast.success("Lesson updated successfully!");
+      } else {
+        await createLesson(parseInt(id!, 10), formData);
+        toast.success("Lesson created successfully!");
+      }
+      
+      navigate(`/teacher/courses/${id}`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save lesson");
+    }
   };
 
   return (
@@ -93,10 +110,11 @@ const LessonEditorPage: FC = () => {
           
           <button 
             onClick={handleSave}
-            className="px-6 py-3 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all flex items-center gap-2 w-fit"
+            disabled={isLoading}
+            className="px-6 py-3 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all flex items-center gap-2 w-fit disabled:opacity-50"
           >
             <FiSave className="text-xl" />
-            <span>Save Lesson</span>
+            <span>{isLoading ? "Saving..." : "Save Lesson"}</span>
           </button>
         </div>
       </div>
@@ -179,17 +197,32 @@ const LessonEditorPage: FC = () => {
 
             <div className="space-y-4">
               <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Upload Video</p>
-              <div className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer bg-slate-50/30">
+              <div 
+                onClick={() => document.getElementById('video-input')?.click()}
+                className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer bg-slate-50/30"
+              >
                 <div className="bg-blue-50 p-4 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform">
                   <FiUploadCloud size={32} />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-black text-slate-800">Upload video</p>
+                  <p className="text-sm font-black text-slate-800">
+                    {videoFile ? videoFile.name : "Upload video"}
+                  </p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">MP4, MOV, AVI up to 500MB</p>
                 </div>
               </div>
-              <button className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-100">
-                Upload
+              <input 
+                id="video-input"
+                type="file" 
+                accept="video/*"
+                className="hidden"
+                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+              />
+              <button 
+                onClick={() => document.getElementById('video-input')?.click()}
+                className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-100"
+              >
+                {videoFile ? "Change Video" : "Select Video"}
               </button>
             </div>
           </div>
@@ -199,17 +232,32 @@ const LessonEditorPage: FC = () => {
             <h3 className="text-lg font-black text-slate-800">Resources</h3>
             <div className="space-y-4">
               <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Upload Files</p>
-              <div className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer bg-slate-50/30">
+              <div 
+                onClick={() => document.getElementById('pdf-input')?.click()}
+                className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer bg-slate-50/30"
+              >
                 <div className="bg-blue-50 p-4 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform">
                   <FiUploadCloud size={32} />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-black text-slate-800">Upload Files</p>
+                  <p className="text-sm font-black text-slate-800">
+                    {pdfFile ? pdfFile.name : "Upload Files"}
+                  </p>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">PDF, DOC, PPT up to 50MB</p>
                 </div>
               </div>
-              <button className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-100">
-                Upload
+              <input 
+                id="pdf-input"
+                type="file" 
+                accept=".pdf,.doc,.docx,.ppt,.pptx"
+                className="hidden"
+                onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+              />
+              <button 
+                onClick={() => document.getElementById('pdf-input')?.click()}
+                className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-100"
+              >
+                {pdfFile ? "Change File" : "Select File"}
               </button>
             </div>
           </div>
@@ -314,7 +362,7 @@ const LessonEditorPage: FC = () => {
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-orange-500">
                   <FiZap />
-                  Earn {lessonData.rewardXp} XP
+                  Earn {lessonData.rewardXp + (lessonData.bonusXp || 0)} XP
                 </div>
               </div>
 

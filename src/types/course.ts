@@ -21,4 +21,39 @@ export interface Enrollment {
 export interface CourseWriteRequest {
   title: string;
   description?: string;
+  grade?: number | null; // API expects an integer (e.g. 10), not a string ("Grade 10")
+  is_published?: boolean;
+}
+
+export type TeacherLessonStatus = 'draft' | 'published';
+
+export interface TeacherLesson {
+  id: number;
+  title: string;
+  content: string;
+  order: number;
+  status: TeacherLessonStatus;
+  video_url?: string;
+  pdf_file?: string;
+  resources?: string;
+  xp_reward: number;
+  bonus_xp: number;
+}
+
+export interface TeacherLessonWriteRequest {
+  title: string;
+  content: string;
+  order: number;
+  status?: TeacherLessonStatus;
+  video_url?: string;
+  pdf_file?: File | null;
+  resources?: File | null;
+  xp_reward: number;
+  bonus_xp: number;
+}
+
+export interface StudentLesson {
+  id: number;
+  title: string;
+  is_completed: boolean;
 }

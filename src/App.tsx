@@ -21,7 +21,7 @@ import CourseLayout from "./layouts/CourseLayout";
 // Features
 import DashboardPage from "./features/dashboard/DashboardPage";
 import { StudentCourseList } from "./features/courses/components/StudentCourseList";
-import { StudentCourseDetails } from "./features/courses/components/StudentCourseDetails";
+import CourseDetailsPage from "./features/courses/CourseDetailsPage";
 import QuizPlayerPage from "./features/quiz/QuizPlayerPage";
 import TasksPage from "./features/tasks/TasksPage";
 import AITutorPage from "./features/ai/AITutorPage";
@@ -95,7 +95,7 @@ const App: FC = () => {
 
       {/* Courses Dedicated Route */}
       <Route path="/student/courses" element={<ProtectedRoute allowedRoles={['student']}><CourseLayout /></ProtectedRoute>}>
-        <Route path=":id" element={<StudentCourseDetails />} />
+        <Route path=":id" element={<CourseDetailsPage />} />
         <Route path=":courseId/quiz/:quizId" element={<QuizPlayerPage />} />
       </Route>
 

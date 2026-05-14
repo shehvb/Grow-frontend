@@ -2,26 +2,33 @@ import type { FC } from "react";
 import { useState, useEffect } from "react";
 import { useCourseStore } from "../../../../store/useCourseStore";
 import { FiChevronDown } from "react-icons/fi";
+import { courseService, type SchoolGrade } from "../../../../services/courseService";
 
 interface CreateCourseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { title: string; description: string; grade?: string }) => Promise<void>;
-  courseToEdit?: { title: string; description: string; grade?: string } | null;
+  onSave: (data: { title: string; description: string; grade?: number | null }) => Promise<void>;
+  courseToEdit?: { title: string; description: string; grade?: number | null } | null;
 }
 
 const CreateCourseModal: FC<CreateCourseModalProps> = ({ isOpen, onClose, onSave, courseToEdit }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [grade, setGrade] = useState("");
+  const [gradeId, setGradeId] = useState<number | "">(""); 
+  const [grades, setGrades] = useState<SchoolGrade[]>([]);
   const { error, isLoading, clearError } = useCourseStore();
 
   useEffect(() => {
     if (isOpen) {
       setTitle(courseToEdit?.title || "");
       setDescription(courseToEdit?.description || "");
-      setGrade(courseToEdit?.grade || "");
+      setGradeId(courseToEdit?.grade || "");
       clearError();
+      
+      // Fetch available grades for the dropdown
+      courseService.getGrades()
+        .then(res => setGrades(res.results || []))
+        .catch(err => console.error("Failed to load grades", err));
     }
   }, [isOpen, courseToEdit, clearError]);
 
@@ -30,7 +37,15 @@ const CreateCourseModal: FC<CreateCourseModalProps> = ({ isOpen, onClose, onSave
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSave({ title, description, grade });
+      const payload: any = { title, description, is_published: true };
+      
+      if (gradeId !== "") {
+        payload.grade = Number(gradeId);
+      } else {
+        payload.grade = null;
+      }
+      
+      await onSave(payload);
       onClose();
     } catch (err) {
       // Error is handled by store and displayed below
@@ -89,25 +104,16 @@ const CreateCourseModal: FC<CreateCourseModalProps> = ({ isOpen, onClose, onSave
             </label>
             <div className="relative">
               <select 
-                value={grade}
-                onChange={e => setGrade(e.target.value)}
+                value={gradeId}
+                onChange={e => setGradeId(e.target.value ? Number(e.target.value) : "")}
                 className={`w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-50 transition-all appearance-none bg-white cursor-pointer ${
-                  !grade ? 'text-slate-300' : 'text-slate-700'
+                  !gradeId ? 'text-slate-300' : 'text-slate-700'
                 }`}
               >
                 <option value="" disabled>Choose Grade</option>
-                <option value="Grade 1">Grade 1</option>
-                <option value="Grade 2">Grade 2</option>
-                <option value="Grade 3">Grade 3</option>
-                <option value="Grade 4">Grade 4</option>
-                <option value="Grade 5">Grade 5</option>
-                <option value="Grade 6">Grade 6</option>
-                <option value="Grade 7">Grade 7</option>
-                <option value="Grade 8">Grade 8</option>
-                <option value="Grade 9">Grade 9</option>
-                <option value="Grade 10">Grade 10</option>
-                <option value="Grade 11">Grade 11</option>
-                <option value="Grade 12">Grade 12</option>
+                {grades.map(g => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
               </select>
               <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
             </div>
