@@ -13,7 +13,7 @@ export function AdminDashboardPage() {
 
       <KPIStats kpis={mockSchoolKPIs} />
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex  flex-row gap-6">
         <ClassGrid classes={mockClassSummaries} />
         <AlertsSidebar alerts={mockGlobalAlerts} />
       </div>

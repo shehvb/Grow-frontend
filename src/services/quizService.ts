@@ -1,5 +1,6 @@
 import apiClient from "./apiClient";
 import type { Quiz, QuizResult } from "../types";
+import type { QuizResultDetail } from "../types/teacher";
 import { getMockQuizById, submitMockQuiz } from "./mock/quizServiceMock";
 
 // BACKEND DEVELOPER INSTRUCTIONS:
@@ -37,6 +38,11 @@ export const quizService = {
 
   updateQuiz: async (id: string | number, data: any): Promise<any> => {
     const response = await apiClient.put(`teacher/quizzes/${id}/update/`, data);
+    return response.data;
+  },
+
+  getQuizResults: async (quizId: string | number): Promise<QuizResultDetail[]> => {
+    const response = await apiClient.get(`teacher/quizzes/${quizId}/results/`);
     return response.data;
   }
 };

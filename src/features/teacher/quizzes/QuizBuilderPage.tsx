@@ -334,7 +334,7 @@ const QuizBuilderPage: FC = () => {
               </div>
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Subject</p>
-                <p className="text-sm font-black text-slate-800">{formData.course || "Unassigned"}</p>
+                <p className="text-sm font-black text-slate-800">{formData.courseId || "Unassigned"}</p>
               </div>
               
               <hr className="border-slate-100 my-4" />

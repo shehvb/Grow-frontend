@@ -17,17 +17,17 @@ const DashboardPage: FC = () => {
     <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 space-y-8">
       <div className="mt-2 sm:mt-4">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-2 sm:mb-3 tracking-tight">Welcome back, {user?.first_name || "Student"}</h1>
-        <p className="text-slate-500 font-medium text-base sm:text-lg">You've completed <span className="text-[#FF8000] font-bold">70%</span> of your daily goal. Keep it up!</p>
+        <p className="text-slate-500 font-medium text-base sm:text-lg">You've completed <span className="text-[#FF8000] font-bold">{data.dailyMasteryProgress}%</span> of your daily goal. Keep it up!</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Main Column */}
         <div className="lg:col-span-2 space-y-6">
-          <DailyMasteryProgressBar progress={70} />
+          <DailyMasteryProgressBar progress={data.dailyMasteryProgress} />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <XPCard totalXp={9750} />
-            <StreakCounter streakDays={20} />
+            <XPCard totalXp={data.totalXp} xpChange={data.xpChange} />
+            <StreakCounter streakDays={data.streakDays} />
           </div>
 
           <TodayTasksList tasks={data.todayTasks} />
@@ -35,9 +35,9 @@ const DashboardPage: FC = () => {
 
         {/* Sidebar Column */}
         <div className="lg:col-span-1 space-y-6 flex flex-col">
-          <LeaderboardWidget />
-          <WeeklyGoalWidget weeklyProgress={92} weeklyTarget={100} />
-          <UpcomingSessionWidget />
+          <LeaderboardWidget leaderboard={data.leaderboard} />
+          <WeeklyGoalWidget weeklyProgress={data.weeklyProgress} weeklyTarget={data.weeklyTarget} />
+          <UpcomingSessionWidget session={data.upcomingSession} />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FC } from "react";
 import type { Task } from "../../mock/dashboard.mock";
 
@@ -6,14 +6,12 @@ interface TodayTasksListProps {
   tasks: Task[];
 }
 
-const TodayTasksList: FC<TodayTasksListProps> = ({ tasks: _tasks }) => {
-  const initialTasks = [
-    { id: '1', title: 'Complete Module 4: Ecosystems', subject: 'Science', time: '45 mins', status: 'completed' },
-    { id: '2', title: 'Review Flashcards: Linear Algebra', subject: 'Mathematics', time: '15 mins', status: 'priority', badge: 'DOING' },
-    { id: '3', title: 'Submit Lab: Pyramid builders', subject: 'History', time: '60 mins', status: 'pending', hasClock: true },
-  ];
+const TodayTasksList: FC<TodayTasksListProps> = ({ tasks }) => {
+  const [displayTasks, setDisplayTasks] = useState(tasks);
 
-  const [displayTasks, setDisplayTasks] = useState(initialTasks);
+  useEffect(() => {
+    setDisplayTasks(tasks);
+  }, [tasks]);
 
   const toggleTask = (id: string) => {
     setDisplayTasks(prev => prev.map(t => 

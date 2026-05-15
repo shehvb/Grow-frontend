@@ -1,6 +1,6 @@
 import type { FC } from "react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import { 
   FiArrowLeft,
   FiCheckSquare,
@@ -11,49 +11,62 @@ import {
   FiClock
 } from "react-icons/fi";
 import { BsFilter } from "react-icons/bs";
+import { assignmentService } from "../../../services/assignmentService";
+import type { TeacherSubmission } from "../../../types/teacher";
 
-const MOCK_SUBMISSIONS = [
-  {
-    id: "s1",
-    studentName: "Emma Watson",
-    class: "Class C",
-    status: "Submitted",
-    submittedAt: "Apr 8, 2026 2:30 PM",
-    file: "emma_algebra_worksheet.pdf",
-    grade: "",
-    xp: "",
-    feedback: ""
-  },
-  {
-    id: "s2",
-    studentName: "James Smith",
-    class: "Class C",
-    status: "Graded",
-    submittedAt: "Apr 8, 2026 2:00 PM",
-    file: "james_algebra_worksheet.pdf",
-    grade: "95%",
-    xp: "150",
-    feedback: "Excellent work! All problems solved correctly."
-  },
-  {
-    id: "s3",
-    studentName: "Liam Wilson",
-    class: "Class B",
-    status: "Missing",
-    submittedAt: "",
-    file: "",
-    grade: "",
-    xp: "",
-    feedback: ""
-  }
-];
+interface UIMappedSubmission {
+  id: string;
+  studentName: string;
+  class: string;
+  status: string;
+  submittedAt: string;
+  file: string;
+  grade: string;
+  xp: string;
+  feedback: string;
+}
 
 const ReviewSubmissionsPage: FC = () => {
-  const [submissions, setSubmissions] = useState(MOCK_SUBMISSIONS);
+  const { id } = useParams<{ id: string }>();
+  const [submissions, setSubmissions] = useState<UIMappedSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
   const [gradingState, setGradingState] = useState<Record<string, { grade: string, xp: string, feedback: string }>>({});
   const [selectedClass, setSelectedClass] = useState<string>("All");
 
-  const classes = ["All", ...Array.from(new Set(MOCK_SUBMISSIONS.map(sub => sub.class)))];
+  useEffect(() => {
+    if (!id) return;
+    const fetchSubmissions = async () => {
+      try {
+        setLoading(true);
+        const data = await assignmentService.getSubmissions(Number(id));
+        const mapped = data.map(sub => {
+          let statusText = 'Missing';
+          if (sub.status === 'submitted') statusText = 'Submitted';
+          if (sub.status === 'graded') statusText = 'Graded';
+          
+          return {
+            id: sub.id.toString(),
+            studentName: sub.student_name || 'Unknown Student',
+            class: 'All', // API does not provide class info yet
+            status: statusText,
+            submittedAt: sub.submitted_at ? new Date(sub.submitted_at).toLocaleString() : '',
+            file: sub.file_url ? sub.file_url.split('/').pop() || 'file' : '',
+            grade: sub.score != null ? `${sub.score}%` : '',
+            xp: sub.xp_reward != null ? sub.xp_reward.toString() : '',
+            feedback: sub.feedback || ''
+          };
+        });
+        setSubmissions(mapped);
+      } catch (err) {
+        console.error("Failed to fetch submissions", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSubmissions();
+  }, [id]);
+
+  const classes = ["All", ...Array.from(new Set(submissions.map(sub => sub.class)))];
 
   const filteredSubmissions = submissions.filter(sub => selectedClass === "All" || sub.class === selectedClass);
 
@@ -64,25 +77,36 @@ const ReviewSubmissionsPage: FC = () => {
     }));
   };
 
-  const submitGrade = (subId: string) => {
+  const submitGrade = async (subId: string) => {
     const grades = gradingState[subId];
     if (!grades?.grade || !grades?.xp) {
       alert("Please enter a grade and XP.");
       return;
     }
 
-    setSubmissions(prev => prev.map(sub => {
-      if (sub.id === subId) {
-        return {
-          ...sub,
-          status: "Graded",
-          grade: grades.grade + "%",
-          xp: grades.xp,
-          feedback: grades.feedback
-        };
-      }
-      return sub;
-    }));
+    try {
+      await assignmentService.gradeSubmission(Number(subId), {
+        score: Number(grades.grade),
+        xp_reward: Number(grades.xp),
+        feedback: grades.feedback || ''
+      });
+
+      setSubmissions(prev => prev.map(sub => {
+        if (sub.id === subId) {
+          return {
+            ...sub,
+            status: "Graded",
+            grade: grades.grade + "%",
+            xp: grades.xp,
+            feedback: grades.feedback
+          };
+        }
+        return sub;
+      }));
+    } catch (err) {
+      console.error("Failed to grade submission", err);
+      alert("Failed to submit grade. Please try again.");
+    }
   };
 
   return (
@@ -118,7 +142,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">45</span>
+            <span className="text-3xl font-black text-slate-800">{submissions.length}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-400 flex items-center justify-center">
             <FiCheckSquare />
@@ -128,7 +152,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Submitted</p>
-            <span className="text-3xl font-black text-slate-800">38</span>
+            <span className="text-3xl font-black text-slate-800">{submissions.filter(s => s.status !== 'Missing').length}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-green-50 text-green-500 flex items-center justify-center">
             <FiCheckCircle />
@@ -138,7 +162,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Scored</p>
-            <span className="text-3xl font-black text-slate-800">12</span>
+            <span className="text-3xl font-black text-slate-800">{submissions.filter(s => s.status === 'Graded').length}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-pink-50 text-pink-500 flex items-center justify-center">
             <FiAward />
@@ -148,7 +172,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Missing</p>
-            <span className="text-3xl font-black text-slate-800">7</span>
+            <span className="text-3xl font-black text-slate-800">{submissions.filter(s => s.status === 'Missing').length}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
             <FiXCircle />
@@ -161,8 +185,12 @@ const ReviewSubmissionsPage: FC = () => {
         <h3 className="text-lg font-black text-slate-800">Student Submissions</h3>
         
         <div className="space-y-6">
-          {filteredSubmissions.map(sub => {
-            const initials = sub.studentName.split(' ').map(n => n[0]).join('');
+          {loading ? (
+            <p className="text-slate-500 font-medium">Loading submissions...</p>
+          ) : filteredSubmissions.length === 0 ? (
+            <p className="text-slate-500 font-medium">No submissions found.</p>
+          ) : filteredSubmissions.map(sub => {
+            const initials = sub.studentName ? sub.studentName.split(' ').map(n => n[0]).join('') : '?';
             
             return (
               <div key={sub.id} className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 lg:p-8">

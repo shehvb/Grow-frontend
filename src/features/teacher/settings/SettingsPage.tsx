@@ -8,6 +8,7 @@ import {
   FiChevronDown, 
   FiChevronRight
 } from "react-icons/fi";
+import { teacherService } from "../services/teacher.service";
 
 const SettingsPage: FC = () => {
   const { user } = useAuthStore();
@@ -18,24 +19,93 @@ const SettingsPage: FC = () => {
     email: user?.email || "Ahmed Mohamed", 
     school: "elqawmia",
     id: "663254",
-    language: "English (United States)"
+    language: "English (United States)",
+    bio: "",
+    avatar: ""
   });
-
-  useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        fullName: displayName,
-        email: user.email || prev.email,
-      }));
-    }
-  }, [user]);
 
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
     missingAssignments: false,
     newSubmissions: true
   });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // We use Promise.all to fetch both simultaneously if possible, or sequential
+        const [profileRes, notifRes] = await Promise.all([
+          teacherService.getProfile().catch(() => null),
+          teacherService.getNotifications().catch(() => null)
+        ]);
+        
+        if (profileRes) {
+          setFormData({
+            fullName: profileRes.full_name || displayName,
+            email: profileRes.email || user?.email || "",
+            school: profileRes.school_name || "School",
+            id: profileRes.teacher_id?.toString() || "0",
+            language: profileRes.preferred_language || "English (United States)",
+            bio: profileRes.bio || "",
+            avatar: profileRes.avatar || ""
+          });
+        }
+        
+        if (notifRes) {
+          setPreferences({
+            emailNotifications: notifRes.emailNotifications !== undefined ? notifRes.emailNotifications : true,
+            missingAssignments: notifRes.missingAssignments !== undefined ? notifRes.missingAssignments : false,
+            newSubmissions: notifRes.newSubmissions !== undefined ? notifRes.newSubmissions : true
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [user, displayName]);
+
+  const handleSaveProfile = async () => {
+    try {
+      // Exclude read-only fields per API spec
+      const payload = {
+        bio: formData.bio,
+        avatar: formData.avatar,
+        preferred_language: formData.language
+      };
+      await teacherService.updateProfile(payload);
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Failed to save profile", err);
+      alert("Failed to update profile.");
+    }
+  };
+
+  const handleTogglePreference = async (key: keyof typeof preferences) => {
+    const newValue = !preferences[key];
+    setPreferences({ ...preferences, [key]: newValue });
+    try {
+      await teacherService.updateNotifications({ [key]: newValue });
+    } catch (err) {
+      console.error("Failed to update notification preference", err);
+      // Revert on failure
+      setPreferences({ ...preferences, [key]: !newValue });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">
@@ -145,7 +215,10 @@ const SettingsPage: FC = () => {
               <button className="text-slate-500 font-bold text-sm hover:text-slate-800 transition-colors">
                 Cancel
               </button>
-              <button className="px-8 py-3 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all text-sm">
+              <button 
+                onClick={handleSaveProfile}
+                className="px-8 py-3 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all text-sm"
+              >
                 Save Changes
               </button>
             </div>
@@ -168,7 +241,7 @@ const SettingsPage: FC = () => {
                   <p className="text-xs text-slate-400">Weekly progress summaries and reminders</p>
                 </div>
                 <button 
-                  onClick={() => setPreferences({...preferences, emailNotifications: !preferences.emailNotifications})}
+                  onClick={() => handleTogglePreference('emailNotifications')}
                   className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.emailNotifications ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
                 >
                   <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.emailNotifications ? 'translate-x-7' : 'translate-x-0'}`} />
@@ -182,7 +255,7 @@ const SettingsPage: FC = () => {
                   <p className="text-xs text-slate-400">Activate assignment submission</p>
                 </div>
                 <button 
-                  onClick={() => setPreferences({...preferences, missingAssignments: !preferences.missingAssignments})}
+                  onClick={() => handleTogglePreference('missingAssignments')}
                   className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.missingAssignments ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
                 >
                   <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.missingAssignments ? 'translate-x-7' : 'translate-x-0'}`} />
@@ -196,7 +269,7 @@ const SettingsPage: FC = () => {
                   <p className="text-xs text-slate-400">Activate to send notifications for new submissions</p>
                 </div>
                 <button 
-                  onClick={() => setPreferences({...preferences, newSubmissions: !preferences.newSubmissions})}
+                  onClick={() => handleTogglePreference('newSubmissions')}
                   className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.newSubmissions ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
                 >
                   <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.newSubmissions ? 'translate-x-7' : 'translate-x-0'}`} />

@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { FiX, FiPieChart, FiBookOpen, FiCheckSquare, FiCpu, FiSettings, FiLogOut } from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
 import { useAuthStore } from "../../store/authStore";
@@ -43,9 +43,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/student/dashboard" className="flex items-center gap-2 cursor-pointer">
             <img src={Logo} alt="Grow Logo" className="h-8 w-auto" />
-          </div>
+          </Link>
           <button 
             onClick={onClose}
             className="md:hidden p-2 text-slate-500 hover:text-slate-800 transition-colors"

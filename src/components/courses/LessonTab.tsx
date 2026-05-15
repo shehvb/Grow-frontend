@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type { FC } from "react";
 import type { StudentLesson } from "../../types/course";
 import { CourseSidebar } from "../../features/student/courses/components/CourseSidebar";

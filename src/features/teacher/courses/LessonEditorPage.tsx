@@ -10,9 +10,7 @@ import {
   FiEye, 
   FiEdit3,
   FiPlay,
-  FiChevronDown,
-  FiPause,
-  FiVolume2
+  FiChevronDown
 } from "react-icons/fi";
 import { useEffect } from "react";
 import { useLessonStore } from "../../../store/useLessonStore";
@@ -37,6 +35,7 @@ const LessonEditorPage: FC = () => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const getEmbedUrl = (url: string) => {
     if (!url) return null;
@@ -82,6 +81,10 @@ const LessonEditorPage: FC = () => {
         }
         if (existing.pdf_file && !pdfFile) {
           setPdfPreview(existing.pdf_file.split('/').pop() || "Resource PDF");
+          const fullPdfUrl = existing.pdf_file.startsWith('http') 
+            ? existing.pdf_file 
+            : `https://ahmeddali.pythonanywhere.com${existing.pdf_file.startsWith('/') ? '' : '/'}${existing.pdf_file}`;
+          setPdfUrl(fullPdfUrl);
         }
       }
     } else if (!isEditMode && lessons.length >= 0) {
@@ -102,8 +105,12 @@ const LessonEditorPage: FC = () => {
   useEffect(() => {
     if (pdfFile) {
       setPdfPreview(pdfFile.name);
+      const objectUrl = URL.createObjectURL(pdfFile);
+      setPdfUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
     } else {
       setPdfPreview(null);
+      setPdfUrl(null);
     }
   }, [pdfFile]);
 
@@ -451,13 +458,16 @@ const LessonEditorPage: FC = () => {
               </div>
 
               {pdfPreview && (
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
+                <div 
+                  className={`bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between ${pdfUrl ? 'cursor-pointer hover:bg-slate-100 transition-colors' : ''}`}
+                  onClick={() => pdfUrl && window.open(pdfUrl, '_blank')}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
                       <FiUploadCloud size={20} />
                     </div>
                     <div>
-                      <p className="text-xs font-black text-slate-800 line-clamp-1">{pdfPreview}</p>
+                      <p className={`text-xs font-black line-clamp-1 ${pdfUrl ? 'text-slate-800 hover:text-blue-600 transition-colors' : 'text-slate-800'}`}>{pdfPreview}</p>
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">PDF Resource</p>
                     </div>
                   </div>

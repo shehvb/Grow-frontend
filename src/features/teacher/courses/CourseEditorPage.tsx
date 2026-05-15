@@ -6,8 +6,6 @@ import {
   FiPlay, 
   FiZap,
   FiInfo,
-  FiPause,
-  FiVolume2,
   FiEdit3,
   FiTrash2,
   FiLock,
@@ -21,10 +19,10 @@ import { useCourseStore } from "../../../store/useCourseStore";
 import { useLessonStore } from "../../../store/useLessonStore";
 
 const CourseEditorPage: FC = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
   const { selectedCourse: course, courseStudents, getCourseById, getCourseStudents } = useCourseStore();
-  const { lessons, fetchLessons, deleteLesson, updateLesson } = useLessonStore();
+  const { lessons, fetchLessons, deleteLesson, updateLesson, isLoading: lessonsLoading } = useLessonStore();
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
   const getEmbedUrl = (url: string) => {
@@ -63,29 +61,7 @@ const CourseEditorPage: FC = () => {
     }
   };
 
-  const handleReorder = async (draggedId: number, targetId: number) => {
-    const draggedIndex = lessons.findIndex(l => l.id === draggedId);
-    const targetIndex = lessons.findIndex(l => l.id === targetId);
-    
-    if (draggedIndex === -1 || targetIndex === -1) return;
-    
-    const newLessons = [...lessons];
-    const [draggedLesson] = newLessons.splice(draggedIndex, 1);
-    newLessons.splice(targetIndex, 0, draggedLesson);
-    
-    // Update orders locally for immediate feedback
-    const updatedLessons = newLessons.map((l, i) => ({ ...l, order: i + 1 }));
-    // We should ideally call an API here to update all orders
-    // For now, we update the one that moved
-    const formData = new FormData();
-    formData.append('order', (targetIndex + 1).toString());
-    try {
-      await updateLesson(draggedId, formData);
-      fetchLessons(parseInt(id!, 10)); // Refresh all to sync orders
-    } catch (error) {
-      toast.error("Failed to reorder");
-    }
-  };
+
 
   useEffect(() => {
     if (id) {
@@ -95,6 +71,13 @@ const CourseEditorPage: FC = () => {
       fetchLessons(courseId);
     }
   }, [id, getCourseById, getCourseStudents, fetchLessons]);
+
+  // Redirect to create lesson if no lessons exist (first time)
+  useEffect(() => {
+    if (!lessonsLoading && lessons.length === 0 && id) {
+      navigate(`/teacher/courses/${id}/lessons/new`);
+    }
+  }, [lessons, lessonsLoading, id, navigate]);
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">

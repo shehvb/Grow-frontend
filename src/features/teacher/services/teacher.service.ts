@@ -1,5 +1,5 @@
-import { MOCK_TEACHER_STATS, MOCK_STUDENTS } from "./teacher.mock";
-import type { TeacherStats, ClassroomStudent } from "../../../types/teacher";
+import apiClient from "../../../services/apiClient";
+import type { TeacherNotification } from "../../../types/teacher";
 
 class TeacherService {
   private static instance: TeacherService;
@@ -13,17 +13,39 @@ class TeacherService {
     return TeacherService.instance;
   }
 
-  // Simulations of API calls
-  public async getDashboardStats(): Promise<TeacherStats> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_TEACHER_STATS), 500);
-    });
+  public async getDashboardStats(): Promise<any> {
+    const response = await apiClient.get('/teacher/dashboard/');
+    return response.data;
   }
 
-  public async getStudents(): Promise<ClassroomStudent[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_STUDENTS), 500);
-    });
+  public async getStudents(): Promise<any[]> {
+    const response = await apiClient.get('/teacher/students/');
+    return response.data;
+  }
+
+  public async getProfile(): Promise<any> {
+    const response = await apiClient.get('/teacher/settings/profile/');
+    return response.data;
+  }
+
+  public async updateProfile(data: any): Promise<any> {
+    const response = await apiClient.patch('/teacher/settings/profile/update/', data);
+    return response.data;
+  }
+
+  public async getNotifications(): Promise<any> {
+    const response = await apiClient.get('/teacher/settings/notifications/');
+    return response.data;
+  }
+
+  public async updateNotifications(data: any): Promise<any> {
+    const response = await apiClient.patch('/teacher/settings/notifications/update/', data);
+    return response.data;
+  }
+
+  public async getNotificationsFeed(): Promise<TeacherNotification[]> {
+    const response = await apiClient.get('/teacher/notifications/');
+    return response.data;
   }
 }
 

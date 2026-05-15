@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { courseService } from '../services/courseService';
-import type { TeacherLesson, StudentLesson } from '../types/course';
+
 
 interface LessonState {
   lessons: any[]; // Using any to handle both TeacherLesson and StudentLesson flexibly depending on the view

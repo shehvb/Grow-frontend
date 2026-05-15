@@ -1,5 +1,7 @@
 import apiClient from './apiClient';
 
+import type { TeacherSubmission, GradeSubmissionRequest } from '../types/teacher';
+
 export interface Assignment {
   id: number;
   course: number;
@@ -10,18 +12,8 @@ export interface Assignment {
   due_date: string;
   attachment?: string;
   created_at: string;
-}
-
-export interface Submission {
-  id: number;
-  assignment: number;
-  student: number;
-  student_name: string;
-  file: string;
-  submitted_at: string;
-  status: 'submitted' | 'graded' | 'late';
-  grade?: number;
-  feedback?: string;
+  submissions?: number;
+  totalStudents?: number;
 }
 
 export const assignmentService = {
@@ -48,13 +40,28 @@ export const assignmentService = {
     await apiClient.delete(`teacher/assignments/${id}/delete/`);
   },
 
-  getSubmissions: async (assignmentId: number): Promise<Submission[]> => {
-    const response = await apiClient.get(`teacher/assignments/${assignmentId}/review/`);
+  getSubmissions: async (assignmentId: number): Promise<TeacherSubmission[]> => {
+    const response = await apiClient.get(`teacher/assignments/${assignmentId}/submissions/`);
     return response.data;
   },
 
-  gradeSubmission: async (submissionId: number, data: { grade: number; feedback: string }): Promise<Submission> => {
-    const response = await apiClient.post(`teacher/submissions/${submissionId}/grade/`, data);
+  gradeSubmission: async (submissionId: number, data: GradeSubmissionRequest): Promise<TeacherSubmission> => {
+    const response = await apiClient.patch(`teacher/submissions/${submissionId}/grade/`, data);
+    return response.data;
+  },
+
+  // Student Actions
+  uploadAssignmentFile: async (id: number | string, file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post(`student/assignments/${id}/upload/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  submitAssignment: async (id: number | string, fileName: string): Promise<any> => {
+    const response = await apiClient.post(`student/assignments/${id}/submit/`, { fileName });
     return response.data;
   }
 };

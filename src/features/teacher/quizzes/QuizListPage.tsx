@@ -13,44 +13,6 @@ import { quizService } from "../../../services/quizService";
 import { courseService } from "../../../services/courseService";
 import type { Course } from "../../../types/course";
 
-const MOCK_QUIZZES = [
-  {
-    id: "q1",
-    title: "Linear Equations Quiz",
-    course: "Algebra Fundamentals",
-    status: "Active",
-    questions: 10,
-    duration: 30,
-    xp: 200,
-    completed: 42,
-    totalStudents: 45,
-    avgScore: 85
-  },
-  {
-    id: "q2",
-    title: "Triangle Properties",
-    course: "Algebra Fundamentals",
-    status: "Active",
-    questions: 10,
-    duration: 30,
-    xp: 200,
-    completed: 38,
-    totalStudents: 42,
-    avgScore: 78
-  },
-  {
-    id: "q3",
-    title: "Variables and Expressions",
-    course: "Algebra Fundamentals",
-    status: "Completed",
-    questions: 10,
-    duration: 30,
-    xp: 200,
-    completed: 45,
-    totalStudents: 45,
-    avgScore: 100
-  }
-];
 
 const QuizListPage: FC = () => {
   const navigate = useNavigate();
