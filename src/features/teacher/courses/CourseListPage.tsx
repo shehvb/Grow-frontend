@@ -1,3 +1,4 @@
+import { ImBooks } from "react-icons/im";
 import type { FC } from "react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -82,7 +83,7 @@ const CourseListPage: FC = () => {
             courses.map(course => (
               <Link 
                 key={course.id} 
-                to={`/teacher/courses/${course.id}`}
+                to={(course.lessonsCount || 0) === 0 ? `/teacher/courses/${course.id}/lessons/new` : `/teacher/courses/${course.id}`}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow cursor-pointer flex flex-col justify-between min-h-[220px]"
               >
                 
@@ -142,7 +143,7 @@ const CourseListPage: FC = () => {
           ) : (
             <div className="col-span-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center space-y-4">
               <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-sm text-3xl">
-                📚
+                <ImBooks className="text-5xl text-orange-500" />
               </div>
               <div>
                 <h3 className="text-lg font-black text-slate-800">No courses yet</h3>

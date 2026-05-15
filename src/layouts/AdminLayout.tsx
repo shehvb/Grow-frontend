@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { FiGrid, FiFileText } from "react-icons/fi";
+import logo from "../assets/Logo.png";
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -15,12 +16,9 @@ export default function AdminLayout() {
       <nav className="bg-white border-b border-gray-100 h-[72px] flex items-center px-6 lg:px-10 justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2">
           {/* Mock Logo */}
-          <div className="flex items-center gap-1.5 cursor-pointer">
-            <div className="w-8 h-8 bg-gradient-to-tr from-orange-400 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg leading-none">G</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-900 tracking-tight">Grow</span>
-          </div>
+          <Link to="/admin" className="flex items-center gap-1.5 cursor-pointer">
+            <img src={logo} alt="Grow Logo" className="h-8" />
+          </Link>
           <div className="h-6 w-px bg-gray-200 mx-4"></div>
           <span className="text-sm font-medium text-gray-500">School Admin</span>
         </div>

@@ -1,12 +1,7 @@
 import apiClient from '../../../services/apiClient';
 import type { Lesson, LessonRequest } from '../types';
 
-const getRolePrefix = () => {
-  const path = window.location.pathname;
-  if (path.startsWith('/teacher')) return '/api/v1/teacher';
-  if (path.startsWith('/parent')) return '/api/v1/parent';
-  return '/api/v1/student'; // Fallback
-};
+
 
 export const fetchLessons = async (courseId: number): Promise<Lesson[]> => {
   if (window.location.pathname.startsWith('/teacher')) {

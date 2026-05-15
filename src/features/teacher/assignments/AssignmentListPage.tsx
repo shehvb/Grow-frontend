@@ -111,7 +111,7 @@ const AssignmentListPage: FC = () => {
             const status = isCompleted ? 'Completed' : 'Active';
             const isActive = status === 'Active';
             const submissions = assignment.submissions || 0;
-            const totalStudents = assignment.totalStudents || 1; // prevent divide by 0
+            const totalStudents = assignment.totalStudents || Math.max(submissions, 1); // prevent divide by 0 and overflow
             const progress = Math.round((submissions / totalStudents) * 100);
             
             return (

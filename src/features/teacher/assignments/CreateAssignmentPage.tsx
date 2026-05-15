@@ -138,7 +138,7 @@ const CreateAssignmentPage: FC = () => {
               type="date" 
               value={formData.deadline}
               onChange={(e) => setFormData({...formData, deadline: e.target.value})}
-              className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm font-bold text-slate-800 focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none transition-all text-slate-400 uppercase tracking-wider"
+              className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm font-bold focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none transition-all text-slate-400 uppercase tracking-wider"
             />
           </div>
         </div>

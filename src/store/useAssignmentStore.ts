@@ -1,9 +1,10 @@
 import { create } from 'zustand';
-import { assignmentService, type Assignment, type Submission } from '../services/assignmentService';
+import { assignmentService, type Assignment } from '../services/assignmentService';
+import type { TeacherSubmission, GradeSubmissionRequest } from '../types/teacher';
 
 interface AssignmentState {
   assignments: Assignment[];
-  currentSubmissions: Submission[];
+  currentSubmissions: TeacherSubmission[];
   isLoading: boolean;
   error: string | null;
 
@@ -12,7 +13,7 @@ interface AssignmentState {
   updateAssignment: (id: number, data: FormData) => Promise<void>;
   deleteAssignment: (id: number) => Promise<void>;
   fetchSubmissions: (assignmentId: number) => Promise<void>;
-  gradeSubmission: (submissionId: number, data: { grade: number; feedback: string }) => Promise<void>;
+  gradeSubmission: (submissionId: number, data: GradeSubmissionRequest) => Promise<void>;
 }
 
 export const useAssignmentStore = create<AssignmentState>((set, get) => ({
@@ -77,14 +78,13 @@ export const useAssignmentStore = create<AssignmentState>((set, get) => ({
     }
   },
 
-  gradeSubmission: async (submissionId: number, data: { grade: number; feedback: string }) => {
+  gradeSubmission: async (submissionId: number, data: GradeSubmissionRequest) => {
     set({ isLoading: true, error: null });
     try {
       await assignmentService.gradeSubmission(submissionId, data);
-      // We don't necessarily need to re-fetch all submissions, just update the one
       set((state) => ({
         currentSubmissions: state.currentSubmissions.map((s) =>
-          s.id === submissionId ? { ...s, grade: data.grade, feedback: data.feedback, status: 'graded' as const } : s
+          s.id === submissionId ? { ...s, score: data.score, xp_reward: data.xp_reward, feedback: data.feedback, status: 'graded' as const } : s
         ),
         isLoading: false
       }));

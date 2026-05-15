@@ -1,4 +1,5 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
+import { teacherService } from "../services/teacher.service";
 import { 
   FiTrendingUp, 
   FiCheckCircle, 
@@ -10,64 +11,61 @@ import {
   FiUser
 } from "react-icons/fi";
 
-const MOCK_STUDENTS = [
-  {
-    id: "STU-2451652",
-    name: "Emma Watson",
-    class: "Class C",
-    xp: 2450,
-    avgScore: 98,
-    attendance: 95,
-    status: "Excellent"
-  },
-  {
-    id: "STU-2451653",
-    name: "John Doe",
-    class: "Class A",
-    xp: 2100,
-    avgScore: 85,
-    attendance: 90,
-    status: "Excellent"
-  },
-  {
-    id: "STU-2451654",
-    name: "Alice Smith",
-    class: "Class C",
-    xp: 1950,
-    avgScore: 82,
-    attendance: 88,
-    status: "Average"
-  },
-  {
-    id: "STU-458621",
-    name: "Liam Wilson",
-    class: "Class B",
-    xp: 1580,
-    avgScore: 72,
-    attendance: 78,
-    status: "Needs Attention"
-  },
-  {
-    id: "STU-8451216",
-    name: "Sophia Martinez",
-    class: "Class C",
-    xp: 1820,
-    avgScore: 76,
-    attendance: 88,
-    status: "Average"
-  }
-];
-
 const StudentsPage: FC = () => {
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClass, setSelectedClass] = useState("All Classes");
 
-  const filteredStudents = MOCK_STUDENTS.filter(student => {
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const data = await teacherService.getStudents();
+        // Map backend TeacherStudentList to frontend expected shape
+        const mappedStudents = data.map((student: any) => ({
+          id: student.id || student.student_id || Math.random().toString(),
+          name: student.name || student.student_name || "Unknown Student",
+          class: student.class || student.class_name || "Class A",
+          xp: student.xp || student.total_xp || 0,
+          avgScore: student.avgScore || student.average_score || 0,
+          attendance: student.attendance || student.attendance_rate || 0,
+          status: student.status || "Average"
+        }));
+        setStudents(mappedStudents);
+      } catch (error) {
+        console.error("Failed to load students", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudents();
+  }, []);
+
+  const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          student.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesClass = selectedClass === "All Classes" || student.class === selectedClass;
     return matchesSearch && matchesClass;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Calculate dynamic KPIs from the fetched student data
+  const totalStudents = students.length;
+  const avgPerformance = totalStudents > 0 
+    ? Math.round(students.reduce((sum, s) => sum + (s.avgScore || 0), 0) / totalStudents)
+    : 0;
+  const avgAttendance = totalStudents > 0 
+    ? Math.round(students.reduce((sum, s) => sum + (s.attendance || 0), 0) / totalStudents)
+    : 0;
+  const needsAttentionCount = students.filter(s => s.status === 'Needs Attention').length;
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">
@@ -85,7 +83,7 @@ const StudentsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Avg Performance</p>
-            <span className="text-3xl font-black text-slate-800">87%</span>
+            <span className="text-3xl font-black text-slate-800">{avgPerformance}%</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-green-100 text-green-500 flex items-center justify-center">
             <FiTrendingUp className="text-xl stroke-[3]" />
@@ -95,7 +93,7 @@ const StudentsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Avg Attendance</p>
-            <span className="text-3xl font-black text-slate-800">91%</span>
+            <span className="text-3xl font-black text-slate-800">{avgAttendance}%</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-500 flex items-center justify-center">
             <FiCheckCircle className="text-xl stroke-[3]" />
@@ -105,7 +103,7 @@ const StudentsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">{filteredStudents.length}</span>
+            <span className="text-3xl font-black text-slate-800">{totalStudents}</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-pink-100 text-pink-500 flex items-center justify-center">
             <FiUsers className="text-xl" />
@@ -115,7 +113,7 @@ const StudentsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Need Attention</p>
-            <span className="text-3xl font-black text-slate-800">8</span>
+            <span className="text-3xl font-black text-slate-800">{needsAttentionCount}</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-red-100 text-red-500 flex items-center justify-center">
             <FiAlertCircle className="text-xl stroke-[3]" />
@@ -156,7 +154,7 @@ const StudentsPage: FC = () => {
         <div className="space-y-4">
           {filteredStudents.length > 0 ? (
             filteredStudents.map((student) => {
-              const initials = student.name.split(' ').map(n => n[0]).join('');
+              const initials = student.name ? student.name.split(' ').map((n: string) => n[0]).join('') : "??";
               
               const getStatusColor = (status: string) => {
                 switch(status) {

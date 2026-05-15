@@ -1,12 +1,12 @@
 import type { FC } from "react";
+import type { LeaderboardEntry } from "../../mock/dashboard.mock";
 import { FiBarChart2 } from "react-icons/fi";
 
-const LeaderboardWidget: FC = () => {
-  const leaderboard = [
-    { rank: 1, name: "Sarah W.", xp: "12,450", isMe: false, bgTheme: "bg-[#2A1BE0]" },
-    { rank: 2, name: "Ali A.", xp: "11,200", isMe: false, bgTheme: "bg-[#2A1BE0]" },
-    { rank: 7, name: "You", xp: "9,750", isMe: true, bgTheme: "bg-[#4D008D]" }, // The image showed a slightly purplish bg for 'You'
-  ];
+interface LeaderboardWidgetProps {
+  leaderboard: LeaderboardEntry[];
+}
+
+const LeaderboardWidget: FC<LeaderboardWidgetProps> = ({ leaderboard }) => {
 
   return (
     <div className="bg-[#1600D5] rounded-2xl p-5 text-white flex flex-col w-full shadow-sm min-h-[320px]">

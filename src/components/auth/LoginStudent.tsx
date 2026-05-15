@@ -1,5 +1,5 @@
 import { type FC, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
 import { useAuthStore } from "../../store/authStore";
@@ -64,12 +64,12 @@ const StudentLeftPanel: FC = () => (
     {/* <Badge emoji="📈" text="Top 10% Class" className="bottom-40 left-2 pop pop4" delay="0.9s" /> */}
 
     {/* Logo */}
-    <div className="flex items-center gap-3 relative z-10">
+    <Link to="/" className="flex items-center gap-3 relative z-10 cursor-pointer hover:opacity-90 transition-opacity w-fit">
       <div className="w-16 h-16 rounded-xl bg-white/60  border border-white/10 flex items-center justify-center shadow-lg">
         <img src={Alone} alt="" className="" />
       </div>
       <span className="text-white font-black text-2xl tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
-    </div>
+    </Link>
 
     {/* Center: Student dashboard preview card */}
     <div className="flex-1 flex items-center justify-center py-6 relative z-10">
@@ -212,12 +212,12 @@ const StudentLoginForm: FC = () => {
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16 h-screen">
       {/* Mobile logo */}
-      <div className="lg:hidden flex items-center gap-3 mb-8">
+      <Link to="/" className="lg:hidden flex items-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
           <span className="text-white font-black text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>G</span>
         </div>
         <span className="font-black text-xl text-blue-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
-      </div>
+      </Link>
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         {/* Heading */}

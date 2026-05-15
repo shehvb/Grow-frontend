@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { 
   FiX, 
   FiPieChart, 
@@ -59,9 +59,9 @@ const TeacherSidebar: React.FC<TeacherSidebarProps> = ({ isOpen, onClose }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/teacher/dashboard" className="flex items-center gap-2 cursor-pointer">
             <img src={Logo} alt="Grow Logo" className="h-8 w-auto" />
-          </div>
+          </Link>
           <button 
             onClick={onClose}
             className="md:hidden p-2 text-slate-500 hover:text-slate-800 transition-colors"

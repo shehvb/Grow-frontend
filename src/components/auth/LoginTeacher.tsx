@@ -1,5 +1,5 @@
 import { type FC, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Alone from "../../assets/ALONE 1.png";
 import AuthTabs from "./AuthTabs";
 import toast from "react-hot-toast";
@@ -15,14 +15,14 @@ interface School {
 
 
 const GrowLogo: FC = () => (
-  <div className="flex items-center gap-3">
+  <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity w-fit z-10 relative">
     <div className="w-16 h-16 rounded-xl bg-white/60 border border-white/10 flex items-center justify-center shadow-lg">
       <img src={Alone} alt="" className="" />
     </div>
     <span className="text-white font-black text-2xl tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
       GROW
     </span>
-  </div>
+  </Link>
 );
 
 const LeftPanel: FC = () => (
@@ -174,12 +174,12 @@ const LoginForm: FC = () => {
   };
   return (
     <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16">
-      <div className="lg:hidden flex items-center gap-3 mb-8">
+      <Link to="/" className="lg:hidden flex items-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center">
           <span className="text-white font-black text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>G</span>
         </div>
         <span className="font-black text-xl text-indigo-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
-      </div>
+      </Link>
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         <div className="mb-8">

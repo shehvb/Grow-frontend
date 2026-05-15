@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FC } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { 
   FiArrowLeft,
   FiTrendingUp,
@@ -12,51 +12,24 @@ import {
   FiMessageSquare
 } from "react-icons/fi";
 import { BsFilter } from "react-icons/bs";
+import { quizService } from "../../../services/quizService";
+import type { QuizResultDetail } from "../../../types/teacher";
 
-const MOCK_RESULTS = [
-  {
-    id: "r1",
-    studentName: "Emma Watson",
-    class: "Class A",
-    isTopPerformer: true,
-    score: 98,
-    status: "Completed",
-    timeTaken: "28 min",
-    xpEarned: 200
-  },
-  {
-    id: "r2",
-    studentName: "Emma Watson", // In image 3 it shows her 3 times, let's just make it a list
-    class: "Class A",
-    isTopPerformer: true,
-    score: 98,
-    status: "Completed",
-    timeTaken: "28 min",
-    xpEarned: 200
-  },
-  {
-    id: "r3",
-    studentName: "Liam Wilson",
-    class: "Class B",
-    isTopPerformer: false,
-    score: 65,
-    status: "Completed",
-    timeTaken: "35 min",
-    xpEarned: 130
-  },
-  {
-    id: "r4",
-    studentName: "Ava Johnson",
-    class: "Class C",
-    isTopPerformer: false,
-    score: 0,
-    status: "Pending",
-    timeTaken: "-",
-    xpEarned: 0
-  }
-];
+interface UIMappedResult {
+  id: string;
+  studentName: string;
+  class: string;
+  isTopPerformer: boolean;
+  score: number;
+  status: string;
+  timeTaken: string;
+  xpEarned: number;
+}
 
 const QuizResultsPage: FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [results, setResults] = useState<UIMappedResult[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // In a real app we'd fetch the quiz details by ID. For now, mock it.
   const quizDetails = {
@@ -69,8 +42,45 @@ const QuizResultsPage: FC = () => {
   };
 
   const [selectedClass, setSelectedClass] = useState<string>("All");
-  const classes = ["All", ...Array.from(new Set(MOCK_RESULTS.map(r => r.class)))];
-  const filteredResults = MOCK_RESULTS.filter(r => selectedClass === "All" || r.class === selectedClass);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchResults = async () => {
+      try {
+        setLoading(true);
+        const data = await quizService.getQuizResults(id);
+        const mapped = data.map((r: QuizResultDetail) => ({
+          id: r.id.toString(),
+          studentName: r.student_name || 'Unknown Student',
+          class: 'All', // API does not provide class yet
+          isTopPerformer: r.is_top_performer || false,
+          score: r.score || 0,
+          status: r.status || 'Pending',
+          timeTaken: r.time_taken_minutes ? `${r.time_taken_minutes} min` : '-',
+          xpEarned: r.xp_earned || 0
+        }));
+        setResults(mapped);
+      } catch (err) {
+        console.error("Failed to fetch quiz results", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResults();
+  }, [id]);
+
+  const classes = ["All", ...Array.from(new Set(results.map(r => r.class)))];
+  const filteredResults = results.filter(r => selectedClass === "All" || r.class === selectedClass);
+
+  // Calculate stats
+  const completedResults = results.filter(r => r.status === 'Completed');
+  const avgScore = completedResults.length > 0 
+    ? Math.round(completedResults.reduce((sum, r) => sum + r.score, 0) / completedResults.length) 
+    : 0;
+  const completionRate = results.length > 0 
+    ? Math.round((completedResults.length / results.length) * 100) 
+    : 0;
+  const totalXp = results.reduce((sum, r) => sum + r.xpEarned, 0);
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">
@@ -113,7 +123,7 @@ const QuizResultsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Average Score</p>
-            <span className="text-3xl font-black text-slate-800">89%</span>
+            <span className="text-3xl font-black text-slate-800">{avgScore}%</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center">
             <FiTrendingUp className="text-xl stroke-[3]" />
@@ -123,7 +133,7 @@ const QuizResultsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Completion Rate</p>
-            <span className="text-3xl font-black text-slate-800">86%</span>
+            <span className="text-3xl font-black text-slate-800">{completionRate}%</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
             <FiCheckCircle className="text-xl stroke-[3]" />
@@ -133,7 +143,7 @@ const QuizResultsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">7</span>
+            <span className="text-3xl font-black text-slate-800">{results.length}</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center">
             <FiUsers className="text-xl" />
@@ -143,7 +153,7 @@ const QuizResultsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total XP Earned</p>
-            <span className="text-3xl font-black text-slate-800">1130</span>
+            <span className="text-3xl font-black text-slate-800">{totalXp}</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
             <FiZap className="text-xl fill-orange-500" />
@@ -168,14 +178,22 @@ const QuizResultsPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredResults.map((result, idx) => {
-                const initials = result.studentName.split(' ').map(n => n[0]).join('');
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-500 font-medium">Loading results...</td>
+                </tr>
+              ) : filteredResults.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-500 font-medium">No results found.</td>
+                </tr>
+              ) : filteredResults.map((result, idx) => {
+                const initials = result.studentName ? result.studentName.split(' ').map(n => n[0]).join('') : '?';
                 const isTopPerformer = result.isTopPerformer;
                 const isCompleted = result.status === 'Completed';
                 const scoreColor = result.score >= 80 ? 'text-green-500' : result.score > 0 ? 'text-red-500' : 'text-slate-800';
                 
                 return (
-                  <tr key={result.id} className={`${isTopPerformer ? 'bg-green-50/50' : 'bg-transparent'} ${idx !== MOCK_RESULTS.length - 1 ? 'border-b border-slate-50' : ''}`}>
+                  <tr key={result.id} className={`${isTopPerformer ? 'bg-green-50/50' : 'bg-transparent'} ${idx !== filteredResults.length - 1 ? 'border-b border-slate-50' : ''}`}>
                     <td className="py-4 pl-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[#FF8000] text-white flex items-center justify-center font-black tracking-widest text-sm shrink-0">
