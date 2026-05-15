@@ -1,40 +1,80 @@
 import type { FC } from "react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { 
   FiArrowLeft, 
   FiFile, 
   FiZap,
   FiChevronDown
 } from "react-icons/fi";
+import { useAssignmentStore } from "../../../store/useAssignmentStore";
+import { useCourseStore } from "../../../store/useCourseStore";
+import { toast } from "react-hot-toast";
 
 const CreateAssignmentPage: FC = () => {
+  const { id } = useParams();
+  const isEditMode = !!id;
   const navigate = useNavigate();
+
+  const { createAssignment, updateAssignment, assignments, isLoading } = useAssignmentStore();
+  const { courses, listCourses } = useCourseStore();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    course: "",
+    courseId: "",
     deadline: "",
     rewardXp: 150,
     latePenalty: 20
   });
+  const [attachment, setAttachment] = useState<File | null>(null);
 
-  const handleCreate = () => {
-    const savedAssignments = JSON.parse(sessionStorage.getItem('teacher-assignments') || "[]");
-    
-    const newAssignment = {
-      id: `a${Date.now()}`,
-      title: formData.title || "Untitled Assignment",
-      dueDate: formData.deadline || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      course: formData.course || "General",
-      xp: formData.rewardXp,
-      submissions: 0,
-      totalStudents: 45, // Mock number
-      status: "Active"
-    };
+  useEffect(() => {
+    listCourses();
+    if (isEditMode) {
+      const existing = assignments.find(a => a.id.toString() === id);
+      if (existing) {
+        setFormData({
+          title: existing.title,
+          description: existing.content || "",
+          courseId: existing.course.toString(),
+          deadline: new Date(existing.due_date).toISOString().split('T')[0],
+          rewardXp: existing.max_marks || 150,
+          latePenalty: 20
+        });
+      }
+    }
+  }, [id, isEditMode, assignments, listCourses]);
 
-    sessionStorage.setItem('teacher-assignments', JSON.stringify([...savedAssignments, newAssignment]));
-    navigate("/teacher/assignments");
+  const handleSave = async () => {
+    if (!formData.title || !formData.courseId || !formData.deadline) {
+      toast.error("Please fill in the title, course, and deadline.");
+      return;
+    }
+
+    try {
+      const payload = new FormData();
+      payload.append('title', formData.title);
+      payload.append('content', formData.description);
+      payload.append('course_id', formData.courseId);
+      payload.append('max_marks', formData.rewardXp.toString());
+      payload.append('due_date', formData.deadline);
+      
+      if (attachment) {
+        payload.append('attachment', attachment);
+      }
+
+      if (isEditMode) {
+        await updateAssignment(parseInt(id!, 10), payload);
+        toast.success("Assignment updated!");
+      } else {
+        await createAssignment(payload);
+        toast.success("Assignment created!");
+      }
+      navigate("/teacher/assignments");
+    } catch (error) {
+      toast.error("Failed to save assignment");
+    }
   };
 
   return (
@@ -43,7 +83,7 @@ const CreateAssignmentPage: FC = () => {
       <div className="space-y-2">
         <Link to="/teacher/assignments" className="flex items-center text-slate-800 font-black text-2xl hover:text-blue-600 transition-colors w-fit">
           <FiArrowLeft className="mr-3 text-xl" />
-          Create New Assignment
+          {isEditMode ? "Edit Assignment" : "Create New Assignment"}
         </Link>
         <p className="text-slate-400 font-medium ml-9">Set up a new assignment for your students</p>
       </div>
@@ -80,12 +120,13 @@ const CreateAssignmentPage: FC = () => {
             <div className="relative">
               <select 
                 className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm font-bold text-slate-800 focus:border-blue-400 outline-none transition-all appearance-none"
-                value={formData.course}
-                onChange={(e) => setFormData({...formData, course: e.target.value})}
+                value={formData.courseId}
+                onChange={(e) => setFormData({...formData, courseId: e.target.value})}
               >
                 <option value="" disabled>Choose a Course...</option>
-                <option value="Algebra Fundamentals">Algebra Fundamentals</option>
-                <option value="Geometry Basics">Geometry Basics</option>
+                {courses.map(course => (
+                  <option key={course.id} value={course.id}>{course.title}</option>
+                ))}
               </select>
               <FiChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none stroke-[3]" />
             </div>
@@ -104,16 +145,27 @@ const CreateAssignmentPage: FC = () => {
 
         {/* File Upload section */}
         <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
-          <h3 className="text-lg font-black text-slate-800">student assignments</h3>
+          <h3 className="text-lg font-black text-slate-800">Resources</h3>
           
-          <div className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer">
+          <div 
+            onClick={() => document.getElementById('assignment-attachment')?.click()}
+            className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer"
+          >
             <div className="text-slate-300 group-hover:text-blue-500 group-hover:scale-110 transition-all">
               <FiFile size={40} className="fill-current" />
             </div>
             <div className="text-center mt-2">
-              <p className="text-sm font-black text-slate-400">Upload assignment worksheet or instructions</p>
-              <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-1">PDF, DOC, DOCX up to 50MB</p>
+              <p className="text-sm font-black text-slate-800">
+                {attachment ? attachment.name : "Upload assignment worksheet or instructions"}
+              </p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">PDF, DOC, DOCX up to 50MB</p>
             </div>
+            <input 
+              id="assignment-attachment" 
+              type="file" 
+              hidden 
+              onChange={e => setAttachment(e.target.files?.[0] || null)}
+            />
           </div>
         </div>
 
@@ -121,12 +173,12 @@ const CreateAssignmentPage: FC = () => {
         <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
           <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
             <FiZap className="text-orange-500 fill-orange-500" />
-            XP Rewards
+            XP Rewards & Marks
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-800 tracking-wider">Reward Xp</label>
+              <label className="text-xs font-black text-slate-800 tracking-wider">Max Marks (XP)</label>
               <input 
                 type="number" 
                 value={formData.rewardXp}
@@ -137,7 +189,7 @@ const CreateAssignmentPage: FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-800 tracking-wider">Late Penalty(Xp)</label>
+              <label className="text-xs font-black text-slate-800 tracking-wider">Late Penalty (XP)</label>
               <div className="relative">
                 <input 
                   type="number" 
@@ -147,13 +199,13 @@ const CreateAssignmentPage: FC = () => {
                 />
                 <FiZap className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500 fill-red-500" />
               </div>
-              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">XP reduct on for late submissions</p>
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">XP reduction for late submissions</p>
             </div>
           </div>
 
           <div className="bg-blue-50/50 border border-blue-200 rounded-xl p-4 mt-6">
             <p className="text-xs text-blue-600 font-bold tracking-wide">
-              Students will earn {formData.rewardXp} XP for completing this assignment on time.
+              Students will earn up to {formData.rewardXp} marks for completing this assignment on time.
             </p>
           </div>
         </div>
@@ -161,10 +213,11 @@ const CreateAssignmentPage: FC = () => {
         {/* Action Buttons */}
         <div className="flex items-center gap-4 pt-4">
           <button 
-            onClick={handleCreate}
-            className="px-8 py-3.5 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all text-sm"
+            onClick={handleSave}
+            disabled={isLoading}
+            className="px-8 py-3.5 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all text-sm disabled:opacity-70"
           >
-            Create Assignment
+            {isLoading ? "Saving..." : (isEditMode ? "Save Changes" : "Create Assignment")}
           </button>
           <button 
             onClick={() => navigate('/teacher/assignments')}

@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   FiPlus, 
@@ -7,53 +7,36 @@ import {
   FiCheckCircle, 
   FiClock, 
   FiUsers, 
-  FiCheckSquare
+  FiCheckSquare,
+  FiEdit3,
+  FiTrash2
 } from "react-icons/fi";
-
-const MOCK_ASSIGNMENTS = [
-  {
-    id: "a1",
-    title: "Algebraic Expressions Worksheet",
-    dueDate: "Apr 10, 2026",
-    course: "Algebra Fundamentals",
-    xp: 150,
-    submissions: 38,
-    totalStudents: 45,
-    status: "Active"
-  },
-  {
-    id: "a2",
-    title: "Solving Linear Equations",
-    dueDate: "Apr 10, 2026",
-    course: "Algebra Fundamentals",
-    xp: 150,
-    submissions: 38,
-    totalStudents: 45,
-    status: "Active"
-  },
-  {
-    id: "a3",
-    title: "Geometry Problem Set",
-    dueDate: "Apr 10, 2026",
-    course: "Algebra Fundamentals",
-    xp: 150,
-    submissions: 45,
-    totalStudents: 45,
-    status: "Completed"
-  }
-];
+import { useAssignmentStore } from "../../../store/useAssignmentStore";
+import { toast } from "react-hot-toast";
 
 const AssignmentListPage: FC = () => {
   const navigate = useNavigate();
-  const [assignments] = useState<any[]>(() => {
-    const saved = sessionStorage.getItem('teacher-assignments');
-    if (saved) return JSON.parse(saved);
-    return MOCK_ASSIGNMENTS;
-  });
+  const { assignments, fetchAssignments, deleteAssignment, isLoading } = useAssignmentStore();
 
   useEffect(() => {
-    sessionStorage.setItem('teacher-assignments', JSON.stringify(assignments));
-  }, [assignments]);
+    fetchAssignments();
+  }, [fetchAssignments]);
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm("Are you sure you want to delete this assignment?")) {
+      try {
+        await deleteAssignment(id);
+        toast.success("Assignment deleted successfully");
+      } catch (error) {
+        toast.error("Failed to delete assignment");
+      }
+    }
+  };
+
+  const totalAssignments = assignments.length;
+  const activeAssignments = assignments.filter(a => new Date(a.due_date) >= new Date()).length;
+  const completedAssignments = assignments.filter(a => new Date(a.due_date) < new Date()).length;
+  const pendingReview = 0;
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">
@@ -81,7 +64,7 @@ const AssignmentListPage: FC = () => {
               <FiCheckSquare className="text-sm" />
             </div>
           </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">28</span>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">{totalAssignments}</span>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
@@ -91,7 +74,7 @@ const AssignmentListPage: FC = () => {
               <FiClock className="text-sm" />
             </div>
           </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">3</span>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">{activeAssignments}</span>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
@@ -101,7 +84,7 @@ const AssignmentListPage: FC = () => {
               <FiUsers className="text-sm" />
             </div>
           </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">12</span>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">{pendingReview}</span>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
@@ -111,16 +94,25 @@ const AssignmentListPage: FC = () => {
               <FiCheckCircle className="text-sm" />
             </div>
           </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">1</span>
+          <span className="text-4xl font-black text-slate-800 tracking-tight">{completedAssignments}</span>
         </div>
       </div>
 
       {/* Assignments List */}
       <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
         <div className="space-y-4">
-          {assignments.map(assignment => {
-            const progress = Math.round((assignment.submissions / assignment.totalStudents) * 100);
-            const isActive = assignment.status === 'Active';
+          {isLoading && assignments.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 font-bold">Loading assignments...</div>
+          ) : assignments.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 font-bold">No assignments found.</div>
+          ) : assignments.map(assignment => {
+            const dueDate = new Date(assignment.due_date);
+            const isCompleted = dueDate < new Date();
+            const status = isCompleted ? 'Completed' : 'Active';
+            const isActive = status === 'Active';
+            const submissions = assignment.submissions || 0;
+            const totalStudents = assignment.totalStudents || 1; // prevent divide by 0
+            const progress = Math.round((submissions / totalStudents) * 100);
             
             return (
               <div 
@@ -135,17 +127,17 @@ const AssignmentListPage: FC = () => {
                   <div className="flex flex-wrap items-center gap-6 text-xs font-bold text-slate-400">
                     <div className="flex items-center gap-1.5">
                       <FiCalendar size={14} />
-                      Due: {assignment.dueDate}
+                      Due: {dueDate.toLocaleDateString()}
                     </div>
-                    <div>{assignment.course}</div>
-                    <div className="text-blue-500">+{assignment.xp} Xp</div>
+                    <div>{assignment.course_title || 'General Course'}</div>
+                    <div className="text-blue-500">Max Marks: {assignment.max_marks || 100}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-8 md:w-[450px]">
                   <div className="flex-1 flex items-center gap-6">
                     <div>
-                      <span className="text-sm font-black text-slate-800">{assignment.submissions}/{assignment.totalStudents}</span>
+                      <span className="text-sm font-black text-slate-800">{submissions}/{totalStudents}</span>
                       <p className="text-[8px] font-black text-slate-400 uppercase mt-0.5">Submissions</p>
                     </div>
                     <div className="flex-1 flex flex-col items-center gap-1.5">
@@ -159,10 +151,24 @@ const AssignmentListPage: FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${isActive ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600'}`}>
-                      {assignment.status}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className={`px-3 py-1 mr-2 rounded-full text-[10px] font-black uppercase tracking-wider ${isActive ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600'}`}>
+                      {status}
                     </div>
+                    <Link 
+                      to={`/teacher/assignments/${assignment.id}/edit`}
+                      className="p-2 text-slate-400 hover:text-blue-600 bg-white border border-slate-200 rounded-full hover:bg-blue-50 transition-all"
+                      title="Edit Assignment"
+                    >
+                      <FiEdit3 size={16} />
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(assignment.id)}
+                      className="p-2 text-slate-400 hover:text-red-500 bg-white border border-slate-200 rounded-full hover:bg-red-50 transition-all"
+                      title="Delete Assignment"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
                     <Link 
                       to={`/teacher/assignments/${assignment.id}/review`}
                       className="px-6 py-2 bg-white border border-slate-200 text-slate-800 font-black text-[13px] rounded-full hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"

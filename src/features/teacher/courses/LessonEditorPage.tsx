@@ -28,12 +28,30 @@ const LessonEditorPage: FC = () => {
     description: "",
     status: "Draft",
     videoType: "File",
+    videoUrl: "",
     rewardXp: 50,
     bonusXp: 0,
     order: 1
   });
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfPreview, setPdfPreview] = useState<string | null>(null);
+
+  const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = new URL(url).searchParams.get('v');
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } else if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } else if (url.includes('vimeo.com/')) {
+      const videoId = url.split('vimeo.com/')[1];
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    }
+    return null;
+  };
 
   const { createLesson, updateLesson, isLoading, lessons, fetchLessons } = useLessonStore();
 
@@ -52,15 +70,42 @@ const LessonEditorPage: FC = () => {
           description: existing.content || "",
           status: existing.status ? (existing.status.charAt(0).toUpperCase() + existing.status.slice(1)) : "Draft",
           videoType: existing.video_url ? "Link" : "File",
+          videoUrl: existing.video_url || "",
           rewardXp: existing.xp_reward || 0,
           bonusXp: existing.bonus_xp || 0,
           order: existing.order || 1
         });
+        
+        // Handle existing file previews
+        if (existing.video_file && !videoFile) {
+          setVideoPreview(existing.video_file);
+        }
+        if (existing.pdf_file && !pdfFile) {
+          setPdfPreview(existing.pdf_file.split('/').pop() || "Resource PDF");
+        }
       }
     } else if (!isEditMode && lessons.length >= 0) {
       setLessonData(prev => ({ ...prev, order: lessons.length + 1 }));
     }
-  }, [isEditMode, lessons, lessonId]);
+  }, [isEditMode, lessons, lessonId, videoFile, pdfFile]);
+
+  useEffect(() => {
+    if (videoFile) {
+      const objectUrl = URL.createObjectURL(videoFile);
+      setVideoPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      setVideoPreview(null);
+    }
+  }, [videoFile]);
+
+  useEffect(() => {
+    if (pdfFile) {
+      setPdfPreview(pdfFile.name);
+    } else {
+      setPdfPreview(null);
+    }
+  }, [pdfFile]);
 
   const handleSave = async () => {
     if (!lessonData.title) {
@@ -77,7 +122,14 @@ const LessonEditorPage: FC = () => {
       formData.append('xp_reward', lessonData.rewardXp.toString());
       formData.append('bonus_xp', lessonData.bonusXp.toString());
 
-      if (videoFile) formData.append('video_file', videoFile);
+      if (lessonData.videoType === 'Link' && lessonData.videoUrl) {
+        formData.append('video_url', lessonData.videoUrl);
+      }
+      
+      if (videoFile && lessonData.videoType === 'File') {
+        formData.append('video_file', videoFile);
+      }
+      
       if (pdfFile) formData.append('pdf_file', pdfFile);
 
       if (isEditMode) {
@@ -196,34 +248,59 @@ const LessonEditorPage: FC = () => {
             </div>
 
             <div className="space-y-4">
-              <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Upload Video</p>
-              <div 
-                onClick={() => document.getElementById('video-input')?.click()}
-                className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer bg-slate-50/30"
-              >
-                <div className="bg-blue-50 p-4 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform">
-                  <FiUploadCloud size={32} />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-black text-slate-800">
-                    {videoFile ? videoFile.name : "Upload video"}
-                  </p>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">MP4, MOV, AVI up to 500MB</p>
-                </div>
-              </div>
-              <input 
-                id="video-input"
-                type="file" 
-                accept="video/*"
-                className="hidden"
-                onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-              />
-              <button 
-                onClick={() => document.getElementById('video-input')?.click()}
-                className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-100"
-              >
-                {videoFile ? "Change Video" : "Select Video"}
-              </button>
+              {lessonData.videoType === 'File' ? (
+                <>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Upload Video</p>
+                  <div 
+                    onClick={() => document.getElementById('video-input')?.click()}
+                    className="border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center gap-3 group hover:border-blue-300 transition-colors cursor-pointer bg-slate-50/30"
+                  >
+                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform">
+                      <FiUploadCloud size={32} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-black text-slate-800">
+                        {videoFile ? videoFile.name : "Upload video"}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">MP4, MOV, AVI up to 500MB</p>
+                    </div>
+                  </div>
+                  <input 
+                    id="video-input"
+                    type="file" 
+                    accept="video/*"
+                    className="hidden"
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                  />
+                  <button 
+                    onClick={() => document.getElementById('video-input')?.click()}
+                    className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-100"
+                  >
+                    {videoFile ? "Change Video" : "Select Video"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Video Link</p>
+                  <div className="space-y-3">
+                    <input 
+                      type="url" 
+                      placeholder="e.g., https://www.youtube.com/watch?v=..." 
+                      value={lessonData.videoUrl}
+                      onChange={(e) => setLessonData({...lessonData, videoUrl: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-blue-400 outline-none transition-all"
+                    />
+                    {lessonData.videoUrl && !lessonData.videoUrl.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\/.+$/) && (
+                      <p className="text-[10px] text-red-500 font-bold px-1">
+                        ⚠️ Please enter a valid YouTube or Vimeo link for embedding.
+                      </p>
+                    )}
+                    <p className="text-[10px] text-slate-400 font-bold px-1">
+                      Supports YouTube and Vimeo links for direct embedding in the lesson.
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -324,25 +401,32 @@ const LessonEditorPage: FC = () => {
 
           <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
             <div className="aspect-video bg-slate-900 flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-slate-800 opacity-40"></div>
-              <button className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white relative z-10 shadow-2xl">
-                <FiPlay size={24} className="ml-1" />
-              </button>
-              {/* Fake Video Controls */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                <div className="h-1 bg-slate-600/50 rounded-full mb-3 overflow-hidden">
-                  <div className="w-[40%] h-full bg-blue-500 rounded-full relative">
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-md" />
+              {lessonData.videoType === 'Link' && getEmbedUrl(lessonData.videoUrl) ? (
+                <iframe
+                  src={getEmbedUrl(lessonData.videoUrl)!}
+                  title="Video Preview"
+                  className="absolute inset-0 w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : lessonData.videoType === 'File' && videoPreview ? (
+                <video 
+                  src={videoPreview} 
+                  controls 
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-slate-800 opacity-40"></div>
+                  <div className="flex flex-col items-center gap-3 relative z-10">
+                    <button className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-2xl">
+                      <FiPlay size={24} className="ml-1" />
+                    </button>
+                    <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">No Video Selected</p>
                   </div>
-                </div>
-                <div className="flex items-center justify-between text-white/90 text-[10px] font-bold">
-                  <div className="flex items-center gap-3">
-                    <FiPause size={12} />
-                    <FiVolume2 size={12} />
-                    <span>08:42 / 12:30</span>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
 
             <div className="p-8 space-y-6">
@@ -365,6 +449,20 @@ const LessonEditorPage: FC = () => {
                   Earn {lessonData.rewardXp + (lessonData.bonusXp || 0)} XP
                 </div>
               </div>
+
+              {pdfPreview && (
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
+                      <FiUploadCloud size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-slate-800 line-clamp-1">{pdfPreview}</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">PDF Resource</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <button className="w-full bg-[#FF8000] text-white font-black py-4 rounded-2xl shadow-lg shadow-orange-100 hover:bg-orange-600 transition-all cursor-default pointer-events-none">
                 Mark as Complete

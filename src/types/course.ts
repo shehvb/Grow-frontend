@@ -10,6 +10,7 @@ export interface Course {
   lessonsCount?: number;
   studentsCount?: number;
   xpCount?: number;
+  grade?: number;
 }
 
 export interface Enrollment {
@@ -34,6 +35,7 @@ export interface TeacherLesson {
   order: number;
   status: TeacherLessonStatus;
   video_url?: string;
+  video_file?: string;
   pdf_file?: string;
   resources?: string;
   xp_reward: number;
@@ -46,6 +48,7 @@ export interface TeacherLessonWriteRequest {
   order: number;
   status?: TeacherLessonStatus;
   video_url?: string;
+  video_file?: File | null;
   pdf_file?: File | null;
   resources?: File | null;
   xp_reward: number;

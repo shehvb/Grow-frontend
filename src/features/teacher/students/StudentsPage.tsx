@@ -234,4 +234,3 @@ const StudentsPage: FC = () => {
 };
 
 export default StudentsPage;
-
