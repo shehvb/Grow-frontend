@@ -27,6 +27,28 @@ const CourseEditorPage: FC = () => {
   const { lessons, fetchLessons, deleteLesson, updateLesson } = useLessonStore();
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = new URL(url).searchParams.get('v');
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } else if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } else if (url.includes('vimeo.com/')) {
+      const videoId = url.split('vimeo.com/')[1];
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    }
+    // If it's a direct link to a file on our server
+    return url;
+  };
+
+  const previewLesson = [...lessons]
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .find(l => l.video_url);
+
+  const embedUrl = previewLesson ? getEmbedUrl(previewLesson.video_url) : null;
+
   const totalXP = lessons.reduce((sum, lesson) => sum + (lesson.xp_reward || 0) + (lesson.bonus_xp || 0), 0);
 
   const toggleLessonStatus = async (lesson: any) => {
@@ -111,35 +133,45 @@ const CourseEditorPage: FC = () => {
           <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
             <h3 className="text-xl font-black text-slate-800 mb-6">Course Preview</h3>
             <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-900 group">
-              <img 
-                src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=2000&auto=format&fit=crop" 
-                alt="Course Preview Thumbnail" 
-                className="w-full h-full object-cover opacity-60"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-transform">
-                  <FiPlay size={32} className="ml-1" />
-                </button>
-              </div>
-              {/* Fake Video Player Controls */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                <div className="h-1.5 bg-slate-600/50 rounded-full mb-4 overflow-hidden">
-                  <div className="w-[60%] h-full bg-blue-500 rounded-full relative">
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md" />
+              {embedUrl ? (
+                embedUrl.includes('youtube.com') || embedUrl.includes('vimeo.com') ? (
+                  <iframe
+                    src={embedUrl}
+                    title="Course Preview"
+                    className="absolute inset-0 w-full h-full"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                ) : (
+                  <video 
+                    src={embedUrl} 
+                    controls 
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                )
+              ) : (
+                <>
+                  <img 
+                    src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=2000&auto=format&fit=crop" 
+                    alt="Course Preview Thumbnail" 
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-20 h-20 bg-slate-700/50 rounded-full flex items-center justify-center text-white/50 backdrop-blur-md">
+                        <FiPlay size={32} />
+                      </div>
+                      <p className="text-white/50 text-[10px] font-black uppercase tracking-widest">No Lesson Videos Available</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center justify-between text-white/90">
-                  <div className="flex items-center gap-4">
-                    <FiPause size={18} />
-                    <FiVolume2 size={18} />
-                    <span className="text-xs font-bold">08:42 / 12:30</span>
-                  </div>
-                  <div className="text-[10px] font-black border-2 border-white/40 px-1.5 py-0.5 rounded tracking-wider">HD</div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
             <p className="text-center text-slate-400 text-xs font-medium mt-6 leading-relaxed">
-              This is how students will see the course introduction. Upload a preview video to help them understand what they'll learn.
+              {previewLesson 
+                ? `Currently showing preview from Lesson: ${previewLesson.title}` 
+                : "This is how students will see the course introduction. Add a video to any lesson to set it as the preview."}
             </p>
           </div>
 

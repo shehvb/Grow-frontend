@@ -6,6 +6,9 @@ import {
   FiPlus,
   FiChevronDown
 } from "react-icons/fi";
+import { courseService } from "../../../services/courseService";
+import { quizService } from "../../../services/quizService";
+import type { Course } from "../../../types/course";
 
 const QuizBuilderPage: FC = () => {
   const { id } = useParams();
@@ -14,69 +17,108 @@ const QuizBuilderPage: FC = () => {
 
   const [formData, setFormData] = useState({
     title: "",
-    course: "",
+    courseId: "",
     duration: 30,
     rewardXp: 200,
-    isActive: true
+    isActive: true,
+    startTime: new Date().toISOString(),
+    endTime: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days default
   });
 
+  const [courses, setCourses] = useState<Course[]>([]);
   const [questions, setQuestions] = useState([
     { id: 1, prompt: "", options: ["", "", "", ""], correctIndex: 0 },
     { id: 2, prompt: "", options: ["", "", "", ""], correctIndex: 1 }
   ]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isEditMode) {
-      const savedQuizzes = JSON.parse(sessionStorage.getItem('teacher-quizzes') || "[]");
-      const existing = savedQuizzes.find((q: any) => q.id === id);
-      if (existing) {
-        setFormData({
-          title: existing.title,
-          course: existing.course,
-          duration: existing.duration,
-          rewardXp: existing.xp,
-          isActive: existing.status === "Active"
-        });
-        // In a real app we'd load questions. For now, mock them.
-        setQuestions([
-          { id: 1, prompt: "What is 2x + 5 = 15?", options: ["x = 5", "x = 10", "x = 7.5", "x = 3"], correctIndex: 0 },
-          { id: 2, prompt: "Solve for y: 3y - 7 = 11", options: ["y = 4", "y = 6", "y = 8", "y = 5"], correctIndex: 1 }
-        ]);
+    const fetchCourses = async () => {
+      try {
+        const data = await courseService.listCourses();
+        setCourses(data);
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
       }
+    };
+    fetchCourses();
+
+    if (isEditMode) {
+      const fetchQuiz = async () => {
+        try {
+          const quiz = await quizService.getTeacherQuizById(id);
+          if (quiz) {
+            setFormData({
+              title: quiz.title,
+              courseId: quiz.course?.toString() || quiz.course_id?.toString() || "",
+              duration: quiz.duration_minutes || 30,
+              rewardXp: quiz.xp_reward || 200,
+              isActive: !quiz.is_locked,
+              startTime: quiz.start_time || new Date().toISOString(),
+              endTime: quiz.end_time || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            });
+            // Map questions if they exist in the response
+            if (quiz.questions && Array.isArray(quiz.questions)) {
+              setQuestions(quiz.questions.map((q: any, i: number) => {
+                // If options are objects with {text, is_correct}
+                const options = Array.isArray(q.options) 
+                  ? q.options.map((opt: any) => typeof opt === 'string' ? opt : (opt.text || ""))
+                  : ["", "", "", ""];
+                
+                const correctIndex = Array.isArray(q.options)
+                  ? q.options.findIndex((opt: any) => opt.is_correct === true)
+                  : 0;
+
+                return {
+                  id: q.id || i + 1,
+                  prompt: q.text || "",
+                  options: options,
+                  correctIndex: correctIndex >= 0 ? correctIndex : 0
+                };
+              }));
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch quiz:", error);
+        }
+      };
+      fetchQuiz();
     }
   }, [id, isEditMode]);
 
-  const handleSave = () => {
-    const savedQuizzes = JSON.parse(sessionStorage.getItem('teacher-quizzes') || "[]");
-    
-    if (isEditMode) {
-      const updated = savedQuizzes.map((q: any) => q.id === id ? {
-        ...q,
-        title: formData.title || "Untitled Quiz",
-        course: formData.course || "General",
-        duration: formData.duration,
-        xp: formData.rewardXp,
-        status: formData.isActive ? "Active" : "Draft",
-        questions: questions.length
-      } : q);
-      sessionStorage.setItem('teacher-quizzes', JSON.stringify(updated));
-    } else {
-      const newQuiz = {
-        id: `q${Date.now()}`,
-        title: formData.title || "New Quiz",
-        course: formData.course || "General",
-        status: formData.isActive ? "Active" : "Draft",
-        questions: questions.length,
-        duration: formData.duration,
-        xp: formData.rewardXp,
-        completed: 0,
-        totalStudents: 45,
-        avgScore: 0
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        title: formData.title,
+        course_id: parseInt(formData.courseId),
+        duration_minutes: formData.duration,
+        xp_reward: formData.rewardXp,
+        max_score: "100.00", // Default or calculated
+        start_time: formData.startTime,
+        end_time: formData.endTime,
+        questions: questions.map((q, idx) => ({
+          text: q.prompt,
+          order: idx + 1,
+          options: q.options.map((opt, optIdx) => ({
+            text: opt,
+            is_correct: q.correctIndex === optIdx
+          }))
+        }))
       };
-      sessionStorage.setItem('teacher-quizzes', JSON.stringify([...savedQuizzes, newQuiz]));
+
+      if (isEditMode) {
+        await quizService.updateQuiz(id, payload);
+      } else {
+        await quizService.createQuiz(payload);
+      }
+      navigate("/teacher/quizzes");
+    } catch (error) {
+      console.error("Failed to save quiz:", error);
+      alert("Failed to save quiz. Please check all fields.");
+    } finally {
+      setLoading(false);
     }
-    
-    navigate("/teacher/quizzes");
   };
 
   const updateQuestion = (qId: number, field: string, value: any, optionIndex?: number) => {
@@ -142,15 +184,16 @@ const QuizBuilderPage: FC = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Course</label>
                 <div className="relative">
-                  <select 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-bold text-slate-600 focus:border-orange-400 outline-none transition-all appearance-none"
-                    value={formData.course}
-                    onChange={(e) => setFormData({...formData, course: e.target.value})}
-                  >
-                    <option value="" disabled>Select...</option>
-                    <option value="Algebra Fundamentals">Algebra Fundamentals</option>
-                    <option value="Geometry Basics">Geometry Basics</option>
-                  </select>
+                    <select 
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-bold text-slate-600 focus:border-orange-400 outline-none transition-all appearance-none"
+                      value={formData.courseId}
+                      onChange={(e) => setFormData({...formData, courseId: e.target.value})}
+                    >
+                      <option value="" disabled>Select...</option>
+                      {courses.map(course => (
+                        <option key={course.id} value={course.id}>{course.title}</option>
+                      ))}
+                    </select>
                   <FiChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none stroke-[3]" />
                 </div>
               </div>
@@ -172,6 +215,27 @@ const QuizBuilderPage: FC = () => {
                   value={formData.rewardXp}
                   onChange={(e) => setFormData({...formData, rewardXp: parseInt(e.target.value) || 0})}
                   className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-bold text-blue-500 outline-none focus:border-orange-400 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-50">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Start Time</label>
+                <input 
+                  type="datetime-local" 
+                  value={formData.startTime.substring(0, 16)}
+                  onChange={(e) => setFormData({...formData, startTime: new Date(e.target.value).toISOString()})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-bold text-slate-600 outline-none focus:border-orange-400 transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">End Time</label>
+                <input 
+                  type="datetime-local" 
+                  value={formData.endTime.substring(0, 16)}
+                  onChange={(e) => setFormData({...formData, endTime: new Date(e.target.value).toISOString()})}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-bold text-slate-600 outline-none focus:border-orange-400 transition-all"
                 />
               </div>
             </div>
@@ -237,9 +301,17 @@ const QuizBuilderPage: FC = () => {
           <div className="flex items-center gap-4 pt-4">
             <button 
               onClick={handleSave}
-              className="px-8 py-3.5 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 transition-all text-sm"
+              disabled={loading}
+              className="px-8 py-3.5 bg-[#FF8000] text-white font-bold rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-600 hover:-translate-y-0.5 disabled:bg-slate-300 disabled:translate-y-0 transition-all text-sm min-w-[140px]"
             >
-              {isEditMode ? "Save Changes" : "Create Quiz"}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Saving...</span>
+                </div>
+              ) : (
+                isEditMode ? "Save Changes" : "Create Quiz"
+              )}
             </button>
             <button 
               onClick={() => navigate('/teacher/quizzes')}

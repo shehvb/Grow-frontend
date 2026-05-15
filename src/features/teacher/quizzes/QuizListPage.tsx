@@ -6,8 +6,12 @@ import {
   FiClock, 
   FiTrendingUp, 
   FiZap,
-  FiBookOpen
+  FiBookOpen,
+  FiLoader
 } from "react-icons/fi";
+import { quizService } from "../../../services/quizService";
+import { courseService } from "../../../services/courseService";
+import type { Course } from "../../../types/course";
 
 const MOCK_QUIZZES = [
   {
@@ -50,15 +54,31 @@ const MOCK_QUIZZES = [
 
 const QuizListPage: FC = () => {
   const navigate = useNavigate();
-  const [quizzes] = useState<any[]>(() => {
-    const saved = sessionStorage.getItem('teacher-quizzes');
-    if (saved) return JSON.parse(saved);
-    return MOCK_QUIZZES;
-  });
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    sessionStorage.setItem('teacher-quizzes', JSON.stringify(quizzes));
-  }, [quizzes]);
+    const fetchData = async () => {
+      try {
+        const [quizzesData, coursesData] = await Promise.all([
+          quizService.getTeacherQuizzes(),
+          courseService.listCourses()
+        ]);
+        setQuizzes(quizzesData);
+        setCourses(coursesData);
+      } catch (error) {
+        console.error("Failed to fetch quizzes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const getCourseName = (courseId: number) => {
+    return courses.find(c => c.id === courseId)?.title || `Course ${courseId}`;
+  };
 
   const activeQuizzes = quizzes.filter(q => q.status === 'Active').length;
   const avgScore = quizzes.length ? Math.round(quizzes.reduce((acc, q) => acc + q.avgScore, 0) / quizzes.length) : 0;
@@ -125,74 +145,92 @@ const QuizListPage: FC = () => {
       </div>
 
       {/* Quizzes List */}
-      <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <div className="space-y-4">
-          {quizzes.map(quiz => {
-            const completionRate = Math.round((quiz.completed / quiz.totalStudents) * 100);
-            const isActive = quiz.status === 'Active';
-            
-            return (
-              <div 
-                key={quiz.id} 
-                className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 overflow-hidden group hover:border-slate-200 transition-colors"
-              >
-                {/* Vertical Indicator */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${isActive ? 'bg-orange-500' : 'bg-green-500'}`} />
-                
-                <div className="flex-1 ml-2">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-black text-slate-800">{quiz.title}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${isActive ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-600'}`}>
-                      {quiz.status}
-                    </span>
-                  </div>
-                  <p className="text-xs font-bold text-slate-400 mb-3">{quiz.course}</p>
+      <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[400px]">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-[300px] text-slate-400">
+            <FiLoader className="text-4xl animate-spin mb-4" />
+            <p className="font-bold">Loading quizzes...</p>
+          </div>
+        ) : quizzes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[300px] text-slate-400">
+            <FiBookOpen className="text-4xl mb-4 opacity-20" />
+            <p className="font-bold">No quizzes found</p>
+            <button 
+              onClick={() => navigate('/teacher/quizzes/new')}
+              className="mt-4 text-[#FF8000] font-black text-sm hover:underline"
+            >
+              Create your first quiz
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {quizzes.map(quiz => {
+              const completionRate = quiz.total_students ? Math.round((quiz.completed_count / quiz.total_students) * 100) : 0;
+              const isActive = !quiz.is_locked;
+              
+              return (
+                <div 
+                  key={quiz.id} 
+                  className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 overflow-hidden group hover:border-slate-200 transition-colors"
+                >
+                  {/* Vertical Indicator */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${isActive ? 'bg-orange-500' : 'bg-slate-300'}`} />
                   
-                  <div className="flex flex-wrap items-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    <div className="flex items-center gap-1.5"><FiBookOpen /> {quiz.questions} questions</div>
-                    <div className="flex items-center gap-1.5"><FiClock /> {quiz.duration} min</div>
-                    <div>{quiz.completed}/{quiz.totalStudents} completed</div>
-                    <div className="text-blue-500 lowercase">+{quiz.xp} Xp</div>
+                  <div className="flex-1 ml-2">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-lg font-black text-slate-800">{quiz.title}</h3>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${isActive ? 'bg-orange-100 text-orange-500' : 'bg-slate-100 text-slate-500'}`}>
+                        {isActive ? 'Active' : 'Locked'}
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold text-slate-400 mb-3">{getCourseName(quiz.course_id)}</p>
+                    
+                    <div className="flex flex-wrap items-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5"><FiBookOpen /> {quiz.questions_count || 0} questions</div>
+                      <div className="flex items-center gap-1.5"><FiClock /> {quiz.duration_minutes} min</div>
+                      <div>{quiz.completed_count || 0}/{quiz.total_students || 0} completed</div>
+                      <div className="text-blue-500 lowercase">+{quiz.xp_reward} Xp</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-8 md:w-[400px]">
+                    <div className="text-center w-20">
+                      <span className="text-xl font-black text-slate-800 block">{Math.round(quiz.avg_score_pct || 0)}%</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg Score</span>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
+                        <div 
+                          className={`h-full rounded-full ${isActive ? 'bg-orange-500' : 'bg-slate-400'}`} 
+                          style={{ width: `${completionRate}%` }} 
+                        />
+                      </div>
+                      <div className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        {completionRate}% completion
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link 
+                        to={`/teacher/quizzes/${quiz.id}/results`}
+                        className="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                      >
+                        View Result
+                      </Link>
+                      <Link 
+                        to={`/teacher/quizzes/${quiz.id}/edit`}
+                        className="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                      >
+                        Edit
+                      </Link>
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-8 md:w-[400px]">
-                  <div className="text-center w-20">
-                    <span className="text-xl font-black text-slate-800 block">{quiz.avgScore}%</span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg Score</span>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
-                      <div 
-                        className={`h-full rounded-full ${isActive ? 'bg-orange-500' : 'bg-green-500'}`} 
-                        style={{ width: `${completionRate}%` }} 
-                      />
-                    </div>
-                    <div className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                      {completionRate}% completion
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Link 
-                      to={`/teacher/quizzes/${quiz.id}/results`}
-                      className="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
-                    >
-                      View Result
-                    </Link>
-                    <Link 
-                      to={`/teacher/quizzes/${quiz.id}/edit`}
-                      className="px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
-                    >
-                      Edit
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

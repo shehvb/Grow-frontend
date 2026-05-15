@@ -112,28 +112,27 @@ const CourseListPage: FC = () => {
                   </p>
                 </div>
 
-                <div className="relative flex items-center gap-8 text-xs font-bold text-slate-500">
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs font-bold text-slate-500 pt-2 border-t border-slate-50 mt-auto">
                   <div className="flex items-center gap-2">
-                    <FiBook className="text-lg text-slate-400" />
-                    <span>{course.lessonsCount || 12} lessons</span>
+                    <FiBook className="text-lg text-slate-400 shrink-0" />
+                    <span className="whitespace-nowrap">{course.lessonsCount || 0} lessons</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <FiUsers className="text-lg text-slate-400" />
-                    <span>{course.studentsCount || 42}</span>
+                    <FiUsers className="text-lg text-slate-400 shrink-0" />
+                    <span>{course.studentsCount || 0}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <FiZap className="text-lg text-[#FF8000]" />
-                    <span>{course.xpCount || 100}</span>
+                    <FiZap className="text-lg text-[#FF8000] shrink-0" />
+                    <span>{course.xpCount || 0}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <PiGraduationCap className="text-lg text-slate-400" />
-                    <span>Grade 9</span>
+                    <PiGraduationCap className="text-lg text-slate-400 shrink-0" />
+                    <span className="whitespace-nowrap">Grade {course.grade || 'N/A'}</span>
                   </div>
 
-                  {/* Small profile icon overlapping */}
-                  <div className="absolute -top-4 right-0">
-                     <div className="w-8 h-8 rounded-full border-2 border-white shadow-md bg-slate-200 overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Teacher" alt="Teacher" />
+                  <div className="ml-auto shrink-0 flex items-center gap-2">
+                     <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm bg-slate-200 overflow-hidden flex items-center justify-center text-xs text-slate-500 font-black uppercase">
+                        {course.teacher?.first_name ? course.teacher.first_name[0] : 'T'}
                      </div>
                   </div>
                 </div>

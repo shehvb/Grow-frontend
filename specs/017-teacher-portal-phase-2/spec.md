@@ -23,22 +23,7 @@ Teachers need to set tasks for students and evaluate their work. This journey co
 
 ---
 
-### User Story 2 - Quiz System & Results (Priority: P2)
-
-Teachers need to create automated assessments and track student performance.
-
-**Why this priority**: Vital for scaling evaluation. Automated quizzes reduce teacher workload.
-
-**Independent Test**: Can be tested by creating a quiz and verifying that the results view correctly aggregates student performance once attempts are made.
-
-**Acceptance Scenarios**:
-
-1. **Given** a teacher is in the Quiz module, **When** they create a new quiz, **Then** they can define questions and link the quiz to a specific course/lesson.
-2. **Given** students have completed a quiz, **When** the teacher views the results, **Then** they see a statistical overview of class performance.
-
----
-
-### User Story 3 - Global Student Management & Profile (Priority: P3)
+### User Story 2 - Global Student Management & Profile (Priority: P2)
 
 Teachers need a centralized view of all their students and management of their own account.
 
@@ -53,22 +38,19 @@ Teachers need a centralized view of all their students and management of their o
 
 ---
 
-### Edge Cases
-
 - **Large File Uploads**: How does the system handle assignment resources that exceed the 50MB limit?
 - **Concurrent Grading**: What happens if two teachers (in a multi-teacher course) attempt to grade the same submission at the same time?
-- **Quiz Deletion**: How are existing student attempts handled if a teacher deletes or significantly modifies a quiz?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a CRUD interface for Assignments within the Teacher Portal.
-- **FR-002**: System MUST support multipart/form-data for uploading assignment resource files.
-- **FR-003**: System MUST provide a Submission Review view that lists all students enrolled in a course and their submission status for a specific assignment.
-- **FR-004**: System MUST allow teachers to post numerical grades and text feedback for any assignment submission.
-- **FR-005**: System MUST provide a Quiz Creation interface allowing teachers to define questions and correct answers.
-- **FR-006**: System MUST aggregate and display student quiz results (scores and completion rates).
+- **FR-001**: System MUST provide a standalone "Assignments" page accessible from the sidebar.
+- **FR-002**: Assignment creation form MUST include a dropdown to select from the teacher's existing courses.
+- **FR-003**: System MUST support multipart/form-data for uploading assignment resource files.
+- **FR-004**: System MUST provide a Submission Review view that lists all students enrolled in a course and their submission status.
+- **FR-005**: System MUST allow teachers to either **Download** or **Preview** student submission files.
+- **FR-006**: System MUST allow teachers to manually select a student from the list to enter numerical grades and text feedback.
 - **FR-007**: System MUST provide a global "My Students" view that lists all students linked to the teacher through course enrollments.
 - **FR-008**: System MUST allow teachers to retrieve and update their profile information and notification preferences.
 
@@ -77,7 +59,6 @@ Teachers need a centralized view of all their students and management of their o
 - **Assignment**: Represents a task given to students. Includes title, description, max_marks, and linked files.
 - **Submission**: Represents a student's response to an assignment. Linked to a Student and an Assignment.
 - **Grade**: Represents the evaluation of a submission. Includes score and feedback.
-- **Quiz**: Represents an automated test. Includes a collection of questions.
 - **Student Profile**: Basic info of students enrolled in the teacher's courses.
 
 ## Success Criteria *(mandatory)*

@@ -1,5 +1,7 @@
 import type { FC } from "react";
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "./store/authStore";
 
 // Pages
 import LandingPage from "./pages/landingPage";
@@ -67,6 +69,12 @@ import { ClassDetailsPage } from "./features/admin/pages/ClassDetailsPage";
 import { ReportsAnalyticsPage } from "./features/admin/pages/ReportsAnalyticsPage";
 
 const App: FC = () => {
+  const initialize = useAuthStore(state => state.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
   return (
     <Routes>
       {/* Landing Page */}
@@ -141,6 +149,7 @@ const App: FC = () => {
         <Route path="courses/:id/analytics" element={<CourseAnalytics />} />
         <Route path="assignments" element={<AssignmentListPage />} />
         <Route path="assignments/new" element={<CreateAssignmentPage />} />
+        <Route path="assignments/:id/edit" element={<CreateAssignmentPage />} />
         <Route path="assignments/:id/review" element={<ReviewSubmissionsPage />} />
         <Route path="quizzes" element={<QuizListPage />} />
         <Route path="quizzes/new" element={<QuizBuilderPage />} />
