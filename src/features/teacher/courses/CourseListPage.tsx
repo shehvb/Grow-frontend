@@ -1,7 +1,7 @@
 import { ImBooks } from "react-icons/im";
 import type { FC } from "react";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   FiArrowLeft, 
   FiPlus, 
@@ -18,7 +18,7 @@ import { useCourseStore } from "../../../store/useCourseStore";
 
 const CourseListPage: FC = () => {
   const { courses, listCourses, createCourse, updateCourse } = useCourseStore();
-
+  const navigate = useNavigate();
   useEffect(() => {
     listCourses();
   }, [listCourses]);
@@ -43,7 +43,10 @@ const CourseListPage: FC = () => {
     if (editingCourse) {
       await updateCourse(editingCourse.id, payload);
     } else {
-      await createCourse(payload);
+      const newCourse = await createCourse(payload);
+      if (newCourse && newCourse.id) {
+        navigate(`/teacher/courses/${newCourse.id}/lessons/new`);
+      }
     }
   };
 
@@ -83,7 +86,7 @@ const CourseListPage: FC = () => {
             courses.map(course => (
               <Link 
                 key={course.id} 
-                to={(course.lessonsCount || 0) === 0 ? `/teacher/courses/${course.id}/lessons/new` : `/teacher/courses/${course.id}`}
+                to={`/teacher/courses/${course.id}`}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow cursor-pointer flex flex-col justify-between min-h-[220px]"
               >
                 
@@ -116,19 +119,21 @@ const CourseListPage: FC = () => {
                 <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs font-bold text-slate-500 pt-2 border-t border-slate-50 mt-auto">
                   <div className="flex items-center gap-2">
                     <FiBook className="text-lg text-slate-400 shrink-0" />
-                    <span className="whitespace-nowrap">{course.lessonsCount || 0} lessons</span>
+                    <span className="whitespace-nowrap">{course.lesson_count || 0} lessons</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiUsers className="text-lg text-slate-400 shrink-0" />
-                    <span>{course.studentsCount || 0}</span>
+                    <span>{course.enrolled_students || 0}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiZap className="text-lg text-[#FF8000] shrink-0" />
-                    <span>{course.xpCount || 0}</span>
+                    <span>{course.total_xp || 0}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <PiGraduationCap className="text-lg text-slate-400 shrink-0" />
-                    <span className="whitespace-nowrap">Grade {course.grade || 'N/A'}</span>
+                    <span className="whitespace-nowrap">
+                      {course.grade?.name ? course.grade.name : 'No Grade'}
+                    </span>
                   </div>
 
                   <div className="ml-auto shrink-0 flex items-center gap-2">

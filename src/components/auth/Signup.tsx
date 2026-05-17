@@ -111,6 +111,18 @@ const Signup: FC = () => {
         last_name: lastName
       });
 
+      // 3.5. Initialize Teacher Profile
+      if (currentRole === 'teacher') {
+        try {
+          const { teacherService } = await import("../../features/teacher/services/teacher.service");
+          await teacherService.updateProfile({
+            full_name: fullName
+          });
+        } catch (err) {
+          console.error("Failed to initialize teacher profile:", err);
+        }
+      }
+
       // 4. Use Enrollment Code if provided (for Students/Teachers)
       if (signupCode) {
         try {
@@ -176,8 +188,8 @@ const Signup: FC = () => {
             type="button"
             onClick={() => handleRoleChange('student')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${currentRole === 'student'
-                ? 'bg-white text-orange-500 shadow-sm'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white text-orange-500 shadow-sm'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             style={{ fontFamily: "'Nunito', sans-serif" }}
           >
@@ -188,8 +200,8 @@ const Signup: FC = () => {
             type="button"
             onClick={() => handleRoleChange('parent')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${currentRole === 'parent'
-                ? 'bg-white text-orange-500 shadow-sm'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white text-orange-500 shadow-sm'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             style={{ fontFamily: "'Nunito', sans-serif" }}
           >
@@ -200,8 +212,8 @@ const Signup: FC = () => {
             type="button"
             onClick={() => handleRoleChange('teacher')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-extrabold text-sm transition-all duration-200 ${currentRole === 'teacher'
-                ? 'bg-white text-orange-500 shadow-sm'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white text-orange-500 shadow-sm'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             style={{ fontFamily: "'Nunito', sans-serif" }}
           >
@@ -278,9 +290,9 @@ const Signup: FC = () => {
               className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               {showPass ? (
-                  <IoIosEyeOff className="w-5 h-5" />
-                ) : (
-                  <FaEye className="w-5 h-5" />
+                <IoIosEyeOff className="w-5 h-5" />
+              ) : (
+                <FaEye className="w-5 h-5" />
               )}
             </button>
           </div>
@@ -304,10 +316,10 @@ const Signup: FC = () => {
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showSignupCode ? (
-                <IoIosEyeOff className="w-5 h-5" />
-              ) : (
-                <FaEye className="w-5 h-5" />
-              )}
+                  <IoIosEyeOff className="w-5 h-5" />
+                ) : (
+                  <FaEye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>

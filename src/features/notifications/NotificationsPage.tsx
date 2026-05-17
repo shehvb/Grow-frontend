@@ -1,41 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FC } from "react";
 import { useLocation } from "react-router-dom";
 import NotificationCard from "./NotificationCard";
-import { 
-  studentTodayNotifications, 
-  studentYesterdayNotifications, 
-  parentTodayNotifications, 
-  parentYesterdayNotifications 
-} from "./notifications.mock";
+import { useNotificationStore } from "../../store/useNotificationStore";
 
 const NotificationsPage: FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'alerts'>('all');
   const location = useLocation();
   const isParent = location.pathname.startsWith('/parent');
 
-  const todayNotifications = isParent ? parentTodayNotifications : studentTodayNotifications;
-  const yesterdayNotifications = isParent ? parentYesterdayNotifications : studentYesterdayNotifications;
+  const { notifications, isLoading, error, fetchNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const title = isParent ? "Notifications" : "Notifications Center";
   const subtitle = isParent 
     ? "Stay updated with your child's academic progress, school events, and achievements."
     : "Stay updated with Mazen's progress, upcoming deadlines, and system alerts.";
 
-  const filterNotifications = (notifications: typeof todayNotifications) => {
+  // Assume backend provides timestamps. If not, we fall back to today for now.
+  const todayNotifications = notifications.filter(n => {
+    if (!n.timeElapsed) return true;
+    return n.timeElapsed.toLowerCase().includes('hour') || n.timeElapsed.toLowerCase().includes('min');
+  });
+
+  const yesterdayNotifications = notifications.filter(n => {
+    if (!n.timeElapsed) return false;
+    return n.timeElapsed.toLowerCase().includes('day') || n.timeElapsed.toLowerCase().includes('yesterday');
+  });
+
+  const filterNotifications = (notifs: typeof notifications) => {
     switch (activeTab) {
       case 'unread':
-        return notifications.filter((n) => n.isUnread);
+        return notifs.filter((n) => n.isUnread);
       case 'alerts':
-        return notifications.filter((n) => n.type === 'alert');
+        return notifs.filter((n) => n.type === 'alert');
       case 'all':
       default:
-        return notifications;
+        return notifs;
     }
   };
 
   const filteredToday = filterNotifications(todayNotifications);
   const filteredYesterday = filterNotifications(yesterdayNotifications);
+
+  if (isLoading && notifications.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1600D5]"></div>
+      </div>
+    );
+  }
+
+  if (error && notifications.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-500 font-medium">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-10 space-y-10 pt-8 pb-16">

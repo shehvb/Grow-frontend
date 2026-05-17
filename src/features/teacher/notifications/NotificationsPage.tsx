@@ -76,12 +76,12 @@ const NotificationsPage: FC = () => {
   const filterNotifications = (notifs: UITeacherNotification[]) => {
     switch (activeTab) {
       case 'Unread':
-        return notifications.filter((n) => n.isUnread);
+        return notifs.filter((n) => n.isUnread);
       case 'Alerts':
-        return notifications.filter((n) => n.type === 'alert');
+        return notifs.filter((n) => n.type === 'alert');
       case 'All Notifications':
       default:
-        return notifications;
+        return notifs;
     }
   };
 

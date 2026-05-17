@@ -9,6 +9,8 @@ import type { AuthTokens } from '../types/auth';
  */
 export const getLoginRouteForRole = (role: string | undefined): string => {
   switch (role) {
+    case 'school_admin':
+      return '/login/admin';
     case 'teacher':
       return '/login/teacher';
     case 'parent':

@@ -118,7 +118,7 @@ const LoginForm: FC = () => {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const data = await authApi.getSchool();
+        const data = await authApi.getSchools();
         setSchools(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load schools", err);

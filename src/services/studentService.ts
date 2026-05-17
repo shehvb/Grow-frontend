@@ -13,5 +13,10 @@ export const studentService = {
   getTeacherStudents: async (): Promise<EnrolledStudent[]> => {
     const response = await apiClient.get('teacher/students/');
     return response.data;
+  },
+  
+  getSettings: async (): Promise<any> => {
+    const response = await apiClient.get('student/settings/');
+    return response.data;
   }
 };

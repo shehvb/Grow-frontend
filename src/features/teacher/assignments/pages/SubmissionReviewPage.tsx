@@ -12,14 +12,14 @@ import {
   FiMessageSquare
 } from "react-icons/fi";
 import { useAssignmentStore } from "../../../../store/useAssignmentStore";
-import type { Submission } from "../../../../services/assignmentService";
+import type { TeacherSubmission } from "../../../../types/teacher";
 import { toast } from "react-hot-toast";
 
 const SubmissionReviewPage: FC = () => {
   const { id } = useParams();
   const { assignments, currentSubmissions, fetchAssignments, fetchSubmissions, gradeSubmission, isLoading } = useAssignmentStore();
   
-  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<TeacherSubmission | null>(null);
   const [grade, setGrade] = useState<number>(0);
   const [feedback, setFeedback] = useState<string>("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -33,16 +33,16 @@ const SubmissionReviewPage: FC = () => {
     }
   }, [id, fetchAssignments, fetchSubmissions]);
 
-  const handleOpenGradeModal = (submission: Submission) => {
+  const handleOpenGradeModal = (submission: TeacherSubmission) => {
     setSelectedSubmission(submission);
-    setGrade(submission.grade || 0);
+    setGrade(submission.score || 0);
     setFeedback(submission.feedback || "");
   };
 
   const handleSaveGrade = async () => {
     if (!selectedSubmission) return;
     try {
-      await gradeSubmission(selectedSubmission.id, { grade, feedback });
+      await gradeSubmission(selectedSubmission.id, { score: grade, xp_reward: grade * 10, feedback });
       toast.success("Grade submitted successfully!");
       setSelectedSubmission(null);
     } catch (error) {
@@ -112,8 +112,8 @@ const SubmissionReviewPage: FC = () => {
                     </span>
                   </td>
                   <td className="px-8 py-6">
-                    {submission.grade !== undefined ? (
-                      <span className="text-lg font-black text-blue-600">{submission.grade} <span className="text-xs text-slate-400">/ {assignment?.max_marks}</span></span>
+                    {submission.score !== undefined ? (
+                      <span className="text-lg font-black text-blue-600">{submission.score} <span className="text-xs text-slate-400">/ {assignment?.max_marks}</span></span>
                     ) : (
                       <span className="text-sm font-bold text-slate-300">Not Graded</span>
                     )}
@@ -131,7 +131,7 @@ const SubmissionReviewPage: FC = () => {
                         <FiEye size={18} />
                       </button>
                       <a 
-                        href={submission.file} 
+                        href={submission.file_url} 
                         download
                         className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
                         title="Download"
@@ -231,15 +231,15 @@ const SubmissionReviewPage: FC = () => {
               </button>
             </div>
             <div className="flex-1 bg-slate-100 flex items-center justify-center p-12 overflow-auto">
-              {selectedSubmission.file.endsWith('.pdf') ? (
+              {selectedSubmission.file_url?.endsWith('.pdf') ? (
                 <iframe 
-                  src={selectedSubmission.file} 
+                  src={selectedSubmission.file_url} 
                   className="w-full h-full rounded-2xl shadow-2xl"
                   title="PDF Preview"
                 />
               ) : (
                 <img 
-                  src={selectedSubmission.file} 
+                  src={selectedSubmission.file_url} 
                   className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" 
                   alt="Submission Preview"
                 />

@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import LoginParent from "./components/auth/LoginParent";
 import LoginStudent from "./components/auth/LoginStudent";
 import LoginTeacher from "./components/auth/LoginTeacher";
+import LoginAdmin from "./components/auth/LoginAdmin";
 import Signup from "./components/auth/Signup";
 import ForgotPassword from "./components/auth/ForgotPassword";
 
@@ -90,6 +91,7 @@ const App: FC = () => {
       <Route path="/login/parent" element={<LoginParent />} />
       <Route path="/login/student" element={<LoginStudent />} />
       <Route path="/login/teacher" element={<LoginTeacher />} />
+      <Route path="/login/admin" element={<LoginAdmin />} />
 
       {/* Student Routes */}
       <Route path="/student" element={<ProtectedRoute allowedRoles={['student']}><StudentLayout /></ProtectedRoute>}>
@@ -162,7 +164,7 @@ const App: FC = () => {
       </Route>
 
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/admin" element={<ProtectedRoute allowedRoles={['school_admin']}><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboardPage />} />
         <Route path="class/:id" element={<ClassDetailsPage />} />
         <Route path="reports" element={<ReportsAnalyticsPage />} />

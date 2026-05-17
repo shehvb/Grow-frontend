@@ -1,7 +1,7 @@
 import apiClient from "./apiClient";
 import type { Quiz, QuizResult } from "../types";
 import type { QuizResultDetail } from "../types/teacher";
-import { getMockQuizById, submitMockQuiz } from "./mock/quizServiceMock";
+
 
 // BACKEND DEVELOPER INSTRUCTIONS:
 // 1. In a real environment, quizzes should not expose `correctAnswerIndex` to the frontend until the quiz is submitted. 
@@ -11,13 +11,13 @@ import { getMockQuizById, submitMockQuiz } from "./mock/quizServiceMock";
 export const quizService = {
   // Student Endpoints
   getQuizById: async (id: string): Promise<Quiz | undefined> => {
-    // return axios.get(`/api/quizzes/${id}`).then(res => res.data);
-    return getMockQuizById(id);
+    const response = await apiClient.get(`student/quizzes/${id}/`);
+    return response.data;
   },
 
   submitQuiz: async (quizId: string, answers: Record<string, number>): Promise<QuizResult> => {
-    // return axios.post(`/api/quizzes/${quizId}/submit`, { answers }).then(res => res.data);
-    return submitMockQuiz(quizId, answers);
+    const response = await apiClient.post(`student/quizzes/${quizId}/submit/`, { answers });
+    return response.data;
   },
 
   // Teacher Endpoints

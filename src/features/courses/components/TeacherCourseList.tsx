@@ -54,7 +54,7 @@ export const TeacherCourseList: React.FC = () => {
                 <p className="text-gray-600 text-sm line-clamp-3 mb-4">{course.description}</p>
                 <div className="flex justify-between items-center pt-4 border-t border-gray-50">
                   <span className="text-xs text-gray-400">
-                    Updated: {new Date(course.updated_at).toLocaleDateString()}
+                    Created: {new Date(course.created_at || new Date()).toLocaleDateString()}
                   </span>
                   <div className="flex gap-2">
                     <Link to={`/teacher/courses/${course.id}`} className="text-gray-500 hover:text-blue-600 p-2" title="View details">

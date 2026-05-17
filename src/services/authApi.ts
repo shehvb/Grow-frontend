@@ -65,7 +65,7 @@ export const authApi = {
 
   getSchools: async (): Promise<any[]> => {
     const response = await apiClient.get('schools/');
-    return response.data;
+    return response.data.results || response.data || [];
   },
 
   createSchool: async (data: any): Promise<any> => {

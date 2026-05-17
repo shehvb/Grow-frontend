@@ -1,5 +1,11 @@
 import type { FC } from "react";
-import type { UpcomingSession } from "../../mock/dashboard.mock";
+export interface UpcomingSession {
+  id: number;
+  title: string;
+  day: string;
+  month: string;
+  time: string;
+}
 import { FiClock } from "react-icons/fi";
 
 interface UpcomingSessionWidgetProps {
@@ -7,6 +13,7 @@ interface UpcomingSessionWidgetProps {
 }
 
 const UpcomingSessionWidget: FC<UpcomingSessionWidgetProps> = ({ session }) => {
+  if (!session) return null;
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm w-full flex items-center justify-between relative mt-6">
       <div className="flex flex-col gap-3">

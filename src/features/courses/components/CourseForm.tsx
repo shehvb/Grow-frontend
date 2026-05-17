@@ -60,7 +60,7 @@ export const CourseForm: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-[1320px]">
-      <button 
+      <button
         onClick={() => navigate('/teacher/courses')}
         className="flex items-center gap-2 text-gray-500 hover:text-gray-800 mb-6 transition"
       >

@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { useState, useEffect } from "react";
 import { useCourseStore } from "../../../../store/useCourseStore";
 import { FiChevronDown } from "react-icons/fi";
-import { courseService, type SchoolGrade } from "../../../../services/courseService";
+import { type SchoolGrade } from "../../../../services/courseService";
 
 interface CreateCourseModalProps {
   isOpen: boolean;
@@ -22,13 +22,38 @@ const CreateCourseModal: FC<CreateCourseModalProps> = ({ isOpen, onClose, onSave
     if (isOpen) {
       setTitle(courseToEdit?.title || "");
       setDescription(courseToEdit?.description || "");
-      setGradeId(courseToEdit?.grade || "");
+      
+      let initialGradeId: number | "" = "";
+      if (courseToEdit?.grade) {
+        if (typeof courseToEdit.grade === 'object' && courseToEdit.grade !== null) {
+          initialGradeId = (courseToEdit.grade as any).id;
+        } else if (typeof courseToEdit.grade === 'number') {
+          initialGradeId = courseToEdit.grade;
+        }
+      }
+      setGradeId(initialGradeId);
       clearError();
       
-      // Fetch available grades for the dropdown
-      courseService.getGrades()
-        .then(res => setGrades(res.results || []))
-        .catch(err => console.error("Failed to load grades", err));
+      // Fetch teacher profile to get school_id, then fetch grades for that school
+      import('../../../../services/apiClient').then(({ default: apiClient }) => {
+        apiClient.get('/teacher/settings/profile/')
+          .then(profileRes => {
+            const schoolId = profileRes.data.school_id;
+            if (schoolId) {
+              return apiClient.get(`/schools/grades/?school_id=${schoolId}`);
+            } else {
+              return apiClient.get('/schools/grades/');
+            }
+          })
+          .catch(() => {
+            // If profile not found (404), fallback to getting all grades
+            return apiClient.get('/schools/grades/');
+          })
+          .then(gradesRes => {
+            setGrades(gradesRes.data.results || gradesRes.data || []);
+          })
+          .catch((error) => console.error("Failed to load grades", error));
+      });
     }
   }, [isOpen, courseToEdit, clearError]);
 
