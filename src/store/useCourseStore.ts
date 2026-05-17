@@ -12,7 +12,7 @@ interface CourseState {
 
   listCourses: () => Promise<void>;
   getCourseById: (id: number) => Promise<void>;
-  createCourse: (data: CourseWriteRequest) => Promise<void>;
+  createCourse: (data: CourseWriteRequest) => Promise<any>;
   updateCourse: (id: number, data: CourseWriteRequest) => Promise<void>;
   deleteCourse: (id: number) => Promise<void>;
   enrollInCourse: (id: number) => Promise<void>;
@@ -58,6 +58,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     try {
       const newCourse = await courseService.createCourse(data);
       set((state) => ({ courses: [...state.courses, newCourse], isLoading: false }));
+      return newCourse;
     } catch (error: any) {
       const status = error.response?.status;
       const errorData = error.response?.data;

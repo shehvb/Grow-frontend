@@ -1,14 +1,27 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { FiGrid, FiFileText } from "react-icons/fi";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { FiGrid, FiFileText, FiLogOut } from "react-icons/fi";
+import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/Logo.png";
 
 export default function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: "Dashboard", path: "/admin", icon: FiGrid },
     { name: "Reports", path: "/admin/reports", icon: FiFileText },
   ];
+
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login/admin');
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F9FB] font-display">
@@ -44,6 +57,13 @@ export default function AdminLayout() {
         </div>
 
         <div className="flex items-center gap-4">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors"
+          >
+            <FiLogOut className="w-4 h-4" />
+            Logout
+          </button>
           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600 cursor-pointer hover:bg-gray-200 transition-colors">
             AD
           </div>

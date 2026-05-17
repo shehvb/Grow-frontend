@@ -12,8 +12,8 @@ export const useCourses = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchCourses();
-      setCourses(data);
+      const data = await fetchCourses() as any;
+      setCourses(data.results || data);
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || err.message || 'Failed to fetch courses';
       setError(errorMsg);

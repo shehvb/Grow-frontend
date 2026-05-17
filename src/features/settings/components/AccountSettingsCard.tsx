@@ -3,9 +3,10 @@ import { FiUser } from "react-icons/fi";
 
 interface AccountSettingsCardProps {
   studentName: string;
+  user?: any;
 }
 
-const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName }) => {
+const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName, user }) => {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col">
       <div className="flex items-center gap-3 mb-8">
@@ -31,18 +32,19 @@ const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName }) => {
           <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Email Address</label>
           <input 
             type="text" 
-            defaultValue="muhamed.fawzi@gmail.com"
+            defaultValue={user?.email || ""}
             className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
           />
         </div>
 
-        {/* id */}
+        {/* Username / ID */}
         <div className="relative">
-          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">id</label>
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Student ID</label>
           <input 
             type="text" 
-            defaultValue="stu-826526"
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+            defaultValue={user?.student_id || user?.username || ""}
+            disabled
+            className="w-full px-4 py-3 bg-gray-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium outline-none cursor-not-allowed transition-colors"
           />
         </div>
 
@@ -51,8 +53,9 @@ const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName }) => {
           <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Grade</label>
           <input 
             type="text" 
-            defaultValue="Grade 5"
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+            defaultValue={user?.grade || "N/A"}
+            disabled
+            className="w-full px-4 py-3 bg-gray-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium outline-none cursor-not-allowed transition-colors"
           />
         </div>
 
@@ -77,8 +80,9 @@ const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName }) => {
           <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">School</label>
           <input 
             type="text" 
-            defaultValue="elqawmua"
-            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium outline-none focus:border-[#1600D5] transition-colors"
+            defaultValue={user?.school || "N/A"}
+            disabled
+            className="w-full px-4 py-3 bg-gray-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium outline-none cursor-not-allowed transition-colors"
           />
         </div>
       </div>

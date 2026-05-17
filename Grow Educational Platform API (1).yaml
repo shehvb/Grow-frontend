@@ -2880,6 +2880,65 @@ paths:
                 items:
                   $ref: '#/components/schemas/QuizAttempt'
           description: ''
+  /api/v1/schools/:
+    get:
+      operationId: schools_list_2
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - schools
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSchoolSchoolList'
+          description: ''
+  /api/v1/schools/classes/{class_id}/:
+    get:
+      operationId: schools_classes_retrieve
+      description: Returns detailed analytics for a class, scoped to the school admin's
+        school.
+      summary: Get class detail
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - School Admin
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolClassDetail'
+          description: ''
   /api/v1/schools/grades/:
     get:
       operationId: schools_grades_list
@@ -2914,6 +2973,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedSchoolGradeList'
+          description: ''
+  /api/v1/schools/login/:
+    post:
+      operationId: schools_login_create
+      description: Dedicated login endpoint for school administrators. School accounts
+        are pre-seeded and do NOT signup through this endpoint. This auth flow is
+        completely separate from student/teacher/parent authentication.
+      summary: School admin login
+      tags:
+      - School Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolLoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolLoginResponse'
+          description: ''
+        '400':
+          description: Invalid credentials.
+  /api/v1/schools/students/:
+    get:
+      operationId: schools_students_list
+      description: Returns a paginated list of all students registered in the authenticated
+        school admin's school.
+      summary: List students in admin's school
+      tags:
+      - School Admin
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SchoolStudentList'
           description: ''
   /api/v1/sessions/:
     get:
@@ -5312,6 +5425,16 @@ components:
       - id
       - score
       - submission
+    GradeBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+      - id
+      - name
     GradeSubmissionRequest:
       type: object
       properties:
@@ -5792,6 +5915,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SchoolGrade'
+    PaginatedSchoolSchoolList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolSchool'
     ParentGPA:
       type: object
       properties:
@@ -5973,6 +6119,10 @@ components:
           type: string
           format: uri
           maxLength: 200
+        video_file:
+          type: string
+          format: binary
+          pattern: (?:mp4|webm|mov|avi|mkv|wmv|flv|3gp)$
         pdf_file:
           type: string
           format: binary
@@ -6358,7 +6508,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/RegisterRoleEnum'
           description: |-
-            User role: student | teacher | parent | school_admin.
+            User role: student | teacher | parent.
 
             * `student` - Student
             * `parent` - Parent
@@ -6481,6 +6631,46 @@ components:
       - id
       - name
       - slug
+    SchoolClassDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        grade_name:
+          type: string
+        grade_level:
+          type: integer
+        school_name:
+          type: string
+        student_count:
+          type: integer
+        teacher_count:
+          type: integer
+        active_students:
+          type: integer
+        top_performance:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        assigned_teachers:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - active_students
+      - assigned_teachers
+      - grade_level
+      - grade_name
+      - id
+      - name
+      - school_name
+      - student_count
+      - teacher_count
+      - top_performance
     SchoolCreateRequest:
       type: object
       properties:
@@ -6513,6 +6703,94 @@ components:
       - level
       - name
       - stage
+    SchoolLoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    SchoolLoginResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+        user_id:
+          type: integer
+        role:
+          type: string
+        username:
+          type: string
+      required:
+      - access
+      - refresh
+      - role
+      - user_id
+      - username
+    SchoolSchool:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        school_code:
+          type: string
+          maxLength: 50
+        school_type:
+          $ref: '#/components/schemas/SchoolTypeEnum'
+      required:
+      - id
+      - name
+      - school_code
+      - school_type
+    SchoolStudentList:
+      type: object
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+          readOnly: true
+        student_id:
+          type: string
+        grade_name:
+          type: string
+          readOnly: true
+        grade_level:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - email
+      - full_name
+      - grade_level
+      - grade_name
+      - id
+      - student_id
+    SchoolTypeEnum:
+      enum:
+      - arabic
+      - language
+      type: string
+      description: |-
+        * `arabic` - عربي
+        * `language` - لغات
     SendOTPRequest:
       type: object
       properties:
@@ -6664,12 +6942,46 @@ components:
           type: integer
         title:
           type: string
+        content:
+          type: string
+        video_url:
+          type: string
+          format: uri
+        video_file:
+          type: string
+          format: uri
+          nullable: true
+        pdf_file:
+          type: string
+          format: uri
+          nullable: true
+        resources:
+          type: string
+          format: uri
+          nullable: true
+        xp_reward:
+          type: integer
+        bonus_xp:
+          type: integer
+        status:
+          type: string
+        order:
+          type: integer
         is_completed:
           type: boolean
       required:
+      - bonus_xp
+      - content
       - id
       - is_completed
+      - order
+      - pdf_file
+      - resources
+      - status
       - title
+      - video_file
+      - video_url
+      - xp_reward
     StudentList:
       type: object
       properties:
@@ -6863,6 +7175,9 @@ components:
       properties:
         full_name:
           type: string
+        email:
+          type: string
+          format: email
         school:
           type: string
           nullable: true
@@ -6877,6 +7192,7 @@ components:
           type: integer
       required:
       - courses_count
+      - email
       - full_name
       - grade
       - school
@@ -7355,8 +7671,9 @@ components:
         description:
           type: string
         grade:
-          type: integer
-          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/GradeBrief'
+          readOnly: true
         is_published:
           type: boolean
         lesson_count:
@@ -7375,6 +7692,7 @@ components:
       required:
       - created_at
       - enrolled_students
+      - grade
       - id
       - lesson_count
       - title
@@ -7445,6 +7763,10 @@ components:
           type: string
           format: uri
           maxLength: 200
+        video_file:
+          type: string
+          format: uri
+          pattern: (?:mp4|webm|mov|avi|mkv|wmv|flv|3gp)$
         pdf_file:
           type: string
           format: uri
@@ -7501,6 +7823,10 @@ components:
           type: string
           format: uri
           maxLength: 200
+        video_file:
+          type: string
+          format: binary
+          pattern: (?:mp4|webm|mov|avi|mkv|wmv|flv|3gp)$
         pdf_file:
           type: string
           format: binary
@@ -7541,6 +7867,8 @@ components:
     TeacherLoginRequest:
       type: object
       properties:
+        school_id:
+          type: integer
         email:
           type: string
           format: email
@@ -7552,6 +7880,7 @@ components:
       required:
       - email
       - password
+      - school_id
     TeacherNotification:
       type: object
       properties:
@@ -7894,7 +8223,7 @@ components:
         code:
           type: string
           minLength: 1
-          description: Enrollment code token (UUID format, 36 characters).
+          description: Enrollment code (UUID or 8-character alphanumeric code).
       required:
       - code
     User:

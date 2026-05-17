@@ -19,6 +19,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-15
 - TypeScript 5.x / React ^19.2.0 + Vite, Tailwind CSS ^3.4.0, Zustand, Axios (016-lesson-management)
 - N/A (Backend API driven) (016-lesson-management)
 - TypeScript / React ^19.2.0 + Axios (via existing `apiClient.ts`), Zustand (if used for teacher state, otherwise local component state) (018-teacher-dashboard-api)
+- TypeScript / React 19.2.0 + Axios (apiClient), Zustand (existing useAuthStore or new useStudentStore) (021-student-dashboard-api)
+- N/A (Read-only dashboard for now) (021-student-dashboard-api)
 
 - [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (005-parent-dashboard)
 
@@ -39,9 +41,9 @@ cd src; pytest; ruff check .
 [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]: Follow standard conventions
 
 ## Recent Changes
+- 021-student-dashboard-api: Added TypeScript / React 19.2.0 + Axios (apiClient), Zustand (existing useAuthStore or new useStudentStore)
 - 018-teacher-dashboard-api: Added TypeScript / React ^19.2.0 + Axios (via existing `apiClient.ts`), Zustand (if used for teacher state, otherwise local component state)
 - 016-lesson-management: Added TypeScript 5.x / React ^19.2.0 + Vite, Tailwind CSS ^3.4.0, Zustand, Axios
-- 015-session-management: Added TypeScript 5.x (as declared in project) + React ^19.2.0, Zustand 5.0.12, Axios 1.16.0, react-hot-toast (existing)
 
 
 <!-- MANUAL ADDITIONS START -->

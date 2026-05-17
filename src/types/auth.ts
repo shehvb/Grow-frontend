@@ -4,6 +4,12 @@ export interface User {
   email: string;
   first_name?: string;
   last_name?: string;
+  full_name?: string;
+  school?: string;
+  grade?: string;
+  student_id?: string;
+  total_xp?: number;
+  courses_count?: number;
   role: 'student' | 'teacher' | 'parent' | 'school_admin';
   phone?: string;
   avatar?: string;

@@ -4,7 +4,7 @@ import type { TeacherNotification } from "../../../types/teacher";
 class TeacherService {
   private static instance: TeacherService;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): TeacherService {
     if (!TeacherService.instance) {

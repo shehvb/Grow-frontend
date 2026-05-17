@@ -12,7 +12,6 @@ import {
 } from "react-icons/fi";
 import { BsFilter } from "react-icons/bs";
 import { assignmentService } from "../../../services/assignmentService";
-import type { TeacherSubmission } from "../../../types/teacher";
 
 interface UIMappedSubmission {
   id: string;

@@ -13,20 +13,25 @@ export const courseService = {
   listCourses: async (): Promise<Course[]> => {
     const prefix = window.location.pathname.startsWith('/teacher') ? 'teacher' : 'student';
     const response = await apiClient.get(`${prefix}/courses/`);
-    return response.data;
+    return response.data.results || response.data;
   },
 
-  getGrades: async (): Promise<{ results: SchoolGrade[] }> => {
-    // Note: The API returns a paginated list {"count": X, "next": ..., "previous": ..., "results": [...]}
-    const response = await apiClient.get(`schools/grades/`);
-    return response.data;
+  getGrades: async (): Promise<SchoolGrade[]> => {
+    const response = await apiClient.get('schools/grades/');
+    return response.data.results || response.data || [];
   },
 
 
   getCourseById: async (id: number): Promise<Course> => {
     const prefix = window.location.pathname.startsWith('/teacher') ? 'teacher' : 'student';
-    const response = await apiClient.get(`${prefix}/courses/${id}/`);
-    return response.data;
+    try {
+      const response = await apiClient.get(`${prefix}/courses/${id}/`);
+      return response.data;
+    } catch (err) {
+      // Fallback to general courses endpoint if role-scoped one fails
+      const fallbackResponse = await apiClient.get(`courses/${id}/`);
+      return fallbackResponse.data;
+    }
   },
 
   createCourse: async (data: CourseWriteRequest): Promise<Course> => {
@@ -58,7 +63,7 @@ export const courseService = {
       ? `teacher/courses/${id}/lessons/` 
       : `courses/${id}/lessons/`;
     const response = await apiClient.get(endpoint);
-    return response.data;
+    return response.data.results || response.data || [];
   },
 
   createLesson: async (courseId: number, data: any): Promise<any> => {

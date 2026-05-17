@@ -1,22 +1,22 @@
 import apiClient from '../../../services/apiClient';
-import type { Course, CourseWriteRequest } from '../types';
+import type { Course, CourseWriteRequest, Lesson, PaginatedResponse } from '../types';
 
-const getRolePrefix = () => {
-  const path = window.location.pathname;
-  if (path.startsWith('/teacher')) return 'teacher';
-  if (path.startsWith('/parent')) return 'parent';
-  return 'student';
-};
-
-export const fetchCourses = async (): Promise<Course[]> => {
-  const prefix = getRolePrefix();
-  const response = await apiClient.get(`${prefix}/courses/`);
+export const fetchCourses = async (): Promise<PaginatedResponse<Course> | Course[]> => {
+  const response = await apiClient.get('/student/courses/');
   return response.data;
 };
 
 export const fetchCourseDetails = async (id: number): Promise<Course> => {
-  const prefix = getRolePrefix();
-  const response = await apiClient.get(`${prefix}/courses/${id}/`);
+  const response = await apiClient.get(`/student/courses/${id}/`);
+  return response.data;
+};
+
+export const enrollCourse = async (id: number): Promise<void> => {
+  await apiClient.post(`/courses/${id}/enroll/`);
+};
+
+export const fetchCourseLessons = async (id: number): Promise<PaginatedResponse<Lesson> | Lesson[]> => {
+  const response = await apiClient.get(`/courses/${id}/lessons/`);
   return response.data;
 };
 

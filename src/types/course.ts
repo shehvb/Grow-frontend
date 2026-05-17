@@ -10,7 +10,12 @@ export interface Course {
   lessonsCount?: number;
   studentsCount?: number;
   xpCount?: number;
-  grade?: number;
+  lesson_count?: number;
+  enrolled_students?: number;
+  total_xp?: number;
+  grade?: { id: number; name: string } | null;
+  quizzes?: any[];
+  assignments?: any[];
 }
 
 export interface Enrollment {

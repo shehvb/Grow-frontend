@@ -132,7 +132,7 @@ export const CreateLessonModal: FC<CreateLessonModalProps> = ({
             </div>
 
             <div className="col-span-1 md:col-span-2">
-              <label className="block mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
                 <AlignLeft size={16} className="text-gray-400" />
                 Lesson Content
               </label>
@@ -148,7 +148,7 @@ export const CreateLessonModal: FC<CreateLessonModalProps> = ({
             </div>
 
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
                 <FileVideo size={16} className="text-gray-400" />
                 Video URL (Optional)
               </label>
@@ -176,7 +176,7 @@ export const CreateLessonModal: FC<CreateLessonModalProps> = ({
             </div>
 
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Award size={16} className="text-amber-500" />
                 XP Reward
               </label>
@@ -192,7 +192,7 @@ export const CreateLessonModal: FC<CreateLessonModalProps> = ({
             </div>
 
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
+              <label className=" mb-2 text-sm font-medium text-gray-700 flex items-center gap-2">
                 <Award size={16} className="text-emerald-500" />
                 Bonus XP
               </label>
