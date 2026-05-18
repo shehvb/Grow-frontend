@@ -100,9 +100,10 @@ export interface TeacherSubmission {
 }
 
 export interface GradeSubmissionRequest {
-  score: number;
-  xp_reward: number;
-  feedback: string;
+  raw_score?: string;
+  feedback?: string;
+  score?: number;
+  xp_reward?: number;
 }
 
 export interface TeacherNotification {

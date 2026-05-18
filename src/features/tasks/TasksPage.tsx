@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import type { FC } from "react";
+import { useNavigate } from "react-router-dom";
 import { useStudentStore } from "../../store/useStudentStore";
 
 const TasksPage: FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Today");
   const tabs = ["Today", "Upcoming", "Overdue"];
   
-  const { tasks, isLoading, error, fetchTasks, dashboard } = useStudentStore();
+  const { tasks, isLoading, error, fetchTasks, dashboard, summaryBar } = useStudentStore();
 
   useEffect(() => {
     fetchTasks();
@@ -18,10 +20,39 @@ const TasksPage: FC = () => {
   const todayTasks = tasks.filter(t => t.category === 'today' || t.status === 'today' || (!t.category && !t.status));
   const upcomingTasks = tasks.filter(t => t.category === 'upcoming' || t.status === 'upcoming');
 
-  const toggleTask = (_id: string) => {
-    // In a real app, this would hit an API endpoint to update the task
-    // For now, we just rely on the UI or update local state if needed.
+  const handleTaskClick = (task: any) => {
+    const type = (task.type || "").toLowerCase();
+    
+    // Extract IDs from backend fields (supporting various naming styles)
+    const courseId = task.course_id || task.course;
+    const contentId = task.content_id || task.id;
+    
+    if (type === "quiz" || type === "quizzes") {
+      const qId = task.quiz_id || contentId;
+      if (courseId && qId) {
+        navigate(`/student/courses/${courseId}/quiz/${qId}`);
+      } else if (courseId) {
+        navigate(`/student/courses/${courseId}`);
+      } else {
+        navigate(`/student/courses`);
+      }
+    } else if (type === "assignment" || type === "assignments") {
+      if (courseId) {
+        navigate(`/student/courses/${courseId}`);
+      } else {
+        navigate(`/student/courses`);
+      }
+    } else {
+      // General fallback
+      if (courseId) {
+        navigate(`/student/courses/${courseId}`);
+      } else {
+        navigate(`/student/courses`);
+      }
+    }
   };
+
+
 
   if (isLoading && tasks.length === 0) {
     return (
@@ -76,7 +107,7 @@ const TasksPage: FC = () => {
                 <p className="text-slate-500 text-sm">No past due tasks.</p>
               ) : (
                 overdueTasks.slice(0, 1).map(task => (
-                  <div key={task.id} className="relative flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer gap-4">
+                  <div key={task.id} onClick={() => handleTaskClick(task)} className="relative flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:bg-slate-50 transition-colors gap-4">
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#FF8000]"></div>
                     
                     <div className="flex items-start gap-3 sm:gap-4 ml-1 sm:ml-2">
@@ -89,6 +120,17 @@ const TasksPage: FC = () => {
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           <span className="font-extrabold text-slate-900 text-base sm:text-lg truncate">{task.title}</span>
                           <span className="px-2 py-0.5 bg-[#FF8000] text-white rounded font-bold text-[10px] tracking-wider uppercase shadow-sm">URGENT</span>
+                          {task.type && (
+                            <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase shadow-sm ${
+                              task.type.toLowerCase() === 'quiz' 
+                                ? 'bg-purple-50 text-purple-600 border border-purple-100' 
+                                : task.type.toLowerCase() === 'assignment'
+                                ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                                : 'bg-slate-50 text-slate-600 border border-slate-100'
+                            }`}>
+                              {task.type}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs sm:text-sm text-slate-500 font-medium mt-1">{task.context}</span>
                       </div>
@@ -120,7 +162,7 @@ const TasksPage: FC = () => {
                 <p className="text-slate-500 text-sm">No tasks for today.</p>
               ) : (
                 todayTasks.map(task => (
-                  <div key={task.id} onClick={() => toggleTask(task.id)} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors gap-4">
+                  <div key={task.id} onClick={() => handleTaskClick(task)} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors gap-4">
                     <div className="flex items-start gap-3 sm:gap-4 ml-1 sm:ml-2">
                       <div className="mt-1 shrink-0">
                         {task.checked && task.isBlue ? (
@@ -134,7 +176,20 @@ const TasksPage: FC = () => {
                         )}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className={`font-extrabold text-base sm:text-lg truncate ${task.checked && task.isBlue ? 'text-[#1600D5]' : 'text-slate-900'}`}>{task.title}</span>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <span className={`font-extrabold text-base sm:text-lg truncate ${task.checked && task.isBlue ? 'text-[#1600D5]' : 'text-slate-900'}`}>{task.title}</span>
+                          {task.type && (
+                            <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase shadow-sm ${
+                              task.type.toLowerCase() === 'quiz' 
+                                ? 'bg-purple-50 text-purple-600 border border-purple-100' 
+                                : task.type.toLowerCase() === 'assignment'
+                                ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                                : 'bg-slate-50 text-slate-600 border border-slate-100'
+                            }`}>
+                              {task.type}
+                            </span>
+                          )}
+                        </div>
                         <span className="text-xs sm:text-sm text-slate-500 font-medium mt-1">{task.context}</span>
                       </div>
                     </div>
@@ -165,13 +220,26 @@ const TasksPage: FC = () => {
               <p className="text-slate-500 text-sm">No upcoming tasks.</p>
             ) : (
               upcomingTasks.map(task => (
-                <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors gap-4">
+                <div key={task.id} onClick={() => handleTaskClick(task)} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors gap-4">
                   <div className="flex items-start gap-4 ml-2">
                     <div className="mt-1 shrink-0">
                       <div className="w-5 h-5 rounded border-2 border-slate-200 bg-slate-50 flex items-center justify-center" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-extrabold text-slate-900 text-lg">{task.title}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="font-extrabold text-slate-900 text-lg">{task.title}</span>
+                        {task.type && (
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase shadow-sm ${
+                            task.type.toLowerCase() === 'quiz' 
+                              ? 'bg-purple-50 text-purple-600 border border-purple-100' 
+                              : task.type.toLowerCase() === 'assignment'
+                              ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                              : 'bg-slate-50 text-slate-600 border border-slate-100'
+                          }`}>
+                            {task.type}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-sm text-slate-500 font-medium mt-1">{task.context}</span>
                     </div>
                   </div>
@@ -197,14 +265,27 @@ const TasksPage: FC = () => {
               <p className="text-slate-500 text-sm">No overdue tasks.</p>
             ) : (
               overdueTasks.map(task => (
-                <div key={task.id} className="relative flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer gap-4">
+                <div key={task.id} onClick={() => handleTaskClick(task)} className="relative flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:bg-slate-50 transition-colors gap-4">
                   <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
                   <div className="flex items-start gap-4 ml-2">
                     <div className="mt-1 shrink-0">
                       <div className="w-5 h-5 rounded border-2 border-red-500 bg-white flex items-center justify-center" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-extrabold text-slate-900 text-lg">{task.title}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span className="font-extrabold text-slate-900 text-lg">{task.title}</span>
+                        {task.type && (
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase shadow-sm ${
+                            task.type.toLowerCase() === 'quiz' 
+                              ? 'bg-purple-50 text-purple-600 border border-purple-100' 
+                              : task.type.toLowerCase() === 'assignment'
+                              ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                              : 'bg-slate-50 text-slate-600 border border-slate-100'
+                          }`}>
+                            {task.type}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-sm text-red-500 font-bold mt-1">{task.context}</span>
                     </div>
                   </div>
@@ -228,7 +309,9 @@ const TasksPage: FC = () => {
               <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5 sm:mb-1">Streak</span>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-lg sm:text-xl">🔥</span>
-                <span className="text-base sm:text-xl font-extrabold text-slate-900">{dashboard?.daily_streak || 0} Days</span>
+                <span className="text-base sm:text-xl font-extrabold text-slate-900">
+                  {summaryBar?.current_streak !== undefined ? summaryBar.current_streak : (dashboard?.daily_streak || 0)} Days
+                </span>
               </div>
             </div>
             
@@ -236,7 +319,9 @@ const TasksPage: FC = () => {
               <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5 sm:mb-1">XP Today</span>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-lg sm:text-xl text-[#1600D5]">★</span>
-                <span className="text-base sm:text-xl font-extrabold text-slate-900">{dashboard?.total_xp || 0}</span>
+                <span className="text-base sm:text-xl font-extrabold text-slate-900">
+                  {summaryBar?.total_xp_today !== undefined ? summaryBar.total_xp_today : (dashboard?.total_xp || 0)}
+                </span>
               </div>
             </div>
           </div>
@@ -244,10 +329,15 @@ const TasksPage: FC = () => {
           <div className="flex flex-col gap-1.5 sm:gap-2 w-full sm:min-w-[280px]">
             <div className="flex justify-between items-center text-[10px] sm:text-xs font-bold text-slate-500">
               <span className="truncate">Next Reward: Level 13 in 450 XP</span>
-              <span className="sm:hidden">{dashboard?.daily_master?.completion_percentage || 0}%</span>
+              <span className="sm:hidden">
+                {summaryBar?.daily_master_percentage !== undefined ? summaryBar.daily_master_percentage : (dashboard?.daily_master?.completion_percentage || 0)}%
+              </span>
             </div>
             <div className="h-2 sm:h-3 w-full bg-[#E2E2E2] rounded-full overflow-hidden flex">
-              <div className="h-full bg-[#1600D5] rounded-r-none transition-all duration-500" style={{ width: `${dashboard?.daily_master?.completion_percentage || 0}%` }}></div>
+              <div 
+                className="h-full bg-[#1600D5] rounded-r-none transition-all duration-500" 
+                style={{ width: `${summaryBar?.daily_master_percentage !== undefined ? summaryBar.daily_master_percentage : (dashboard?.daily_master?.completion_percentage || 0)}%` }}
+              ></div>
             </div>
           </div>
         </div>

@@ -16,22 +16,49 @@ const StudentsPage: FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClass, setSelectedClass] = useState("All Classes");
+  const [avgPerformanceState, setAvgPerformanceState] = useState<number | null>(null);
+  const [avgAttendanceState, setAvgAttendanceState] = useState<number | null>(null);
+  const [needAttentionState, setNeedAttentionState] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const data = await teacherService.getStudents();
-        // Map backend TeacherStudentList to frontend expected shape
-        const mappedStudents = data.map((student: any) => ({
-          id: student.id || student.student_id || Math.random().toString(),
-          name: student.name || student.student_name || "Unknown Student",
-          class: student.class || student.class_name || "Class A",
-          xp: student.xp || student.total_xp || 0,
-          avgScore: student.avgScore || student.average_score || 0,
-          attendance: student.attendance || student.attendance_rate || 0,
-          status: student.status || "Average"
-        }));
+        const data = await teacherService.getStudents() as any;
+        const studentsList = Array.isArray(data) ? data : (data.students || []);
+
+        if (data && !Array.isArray(data)) {
+          if (data.avg_performance !== undefined && data.avg_performance !== null) {
+            setAvgPerformanceState(Math.round(Number(data.avg_performance)));
+          }
+          if (data.avg_attendance !== undefined && data.avg_attendance !== null) {
+            setAvgAttendanceState(Math.round(Number(data.avg_attendance)));
+          }
+          if (data.need_attention !== undefined && data.need_attention !== null) {
+            setNeedAttentionState(Number(data.need_attention));
+          }
+        }
+
+        const mappedStudents = studentsList.map((student: any) => {
+          let formattedStatus = "Average";
+          if (student.status === "needs_attention") {
+            formattedStatus = "Needs Attention";
+          } else if (student.status === "excellent") {
+            formattedStatus = "Excellent";
+          } else if (student.status) {
+            formattedStatus = student.status.charAt(0).toUpperCase() + student.status.slice(1).replace("_", " ");
+          }
+
+          return {
+            id: (student.student_id || student.id || Math.random()).toString(),
+            name: student.student_name || student.name || "Unknown Student",
+            class: student.class || student.class_name || "Class A",
+            xp: student.total_xp !== undefined ? student.total_xp : (student.xp || 0),
+            avgScore: student.avg_score_pct !== undefined ? Math.round(Number(student.avg_score_pct)) : (student.avgScore || student.average_score || 0),
+            attendance: student.attendance_rate !== undefined ? Math.round(Number(student.attendance_rate)) : (student.attendance || student.attendance_rate || 0),
+            status: formattedStatus
+          };
+        });
         setStudents(mappedStudents);
       } catch (error) {
         console.error("Failed to load students", error);
@@ -59,13 +86,19 @@ const StudentsPage: FC = () => {
 
   // Calculate dynamic KPIs from the fetched student data
   const totalStudents = students.length;
-  const avgPerformance = totalStudents > 0 
-    ? Math.round(students.reduce((sum, s) => sum + (s.avgScore || 0), 0) / totalStudents)
-    : 0;
-  const avgAttendance = totalStudents > 0 
-    ? Math.round(students.reduce((sum, s) => sum + (s.attendance || 0), 0) / totalStudents)
-    : 0;
-  const needsAttentionCount = students.filter(s => s.status === 'Needs Attention').length;
+  const avgPerformance = avgPerformanceState !== null 
+    ? avgPerformanceState 
+    : (totalStudents > 0 
+      ? Math.round(students.reduce((sum, s) => sum + (s.avgScore || 0), 0) / totalStudents)
+      : 0);
+  const avgAttendance = avgAttendanceState !== null
+    ? avgAttendanceState
+    : (totalStudents > 0 
+      ? Math.round(students.reduce((sum, s) => sum + (s.attendance || 0), 0) / totalStudents)
+      : 0);
+  const needsAttentionCount = needAttentionState !== null
+    ? needAttentionState
+    : students.filter(s => s.status === 'Needs Attention').length;
 
   return (
     <div className="space-y-8 animate-fade-in pb-10">

@@ -56,12 +56,17 @@ const CreateAssignmentPage: FC = () => {
       const payload = new FormData();
       payload.append('title', formData.title);
       payload.append('content', formData.description);
+      payload.append('description', formData.description);
       payload.append('course_id', formData.courseId);
       payload.append('max_marks', formData.rewardXp.toString());
+      payload.append('max_score', formData.rewardXp.toString());
       payload.append('due_date', formData.deadline);
+      payload.append('xp_reward', formData.rewardXp.toString());
+      payload.append('late_penalty_xp', formData.latePenalty.toString());
       
       if (attachment) {
         payload.append('attachment', attachment);
+        payload.append('teacher_file', attachment);
       }
 
       if (isEditMode) {

@@ -1,21 +1,27 @@
 import apiClient from "./apiClient";
-import type { Quiz, QuizResult } from "../types";
+import type { QuizStart, StudentQuizResult } from "../types";
 import type { QuizResultDetail } from "../types/teacher";
 
 
-// BACKEND DEVELOPER INSTRUCTIONS:
-// 1. In a real environment, quizzes should not expose `correctAnswerIndex` to the frontend until the quiz is submitted. 
-// 2. The `submitQuiz` endpoint should accept the answers (e.g., `{ [questionId]: answerIndex }`), calculate the score serverside, and return a `QuizResult`.
-// 3. Update the imports to use your HTTP client (e.g., Axios or Fetch).
 
 export const quizService = {
   // Student Endpoints
-  getQuizById: async (id: string): Promise<Quiz | undefined> => {
-    const response = await apiClient.get(`student/quizzes/${id}/`);
+  getCourseQuizzes: async (courseId: number | string): Promise<any[]> => {
+    try {
+      const response = await apiClient.get(`quizzes/`, { params: { course: courseId } });
+      return response.data.results || response.data;
+    } catch (err) {
+      console.warn("Failed to fetch quizzes for course:", err);
+      return [];
+    }
+  },
+
+  startQuiz: async (id: string | number): Promise<QuizStart> => {
+    const response = await apiClient.post(`student/quizzes/${id}/start/`);
     return response.data;
   },
 
-  submitQuiz: async (quizId: string, answers: Record<string, number>): Promise<QuizResult> => {
+  submitQuiz: async (quizId: string | number, answers: { question_id: number; answer: string }[]): Promise<StudentQuizResult> => {
     const response = await apiClient.post(`student/quizzes/${quizId}/submit/`, { answers });
     return response.data;
   },

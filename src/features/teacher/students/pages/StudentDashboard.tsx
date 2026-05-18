@@ -90,48 +90,58 @@ const StudentDashboard: FC = () => {
                   </td>
                 </tr>
               ) : (
-                teacherStudents.map((student) => (
-                  <tr key={student.id} className="hover:bg-slate-50/30 transition-colors group">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-slate-100 rounded-[1.25rem] flex items-center justify-center text-slate-400 font-black text-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
-                          {student.student_name.charAt(0)}
+                teacherStudents.map((student) => {
+                  const studentName = student.student_name || "Unknown Student";
+                  const initialChar = studentName.charAt(0).toUpperCase();
+                  const courseTitle = student.course_title || "N/A";
+                  const displayDate = student.enrolled_at 
+                    ? new Date(student.enrolled_at).toLocaleDateString() 
+                    : "N/A";
+                  const mailHref = student.email ? `mailto:${student.email}` : "#";
+
+                  return (
+                    <tr key={student.id || student.student_id} className="hover:bg-slate-50/30 transition-colors group">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-slate-100 rounded-[1.25rem] flex items-center justify-center text-slate-400 font-black text-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            {initialChar}
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="font-black text-slate-800">{studentName}</p>
+                            <p className="text-xs font-bold text-slate-400">ID: #{student.student_id || student.id || "N/A"}</p>
+                          </div>
                         </div>
-                        <div className="space-y-0.5">
-                          <p className="font-black text-slate-800">{student.student_name}</p>
-                          <p className="text-xs font-bold text-slate-400">ID: #{student.student_id}</p>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-blue-50 rounded-lg text-blue-500">
+                            <FiBook size={12} />
+                          </div>
+                          <span className="text-sm font-black text-slate-600">{courseTitle}</span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-blue-50 rounded-lg text-blue-500">
-                          <FiBook size={12} />
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <FiCalendar size={14} className="text-slate-300" />
+                          <span className="text-sm font-bold">
+                            {displayDate}
+                          </span>
                         </div>
-                        <span className="text-sm font-black text-slate-600">{student.course_title}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-slate-500">
-                        <FiCalendar size={14} className="text-slate-300" />
-                        <span className="text-sm font-bold">
-                          {new Date(student.enrolled_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center justify-end gap-2">
-                        <a 
-                          href={`mailto:${student.email}`}
-                          className="flex items-center gap-2 bg-slate-50 text-slate-600 px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-50 hover:text-blue-600 transition-all"
-                        >
-                          <FiMail size={14} />
-                          Message
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <a 
+                            href={mailHref}
+                            className="flex items-center gap-2 bg-slate-50 text-slate-600 px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-50 hover:text-blue-600 transition-all"
+                          >
+                            <FiMail size={14} />
+                            Message
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

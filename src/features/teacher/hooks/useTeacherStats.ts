@@ -40,17 +40,44 @@ export const useTeacherStats = () => {
             name: p.student_name || "Unknown",
             score: `${p.avg_score || 0}% avg score`
           })),
-          recentActivity: (data.recent_student_activity || []).map((a: any) => ({
-            id: a.id || Math.random(),
-            initials: (a.student_name || "??").substring(0, 2).toUpperCase(),
-            name: a.student_name || "Unknown",
-            task: a.details || "Activity",
-            status: a.action || "COMPLETED",
-            grade: a.score ? `${a.score}%` : "---",
-            time: "Recently", // You can format a.timestamp if provided
-            color: "bg-blue-100 text-blue-600",
-            statusColor: "bg-emerald-100 text-emerald-600"
-          }))
+          recentActivity: (data.recent_student_activity || []).map((a: any, idx: number) => {
+            const studentDisplay = a.student_name || a.student__username || "Unknown Student";
+            const cleanNameForInitials = studentDisplay.includes("@") ? studentDisplay.split("@")[0] : studentDisplay;
+            const initials = cleanNameForInitials
+              .split(/[\s._-]+/)
+              .map((n: string) => n[0])
+              .join("")
+              .substring(0, 2)
+              .toUpperCase() || "US";
+
+            const rawStatus = a.status ? a.status.toLowerCase() : "pending";
+            const statusColor = rawStatus === "graded" 
+              ? "bg-emerald-100 text-emerald-600" 
+              : "bg-orange-100 text-orange-600";
+              
+            let displayTime = "Recently";
+            if (a.submitted_at) {
+              const dateObj = new Date(a.submitted_at);
+              displayTime = dateObj.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+              });
+            }
+
+            return {
+              id: a.id || idx,
+              initials,
+              name: studentDisplay,
+              task: a.assignment__title ? `Assignment: ${a.assignment__title}` : "Assignment Submission",
+              status: rawStatus.toUpperCase(),
+              grade: a.score ? `${a.score}%` : "---",
+              time: displayTime,
+              color: "bg-blue-100 text-blue-600",
+              statusColor
+            };
+          })
         });
       } catch (err) {
         setError("Failed to load dashboard statistics");

@@ -13,7 +13,6 @@ import {
 } from "react-icons/fi";
 import { BsFilter } from "react-icons/bs";
 import { quizService } from "../../../services/quizService";
-import type { QuizResultDetail } from "../../../types/teacher";
 
 interface UIMappedResult {
   id: string;
@@ -30,6 +29,8 @@ const QuizResultsPage: FC = () => {
   const { id } = useParams<{ id: string }>();
   const [results, setResults] = useState<UIMappedResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [avgScoreState, setAvgScoreState] = useState<number | null>(null);
+  const [completionRateState, setCompletionRateState] = useState<number | null>(null);
   
   // In a real app we'd fetch the quiz details by ID. For now, mock it.
   const quizDetails = {
@@ -48,17 +49,37 @@ const QuizResultsPage: FC = () => {
     const fetchResults = async () => {
       try {
         setLoading(true);
-        const data = await quizService.getQuizResults(id);
-        const mapped = data.map((r: QuizResultDetail) => ({
-          id: r.id.toString(),
-          studentName: r.student_name || 'Unknown Student',
-          class: 'All', // API does not provide class yet
-          isTopPerformer: r.is_top_performer || false,
-          score: r.score || 0,
-          status: r.status || 'Pending',
-          timeTaken: r.time_taken_minutes ? `${r.time_taken_minutes} min` : '-',
-          xpEarned: r.xp_earned || 0
-        }));
+        const data = await quizService.getQuizResults(id) as any;
+        
+        // Handle backend returning an object {avg_score_pct, completion_rate, results: [...]} or directly array
+        const resultsArray = Array.isArray(data) ? data : (data.results || []);
+        
+        if (data && !Array.isArray(data)) {
+          if (data.avg_score_pct !== undefined && data.avg_score_pct !== null) {
+            setAvgScoreState(Math.round(Number(data.avg_score_pct)));
+          }
+          if (data.completion_rate !== undefined && data.completion_rate !== null) {
+            setCompletionRateState(Math.round(Number(data.completion_rate)));
+          }
+        }
+
+        const mapped = resultsArray.map((r: any, idx: number) => {
+          const rawScore = r.normalized_score !== undefined ? r.normalized_score : (r.score !== undefined ? r.score : 0);
+          const formattedStatus = r.status 
+            ? (r.status.charAt(0).toUpperCase() + r.status.slice(1).toLowerCase()) 
+            : 'Pending';
+            
+          return {
+            id: (r.id || r.student_id || idx).toString() + "_" + idx,
+            studentName: r.student_name || 'Unknown Student',
+            class: 'All', // API does not provide class yet
+            isTopPerformer: r.is_top_performer || (rawScore >= 80) || false,
+            score: Math.round(Number(rawScore)),
+            status: formattedStatus,
+            timeTaken: r.time_taken_minutes ? `${r.time_taken_minutes} min` : '-',
+            xpEarned: r.xp_earned || 0
+          };
+        });
         setResults(mapped);
       } catch (err) {
         console.error("Failed to fetch quiz results", err);
@@ -74,12 +95,16 @@ const QuizResultsPage: FC = () => {
 
   // Calculate stats
   const completedResults = results.filter(r => r.status === 'Completed');
-  const avgScore = completedResults.length > 0 
-    ? Math.round(completedResults.reduce((sum, r) => sum + r.score, 0) / completedResults.length) 
-    : 0;
-  const completionRate = results.length > 0 
-    ? Math.round((completedResults.length / results.length) * 100) 
-    : 0;
+  const avgScore = avgScoreState !== null 
+    ? avgScoreState 
+    : (completedResults.length > 0 
+      ? Math.round(completedResults.reduce((sum, r) => sum + r.score, 0) / completedResults.length) 
+      : 0);
+  const completionRate = completionRateState !== null
+    ? completionRateState
+    : (results.length > 0 
+      ? Math.round((completedResults.length / results.length) * 100) 
+      : 0);
   const totalXp = results.reduce((sum, r) => sum + r.xpEarned, 0);
 
   return (
