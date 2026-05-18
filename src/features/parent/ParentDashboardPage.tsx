@@ -17,7 +17,7 @@ const ParentDashboardPage: FC = () => {
   const parentName = user?.first_name || "Parent";
 
   // Show loading if we are fetching OR if the summary doesn't match the selected student yet
-  const isDataMismatch = dashboardSummary && selectedStudentId && dashboardSummary.student.id !== selectedStudentId;
+  const isDataMismatch = dashboardSummary && selectedStudentId && String(dashboardSummary.student.id) !== String(selectedStudentId);
   
   if (loading || isDataMismatch) {
     return (

@@ -5,17 +5,17 @@ import AIInsightBanner from "./components/AIInsightBanner";
 import AcademicTrendCard from "./components/AcademicTrendCard";
 import AnalyticsMetricCard from "./components/AnalyticsMetricCard";
 import SubjectBreakdownCard from "./components/SubjectBreakdownCard";
-import { FiClock, FiCheckSquare, FiArrowRight } from "react-icons/fi";
+import { FiClock, FiArrowRight, FiAlertTriangle } from "react-icons/fi";
 
 const AnalyticsPage: FC = () => {
-  const { dashboardSummary, selectedStudentId, fetchDashboardSummary } = useParentStore();
+  const { dashboardSummary, selectedStudentId, fetchAnalytics } = useParentStore();
   const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
 
   useEffect(() => {
     if (selectedStudentId) {
-      fetchDashboardSummary(selectedStudentId);
+      fetchAnalytics(selectedStudentId);
     }
-  }, [selectedStudentId, fetchDashboardSummary]);
+  }, [selectedStudentId, fetchAnalytics]);
 
   if (!dashboardSummary || !dashboardSummary.analyticsData) {
     return (
@@ -69,17 +69,29 @@ const AnalyticsPage: FC = () => {
             iconColor="text-[#1600D5]"
             progressPercentage={analyticsData.totalStudyHours.hours > 0 ? 80 : 0} 
           />
-          <AnalyticsMetricCard 
-            title="Assignments Completed"
-            value={analyticsData.assignmentsCompleted.count}
-            subtitle={`/${analyticsData.assignmentsCompleted.total}`}
-            changeLabel={analyticsData.assignmentsCompleted.completionLabel}
-            icon={<FiCheckSquare className="w-6 h-6" />}
-            iconBg="bg-orange-50"
-            iconColor="text-[#FF8000]"
-            progressPercentage={(analyticsData.assignmentsCompleted.count / analyticsData.assignmentsCompleted.total) * 100}
-            progressColor="bg-[#FF8000]"
-          />
+
+          {/* Missing Assignments Card */}
+          <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between group hover:shadow-md transition-shadow relative overflow-hidden h-[210px]">
+            <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-28 h-28 bg-[#FFF0F0] rounded-full z-0 pointer-events-none" />
+            <div className="relative z-10 flex flex-col justify-between h-full">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-full bg-[#FFF0F0] flex items-center justify-center text-[#FF5A5A]">
+                  <FiAlertTriangle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-[#FF7070] tracking-tight leading-tight">Missing Assignments</h3>
+                  <p className="text-sm font-bold text-[#FFA0A0] mt-1">3 Requires attention</p>
+                </div>
+              </div>
+              <div className="border-t border-[#FFE5E5] w-3/4 my-2" />
+              <div className="space-y-0.5">
+                <p className="text-sm font-bold text-[#FFA0A0]">Math: 1 missing</p>
+                <p className="text-sm font-bold text-[#FFA0A0]">Science: 2 missing</p>
+              </div>
+            </div>
+          </div>
+
+
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { FC } from "react";
 import { FiDownload, FiCalendar, FiLoader } from "react-icons/fi";
 import { jsPDF } from "jspdf";
@@ -10,10 +10,16 @@ import ActionNeededCard from "./components/attendance/ActionNeededCard";
 import AttendanceRecentActivity from "./components/attendance/AttendanceRecentActivity";
 
 const AttendancePage: FC = () => {
-  const { dashboardSummary } = useParentStore();
+  const { dashboardSummary, selectedStudentId, fetchAttendance } = useParentStore();
   const attendanceRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // Default to Jan 2026 as per mockup
+
+  useEffect(() => {
+    if (selectedStudentId) {
+      fetchAttendance(selectedStudentId);
+    }
+  }, [selectedStudentId, fetchAttendance]);
 
   if (!dashboardSummary || !dashboardSummary.attendanceMetrics) {
     return (
@@ -23,7 +29,7 @@ const AttendancePage: FC = () => {
     );
   }
 
-  const { student, attendanceMetrics, calendarEvents, actionNeeded } = dashboardSummary;
+  const { student, attendanceMetrics, calendarEvents, actionNeeded, recentActivities } = dashboardSummary;
 
   const handleDownloadReport = async () => {
     if (!attendanceRef.current) return;
@@ -113,7 +119,7 @@ const AttendancePage: FC = () => {
               {actionNeeded && (
                  <ActionNeededCard data={actionNeeded} />
               )}
-              <AttendanceRecentActivity />
+              <AttendanceRecentActivity data={recentActivities as any} />
             </div>
           </div>
       </div>

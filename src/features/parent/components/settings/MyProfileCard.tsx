@@ -39,15 +39,7 @@ const MyProfileCard: FC<MyProfileCardProps> = ({ profile }) => {
                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
                <input type="email" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={user?.email || profile.email} />
             </div>
-            <div>
-               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Phone Number</label>
-               <input type="tel" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={profile.phone} />
-            </div>
-            <div className="relative">
-               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
-               <input type="password" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue="SARAHAHMED123" />
-               <button className="absolute right-0 -bottom-6 text-xs font-bold text-[#0062FF] hover:underline">Change Password</button>
-            </div>
+
          </div>
       </div>
     </div>

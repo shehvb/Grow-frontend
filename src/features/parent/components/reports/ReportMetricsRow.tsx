@@ -11,7 +11,7 @@ const ReportMetricsRow: FC<ReportMetricsRowProps> = ({ metrics }) => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       {/* Overall Average */}
       <div className="bg-white rounded-[28px] p-8 shadow-[0_4px_20px_0_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col justify-between relative overflow-hidden h-[180px]">
-        <div className="absolute -top-6 -right-6 w-24 h-24 bg-indigo-50 rounded-bl-[48px] flex items-center justify-center pt-4 pl-4 transition-transform group-hover:scale-110">
+        <div className="absolute -top-6 right-1 w-24 h-24 bg-indigo-50 rounded-bl-[48px] flex items-center justify-center pt-4 pl-4 transition-transform group-hover:scale-110">
             <FiClock className="text-indigo-600 w-6 h-6" />
         </div>
         <div>
@@ -31,7 +31,7 @@ const ReportMetricsRow: FC<ReportMetricsRowProps> = ({ metrics }) => {
 
       {/* Assignments */}
       <div className="bg-white rounded-[28px] p-8 shadow-[0_4px_20px_0_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col justify-between relative overflow-hidden h-[180px]">
-        <div className="absolute -top-6 -right-6 w-24 h-24 bg-orange-50 rounded-bl-[48px] flex items-center justify-center pt-4 pl-4">
+        <div className="absolute -top-6 right-0 w-24 h-24 bg-orange-50 rounded-bl-[48px] flex items-center justify-center pt-4 pl-4">
             <FiFileText className="text-orange-500 w-6 h-6" />
         </div>
         <div>
@@ -48,7 +48,7 @@ const ReportMetricsRow: FC<ReportMetricsRowProps> = ({ metrics }) => {
 
       {/* Attendance */}
       <div className="bg-white rounded-[28px] p-8 shadow-[0_4px_20px_0_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col justify-between relative overflow-hidden h-[180px]">
-        <div className="absolute -top-6 -right-6 w-24 h-24 bg-fuchsia-50 rounded-bl-[48px] flex items-center justify-center pt-4 pl-4">
+        <div className="absolute -top-6 right-0 w-24 h-24 bg-fuchsia-50 rounded-bl-[48px] flex items-center justify-center pt-4 pl-4">
             <FiCalendar className="text-fuchsia-500 w-6 h-6" />
         </div>
         <div>

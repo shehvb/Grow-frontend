@@ -26,7 +26,7 @@ const GrowLogo: FC = () => (
 // ─── Left Panel (Mock UI component) ──────────────────────────────────────────
 const LeftPanel: FC = () => (
   <div
-    className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden"
+    className="relative hidden h-screen lg:flex flex-col justify-between p-12 overflow-hidden"
     style={{
       background: "linear-gradient(135deg, #1e3a8a 0%, #312e81 40%, #4338ca 70%, #6366f1 100%)",
     }}
@@ -205,7 +205,7 @@ const LoginForm: FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16">
+    <div className="flex flex-col justify-between h-screen overflow-y-auto bg-white p-10 lg:p-16">
       {/* Top spacer / mobile logo */}
       <Link to="/" className="lg:hidden flex items-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
@@ -214,7 +214,7 @@ const LoginForm: FC = () => {
         <span className="font-black text-xl text-blue-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+      <div className="flex-1 flex flex-col justify-start pt-12 lg:pt-20 max-w-md mx-auto w-full">
         {/* Heading */}
         <div className="mb-8">
           <h1
@@ -372,7 +372,7 @@ const LoginForm: FC = () => {
 
 const LoginParent: FC = () => {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[45%_55%]" style={{ fontFamily: "'Nunito', sans-serif" }}>
+    <div className="min-h-screen h-screen grid lg:grid-cols-[45%_55%] overflow-hidden" style={{ fontFamily: "'Nunito', sans-serif" }}>
       <LeftPanel />
       <LoginForm />
     </div>

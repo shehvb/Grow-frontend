@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import apiClient from "../../../services/apiClient";
+import { useParentStore } from "../../../store/parentStore";
 
 type ViewState = "FORM" | "SUCCESS" | "ERROR";
 
@@ -24,7 +26,7 @@ const AddStudentPage: FC = () => {
   const [schools, setSchools] = useState<School[]>([]);
   const [grades, setGrades] = useState<GradeOption[]>([]);
 
-  const [selectedSchoolCode, setSelectedSchoolCode] = useState("");
+  const [selectedSchoolId, setSelectedSchoolId] = useState<number | "">("");
   const [fullName, setFullName] = useState("");
   const [studentId, setStudentId] = useState("");
   const [selectedGradeId, setSelectedGradeId] = useState<number | "">("");
@@ -32,23 +34,29 @@ const AddStudentPage: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSchoolsAndInitialGrades = async () => {
       try {
-        const [schoolsRes, gradesRes] = await Promise.all([
-          fetch("http://127.0.0.1:8000/students/schools/"),
-          fetch("http://127.0.0.1:8000/students/grades/"),
-        ]);
-
-        if (schoolsRes.ok) setSchools(await schoolsRes.json());
-        if (gradesRes.ok) setGrades(await gradesRes.json());
+        const schoolsRes = await apiClient.get("schools/");
+        if (schoolsRes.data) {
+          const sList = schoolsRes.data.results || schoolsRes.data;
+          if (Array.isArray(sList)) setSchools(sList);
+        }
       } catch (err) {
-        console.warn("Failed to load schools or grades from server, using mock data", err);
-      } finally {
-        // MOCK DATA Fallback:
+        console.warn("Failed to load schools, using fallback", err);
         setSchools([
           { id: 1, name: "Springfield Elementary", school_code: "SPR-001" },
           { id: 2, name: "Westside High School", school_code: "WHS-002" },
         ]);
+      }
+
+      try {
+        const gradesRes = await apiClient.get("schools/grades/");
+        if (gradesRes.data) {
+          const gList = gradesRes.data.results || gradesRes.data;
+          if (Array.isArray(gList)) setGrades(gList);
+        }
+      } catch (err) {
+        console.warn("Failed to load grades, using fallback", err);
         setGrades([
           { id: 1, name: "Grade 8" },
           { id: 2, name: "Grade 9" },
@@ -57,50 +65,57 @@ const AddStudentPage: FC = () => {
       }
     };
 
-    fetchData();
+    fetchSchoolsAndInitialGrades();
   }, []);
+
+  useEffect(() => {
+    if (!selectedSchoolId) return;
+
+    const fetchSchoolScopedGrades = async () => {
+      try {
+        const gradesRes = await apiClient.get(`schools/grades/?school_id=${selectedSchoolId}`);
+        if (gradesRes.data) {
+          const gList = gradesRes.data.results || gradesRes.data;
+          if (Array.isArray(gList)) {
+            setGrades(gList);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load school-scoped grades", err);
+      }
+    };
+
+    fetchSchoolScopedGrades();
+  }, [selectedSchoolId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    if (!selectedSchoolCode || !fullName.trim() || !studentId.trim() || !selectedGradeId) {
+    if (!selectedSchoolId || !fullName.trim() || !studentId.trim() || !selectedGradeId) {
       setError("يرجى ملء جميع الحقول المطلوبة");
       setLoading(false);
       return;
     }
 
-    /* 
-    const formData = {
-      student_id: studentId.trim(),
-      school_code: selectedSchoolCode,
-      full_name: fullName.trim(),
-      grade_id: selectedGradeId
-    };
-    */
-
     try {
-      // TODO: Replace with new backend API
-      /*
-      const response = await fetch("http://127.0.0.1:8000/students/add-student/", { ... });
-      const data = await response.json();
-      */
+      const linkStudent = useParentStore.getState().linkStudent;
+      await linkStudent({
+        school_id: Number(selectedSchoolId),
+        full_name: fullName.trim(),
+        student_id: studentId.trim(),
+        grade_id: Number(selectedGradeId),
+      });
 
-      // MOCK DATA Success condition:
-      if (studentId.startsWith("STU")) {
-        setView("SUCCESS");
-        setTimeout(() => {
-          navigate("/parent/dashboard");
-        }, 2500);
-      } else {
-        setError("الطالب غير موجود أو الكود غير صحيح (يجب أن يبدأ بـ STU)");
-        setLoading(false); // Enable button again
-      }
-    } catch (err) {
+      setView("SUCCESS");
+      setTimeout(() => {
+        navigate("/parent/dashboard");
+      }, 2500);
+    } catch (err: any) {
       console.error(err);
-      setError("Cannot connect to server. Make sure Django is running.");
-      setView("ERROR");
+      const errMsg = err.response?.data?.error || err.response?.data?.detail || err.message || "الطالب غير موجود أو المعلومات غير متطابقة";
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -166,13 +181,13 @@ const AddStudentPage: FC = () => {
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-900 ml-1">School Name</label>
             <select
-              value={selectedSchoolCode}
-              onChange={(e) => setSelectedSchoolCode(e.target.value)}
+              value={selectedSchoolId}
+              onChange={(e) => setSelectedSchoolId(e.target.value ? Number(e.target.value) : "")}
               className="w-full px-5 py-3.5 bg-[#F9FAFB] border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">اختر المدرسة...</option>
+              <option value="">Select School...</option>
               {schools.map((school) => (
-                <option key={school.id} value={school.school_code}>
+                <option key={school.id} value={school.id}>
                   {school.name}
                 </option>
               ))}
@@ -186,19 +201,19 @@ const AddStudentPage: FC = () => {
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="اسم الطالب الكامل"
+              placeholder="Full Name"
               className="w-full px-5 py-3.5 bg-[#F9FAFB] border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Student ID */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-900 ml-1">Student ID (كود الطالب)</label>
+            <label className="text-xs font-bold text-slate-900 ml-1">Student Code</label>
             <input
               type="text"
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
-              placeholder="مثال: STU-2024-G5-123"
+              placeholder="Student Code"
               className="w-full px-5 py-3.5 bg-[#F9FAFB] border border-slate-200 rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -212,7 +227,7 @@ const AddStudentPage: FC = () => {
               onChange={(e) => setSelectedGradeId(e.target.value ? Number(e.target.value) : "")}
               className="w-full px-5 py-3.5 bg-[#F9FAFB] border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">اختر الصف...</option>
+              <option value="">Select Grade...</option>
               {grades.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.name}
@@ -230,7 +245,7 @@ const AddStudentPage: FC = () => {
             disabled={loading}
             className={`w-full py-4 bg-[#448AFF] text-white rounded-2xl font-bold text-lg shadow-xl transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-600'}`}
           >
-            {loading ? "جاري البحث والربط..." : "Link Student"}
+            {loading ? "Linking Student..." : "Link Student"}
           </button>
         </form>
       </div>
