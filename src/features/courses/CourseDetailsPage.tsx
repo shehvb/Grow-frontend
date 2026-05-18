@@ -206,12 +206,44 @@ const CourseDetailsPage: FC = () => {
     return "locked";
   };
 
+  const getEmbedUrl = (url?: string): string | null => {
+    if (!url) return null;
+    let safeUrl = url.trim();
+    if (!/^https?:\/\//i.test(safeUrl)) {
+      safeUrl = 'https://' + safeUrl;
+    }
+    try {
+      const parsed = new URL(safeUrl);
+      if (parsed.hostname.includes('youtu.be')) {
+        const videoId = parsed.pathname.substring(1);
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('youtube.com')) {
+        if (parsed.pathname.startsWith('/embed/')) {
+          return safeUrl;
+        }
+        const videoId = parsed.searchParams.get('v');
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('vimeo.com')) {
+        const parts = parsed.pathname.split('/');
+        const videoId = parts[parts.length - 1];
+        return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+      }
+    } catch (e) {
+      console.error("Failed to parse video URL:", e);
+    }
+    return null;
+  };
+
   const hasVideo = !!(selectedLesson?.video_url || selectedLesson?.video_file);
   const hasPdf = !!selectedLesson?.pdf_file;
+  const isExternalVideo = !!(selectedLesson?.video_url && getEmbedUrl(selectedLesson.video_url));
 
   const canMarkComplete =
     selectedLesson?.is_completed ||
-    (hasVideo && videoProgress >= 75) ||
+    (hasVideo && isExternalVideo) ||
+    (hasVideo && !isExternalVideo && videoProgress >= 75) ||
     (!hasVideo && hasPdf && hasDownloadedFile) ||
     (!hasVideo && !hasPdf);
 
@@ -313,7 +345,16 @@ const CourseDetailsPage: FC = () => {
               {selectedLesson ? (
                 <>
                   <div className="relative bg-slate-950 aspect-video rounded-[32px] overflow-hidden group shadow-lg border border-slate-900 flex items-center justify-center">
-                    {selectedLesson?.video_url || selectedLesson?.video_file ? (
+                    {selectedLesson?.video_url && getEmbedUrl(selectedLesson.video_url) ? (
+                      <iframe
+                        src={getEmbedUrl(selectedLesson.video_url)!}
+                        title={selectedLesson.title}
+                        className="absolute inset-0 w-full h-full"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    ) : selectedLesson?.video_url || selectedLesson?.video_file ? (
                       <video
                         className="w-full h-full object-cover"
                         controls

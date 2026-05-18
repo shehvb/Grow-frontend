@@ -88,4 +88,11 @@ export const courseService = {
     const response = await apiClient.post(`student/lessons/${lessonId}/complete/`);
     return response.data;
   },
+
+  reorderLessons: async (courseId: number, orderedIds: number[]): Promise<any[]> => {
+    const response = await apiClient.post(`teacher/courses/${courseId}/lessons/reorder/`, {
+      ordered_ids: orderedIds,
+    });
+    return response.data;
+  },
 };

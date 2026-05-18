@@ -37,19 +37,34 @@ const LessonEditorPage: FC = () => {
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  const getEmbedUrl = (url: string) => {
+  const getEmbedUrl = (url: string): string | null => {
     if (!url) return null;
-    if (url.includes('youtube.com/watch?v=')) {
-      const videoId = new URL(url).searchParams.get('v');
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    } else if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1];
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    } else if (url.includes('vimeo.com/')) {
-      const videoId = url.split('vimeo.com/')[1];
-      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    let safeUrl = url.trim();
+    if (!/^https?:\/\//i.test(safeUrl)) {
+      safeUrl = 'https://' + safeUrl;
     }
-    return null;
+    try {
+      const parsed = new URL(safeUrl);
+      if (parsed.hostname.includes('youtu.be')) {
+        const videoId = parsed.pathname.substring(1);
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('youtube.com')) {
+        if (parsed.pathname.startsWith('/embed/')) {
+          return safeUrl;
+        }
+        const videoId = parsed.searchParams.get('v');
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('vimeo.com')) {
+        const parts = parsed.pathname.split('/');
+        const videoId = parts[parts.length - 1];
+        return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+      }
+    } catch (e) {
+      console.error("Failed to parse video URL:", e);
+    }
+    return url;
   };
 
   const { createLesson, updateLesson, isLoading, lessons, fetchLessons } = useLessonStore();
@@ -363,9 +378,13 @@ const LessonEditorPage: FC = () => {
                     onChange={(e) => setLessonData({...lessonData, rewardXp: parseInt(e.target.value)})}
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-5 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-blue-400 outline-none transition-all"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col">
-                    <button className="text-slate-400 hover:text-slate-800"><FiChevronDown className="rotate-180" size={12} /></button>
-                    <button className="text-slate-400 hover:text-slate-800"><FiChevronDown size={12} /></button>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 flex flex-col">
+                    <button className="text-slate-400 hover:text-slate-800">
+                      {/* <FiChevronDown className="rotate-180" size={12} /> */}
+                      </button>
+                    <button className="text-slate-400 hover:text-slate-800">
+                      {/* <FiChevronDown size={12} /> */}
+                      </button>
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-bold">Students earn this XP after completing the lesson</p>
@@ -384,8 +403,12 @@ const LessonEditorPage: FC = () => {
                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-5 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-blue-400 outline-none transition-all"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col">
-                    <button className="text-slate-400 hover:text-slate-800"><FiChevronDown className="rotate-180" size={12} /></button>
-                    <button className="text-slate-400 hover:text-slate-800"><FiChevronDown size={12} /></button>
+                    <button className="text-slate-400 hover:text-slate-800">
+                      {/* <FiChevronDown className="rotate-180" size={12} /> */}
+                      </button>
+                    <button className="text-slate-400 hover:text-slate-800">
+                      {/* <FiChevronDown size={12} /> */}
+                      </button>
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-bold">Extra XP for completing additional tasks</p>
@@ -446,15 +469,21 @@ const LessonEditorPage: FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
                   <FiClock />
                   20 min
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-orange-500">
-                  <FiZap />
-                  Earn {lessonData.rewardXp + (lessonData.bonusXp || 0)} XP
+                  <FiZap className="fill-orange-500 text-orange-500" />
+                  Earn {lessonData.rewardXp} XP
                 </div>
+                {!!lessonData.bonusXp && lessonData.bonusXp > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-blue-500">
+                    <FiZap className="fill-blue-500 text-blue-500" />
+                    + {lessonData.bonusXp} Bonus XP
+                  </div>
+                )}
               </div>
 
               {pdfPreview && (

@@ -15,6 +15,7 @@ interface LessonState {
   updateLesson: (lessonId: number, data: any) => Promise<void>;
   deleteLesson: (lessonId: number) => Promise<void>;
   markComplete: (lessonId: number) => Promise<void>;
+  reorderLessons: (courseId: number, orderedIds: number[]) => Promise<void>;
 }
 
 export const useLessonStore = create<LessonState>((set, get) => ({
@@ -100,6 +101,17 @@ export const useLessonStore = create<LessonState>((set, get) => ({
     } catch (error: any) {
       // Revert on failure
       set({ lessons: previousLessons, error: error.message || 'Failed to mark complete' });
+      throw error;
+    }
+  },
+
+  reorderLessons: async (courseId: number, orderedIds: number[]) => {
+    set({ isLoading: true, error: null });
+    try {
+      const updatedLessons = await courseService.reorderLessons(courseId, orderedIds);
+      set({ lessons: updatedLessons, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to reorder lessons', isLoading: false });
       throw error;
     }
   },

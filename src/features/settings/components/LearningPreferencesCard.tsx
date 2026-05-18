@@ -53,7 +53,7 @@ const LearningPreferencesCard: FC<LearningPreferencesCardProps> = ({ preferences
         </div>
 
         {/* Dark Mode */}
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h4 className="text-sm font-bold text-slate-900 leading-tight">Dark Mode</h4>
             <p className="text-xs text-slate-400">Adjust the interface for eye comfort</p>
@@ -64,7 +64,7 @@ const LearningPreferencesCard: FC<LearningPreferencesCardProps> = ({ preferences
           >
             <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${prefs.darkMode ? 'translate-x-7' : 'translate-x-0'}`} />
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

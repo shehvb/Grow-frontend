@@ -1,6 +1,6 @@
 ﻿# GROW-back-up Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-05-15
+Auto-generated from all feature plans. Last updated: 2026-05-18
 
 ## Active Technologies
 - [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (007-role-based-auth)
@@ -21,6 +21,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-15
 - TypeScript / React ^19.2.0 + Axios (via existing `apiClient.ts`), Zustand (if used for teacher state, otherwise local component state) (018-teacher-dashboard-api)
 - TypeScript / React 19.2.0 + Axios (apiClient), Zustand (existing useAuthStore or new useStudentStore) (021-student-dashboard-api)
 - N/A (Read-only dashboard for now) (021-student-dashboard-api)
+- TypeScript 5.x / JavaScript ES6+ + React 19.x, Zustand (State Management), Axios/Fetch API (Network Calls) (024-parent-api-integration)
+- Web storage (localStorage for auth tokens) (024-parent-api-integration)
 
 - [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (005-parent-dashboard)
 
@@ -41,9 +43,9 @@ cd src; pytest; ruff check .
 [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]: Follow standard conventions
 
 ## Recent Changes
+- 024-parent-api-integration: Added TypeScript 5.x / JavaScript ES6+ + React 19.x, Zustand (State Management), Axios/Fetch API (Network Calls)
 - 021-student-dashboard-api: Added TypeScript / React 19.2.0 + Axios (apiClient), Zustand (existing useAuthStore or new useStudentStore)
 - 018-teacher-dashboard-api: Added TypeScript / React ^19.2.0 + Axios (via existing `apiClient.ts`), Zustand (if used for teacher state, otherwise local component state)
-- 016-lesson-management: Added TypeScript 5.x / React ^19.2.0 + Vite, Tailwind CSS ^3.4.0, Zustand, Axios
 
 
 <!-- MANUAL ADDITIONS START -->

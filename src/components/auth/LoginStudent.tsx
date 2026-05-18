@@ -210,7 +210,7 @@ const StudentLoginForm: FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16 h-screen">
+    <div className="flex flex-col justify-between h-screen overflow-y-auto bg-white p-10 lg:p-16">
       {/* Mobile logo */}
       <Link to="/" className="lg:hidden flex items-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
@@ -219,7 +219,7 @@ const StudentLoginForm: FC = () => {
         <span className="font-black text-xl text-blue-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+      <div className="flex-1 flex flex-col justify-start pt-12 lg:pt-20 max-w-md mx-auto w-full">
         {/* Heading */}
         <div className="mb-8">
           {/* <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-full px-4 py-1.5 mb-4"> */}

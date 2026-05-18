@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { FC } from "react";
 import { FiSave } from "react-icons/fi";
 import { useParentStore } from "../../store/parentStore";
@@ -7,7 +8,11 @@ import NotificationsCard from "./components/settings/NotificationsCard";
 import AiTutorSettingsCard from "./components/settings/AiTutorSettingsCard";
 
 const SettingsPage: FC = () => {
-  const { dashboardSummary } = useParentStore();
+  const { dashboardSummary, fetchSettings } = useParentStore();
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   if (!dashboardSummary || !dashboardSummary.parentProfile) {
     return (

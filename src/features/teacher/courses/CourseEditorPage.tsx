@@ -22,22 +22,36 @@ const CourseEditorPage: FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { selectedCourse: course, courseStudents, getCourseById, getCourseStudents } = useCourseStore();
-  const { lessons, fetchLessons, deleteLesson, updateLesson, isLoading: lessonsLoading } = useLessonStore();
+  const { lessons, fetchLessons, deleteLesson, updateLesson, reorderLessons, isLoading: lessonsLoading } = useLessonStore();
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
-  const getEmbedUrl = (url: string) => {
+  const getEmbedUrl = (url: string): string | null => {
     if (!url) return null;
-    if (url.includes('youtube.com/watch?v=')) {
-      const videoId = new URL(url).searchParams.get('v');
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    } else if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1];
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-    } else if (url.includes('vimeo.com/')) {
-      const videoId = url.split('vimeo.com/')[1];
-      return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+    let safeUrl = url.trim();
+    if (!/^https?:\/\//i.test(safeUrl)) {
+      safeUrl = 'https://' + safeUrl;
     }
-    // If it's a direct link to a file on our server
+    try {
+      const parsed = new URL(safeUrl);
+      if (parsed.hostname.includes('youtu.be')) {
+        const videoId = parsed.pathname.substring(1);
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('youtube.com')) {
+        if (parsed.pathname.startsWith('/embed/')) {
+          return safeUrl;
+        }
+        const videoId = parsed.searchParams.get('v');
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('vimeo.com')) {
+        const parts = parsed.pathname.split('/');
+        const videoId = parts[parts.length - 1];
+        return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+      }
+    } catch (e) {
+      console.error("Failed to parse video URL:", e);
+    }
     return url;
   };
 
@@ -58,6 +72,38 @@ const CourseEditorPage: FC = () => {
       toast.success(`Lesson set to ${newStatus}`);
     } catch (error) {
       toast.error("Failed to update status");
+    }
+  };
+
+  const handleReorder = async (draggedId: number, targetId: number) => {
+    if (draggedId === targetId) return;
+
+    const sortedLessons = [...lessons].sort((a, b) => {
+      if (a.order !== b.order) return (a.order || 0) - (b.order || 0);
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+
+    const draggedIndex = sortedLessons.findIndex(l => l.id === draggedId);
+    const targetIndex = sortedLessons.findIndex(l => l.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const updatedList = [...sortedLessons];
+    const [draggedItem] = updatedList.splice(draggedIndex, 1);
+    updatedList.splice(targetIndex, 0, draggedItem);
+
+    const orderedIds = updatedList.map(l => l.id);
+
+    try {
+      if (id) {
+        await reorderLessons(parseInt(id, 10), orderedIds);
+        toast.success("Lessons reordered successfully!");
+      }
+    } catch (error) {
+      toast.error("Failed to reorder lessons");
+      if (id) {
+        fetchLessons(parseInt(id, 10));
+      }
     }
   };
 
@@ -184,10 +230,9 @@ const CourseEditorPage: FC = () => {
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={async (e) => {
                       e.preventDefault();
-                      // const draggedId = parseInt(e.dataTransfer.getData('lessonId'), 10);
-                      // if (draggedId === lesson.id) return;
-                      // handleReorder(draggedId, lesson.id);
-                      toast.error("Reordering feature is coming soon!");
+                      const draggedId = parseInt(e.dataTransfer.getData('lessonId'), 10);
+                      if (draggedId === lesson.id) return;
+                      handleReorder(draggedId, lesson.id);
                     }}
                     className="group flex items-center justify-between p-6 rounded-[2rem] border border-slate-50 bg-slate-50/30 hover:bg-white hover:border-blue-100 hover:shadow-xl transition-all"
                   >

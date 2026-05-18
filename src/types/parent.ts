@@ -264,3 +264,11 @@ export interface StudentLearningPreferences {
   aiProactivity: boolean;
   darkMode: boolean;
 }
+
+export interface ParentLinkRequest {
+  school_id: number;
+  full_name: string;
+  student_id: string;
+  grade_id: number;
+}
+

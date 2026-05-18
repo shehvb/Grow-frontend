@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { FC } from "react";
 import { FiDownload, FiShare2, FiLoader } from "react-icons/fi";
 import { jsPDF } from "jspdf";
@@ -9,9 +9,15 @@ import AiAnalysisBanner from "./components/reports/AiAnalysisBanner";
 import DetailedSubjectsGrid from "./components/reports/DetailedSubjectsGrid";
 
 const ParentReportsPage: FC = () => {
-  const { dashboardSummary } = useParentStore();
+  const { dashboardSummary, selectedStudentId, fetchReports } = useParentStore();
   const reportRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    if (selectedStudentId) {
+      fetchReports(selectedStudentId);
+    }
+  }, [selectedStudentId, fetchReports]);
 
   if (!dashboardSummary || !dashboardSummary.reportMetrics) {
     return (

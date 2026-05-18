@@ -26,7 +26,7 @@ const GrowLogo: FC = () => (
 );
 
 const LeftPanel: FC = () => (
-  <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden"
+  <div className="relative hidden h-screen lg:flex flex-col justify-between p-12 overflow-hidden"
     style={{
       background: "linear-gradient(135deg, #312e81 0%, #3730a3 40%, #4338ca 70%, #4f46e5 100%)",
     }}
@@ -173,7 +173,7 @@ const LoginForm: FC = () => {
     }
   };
   return (
-    <div className="flex flex-col justify-between min-h-screen bg-white p-10 lg:p-16">
+    <div className="flex flex-col justify-between h-screen overflow-y-auto bg-white p-10 lg:p-16">
       <Link to="/" className="lg:hidden flex items-center gap-3 mb-8 cursor-pointer hover:opacity-90 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center">
           <span className="text-white font-black text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>G</span>
@@ -181,7 +181,7 @@ const LoginForm: FC = () => {
         <span className="font-black text-xl text-indigo-700" style={{ fontFamily: "'Playfair Display', serif" }}>GROW</span>
       </Link>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+      <div className="flex-1 flex flex-col justify-start pt-12 lg:pt-20 max-w-md mx-auto w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-black text-slate-900 mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
             Welcome, Back
@@ -321,7 +321,7 @@ const LoginForm: FC = () => {
 
 const LoginTeacher: FC = () => {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[45%_55%]" style={{ fontFamily: "'Nunito', sans-serif" }}>
+    <div className="min-h-screen h-screen grid lg:grid-cols-[45%_55%] overflow-hidden" style={{ fontFamily: "'Nunito', sans-serif" }}>
       <LeftPanel />
       <LoginForm />
     </div>

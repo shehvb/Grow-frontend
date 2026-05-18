@@ -2417,22 +2417,22 @@ paths:
   /api/v1/parent/add-student/:
     post:
       operationId: parent_add_student_create
-      description: Links an existing student to the authenticated parent using the
-        student's ID and parent_access_code.
-      summary: Add student with verification code
+      description: 'Links an existing student to the authenticated parent using multi-field
+        verification: school, full name, enrollment code, and grade.'
+      summary: Link student with enrollment code
       tags:
       - Parent
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddStudentRequest'
+              $ref: '#/components/schemas/ParentLinkRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/AddStudentRequest'
+              $ref: '#/components/schemas/ParentLinkRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AddStudentRequest'
+              $ref: '#/components/schemas/ParentLinkRequest'
         required: true
       security:
       - jwtAuth: []
@@ -2448,13 +2448,7 @@ paths:
           content:
             application/json:
               schema:
-                description: Invalid access code or bad request.
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                description: Student not found.
+                description: Information does not match any student.
           description: ''
         '409':
           content:
@@ -3584,6 +3578,24 @@ paths:
       responses:
         '204':
           description: Deleted.
+  /api/v1/teacher/assignments/{assignment_id}/results/:
+    get:
+      operationId: teacher_assignments_results_retrieve
+      summary: Assignment review panel
+      parameters:
+      - in: path
+        name: assignment_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Teacher Assignments
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Review summary + submissions.
   /api/v1/teacher/assignments/{assignment_id}/review/:
     get:
       operationId: teacher_assignments_review_retrieve
@@ -4667,19 +4679,6 @@ paths:
           description: ''
 components:
   schemas:
-    AddStudentRequest:
-      type: object
-      properties:
-        student_id:
-          type: string
-          minLength: 1
-        parent_access_code:
-          type: string
-          writeOnly: true
-          minLength: 1
-      required:
-      - parent_access_code
-      - student_id
     Analytics:
       type: object
       properties:
@@ -4755,6 +4754,11 @@ components:
           format: date-time
           readOnly: true
           description: Creation timestamp.
+        teacher_file:
+          type: string
+          format: uri
+          nullable: true
+          description: Assignment file uploaded by teacher.
       required:
       - course
       - created_at
@@ -4796,11 +4800,28 @@ components:
           nullable: true
         submission_status:
           type: string
+        is_graded:
+          type: boolean
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        feedback:
+          type: string
+          nullable: true
+        xp_awarded:
+          type: integer
+          nullable: true
       required:
       - deadline
+      - feedback
+      - is_graded
+      - score
       - submission_status
       - teacher_file_url
       - title
+      - xp_awarded
       - xp_reward
     AssignmentSubmitRequest:
       type: object
@@ -6008,6 +6029,25 @@ components:
       required:
       - change
       - value
+    ParentLinkRequest:
+      type: object
+      properties:
+        school_id:
+          type: integer
+        full_name:
+          type: string
+          minLength: 1
+        enrollment_code:
+          type: string
+          writeOnly: true
+          minLength: 1
+        grade_id:
+          type: integer
+      required:
+      - enrollment_code
+      - full_name
+      - grade_id
+      - school_id
     ParentNotification:
       type: object
       properties:
@@ -6255,14 +6295,16 @@ components:
           type: integer
         text:
           type: string
+        order:
+          type: integer
         options:
           type: array
           items:
-            type: string
-          nullable: true
+            $ref: '#/components/schemas/StudentOption'
       required:
       - id
       - options
+      - order
       - text
     QuestionMap:
       type: object
@@ -6341,10 +6383,14 @@ components:
           type: string
           format: date-time
           readOnly: true
+        is_completed:
+          type: boolean
+          readOnly: true
       required:
       - course_id
       - created_at
       - id
+      - is_completed
       - is_locked
       - lesson_id
       - max_score
@@ -6379,8 +6425,11 @@ components:
           type: integer
         title:
           type: string
+        is_completed:
+          type: boolean
       required:
       - id
+      - is_completed
       - title
     QuizFeedbackRequest:
       type: object
@@ -7158,6 +7207,16 @@ components:
       - is_read
       - message
       - type
+    StudentOption:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+      required:
+      - id
+      - text
     StudentProfile:
       type: object
       properties:

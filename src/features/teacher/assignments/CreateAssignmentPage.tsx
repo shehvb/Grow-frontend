@@ -188,7 +188,9 @@ const CreateAssignmentPage: FC = () => {
                 type="number" 
                 value={formData.rewardXp}
                 onChange={(e) => setFormData({...formData, rewardXp: parseInt(e.target.value) || 0})}
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm font-bold text-slate-400 outline-none transition-all"
+                className={`w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3.5 text-sm outline-none transition-all focus:border-orange-300 focus:ring-4 focus:ring-orange-50 ${
+                  formData.rewardXp === 150 ? 'text-slate-400 font-bold' : 'text-[#FF8000] font-black'
+                }`}
               />
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">XP earned for completing the assignment</p>
             </div>
@@ -200,7 +202,9 @@ const CreateAssignmentPage: FC = () => {
                   type="number" 
                   value={formData.latePenalty}
                   onChange={(e) => setFormData({...formData, latePenalty: parseInt(e.target.value) || 0})}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-5 pr-12 py-3.5 text-sm font-bold text-slate-400 outline-none transition-all"
+                  className={`w-full bg-slate-50 border border-slate-100 rounded-xl pl-5 pr-12 py-3.5 text-sm outline-none transition-all focus:border-orange-300 focus:ring-4 focus:ring-orange-50 ${
+                    formData.latePenalty === 20 ? 'text-slate-400 font-bold' : 'text-[#FF8000] font-black'
+                  }`}
                 />
                 <FiZap className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500 fill-red-500" />
               </div>
@@ -210,7 +214,7 @@ const CreateAssignmentPage: FC = () => {
 
           <div className="bg-blue-50/50 border border-blue-200 rounded-xl p-4 mt-6">
             <p className="text-xs text-blue-600 font-bold tracking-wide">
-              Students will earn up to {formData.rewardXp} marks for completing this assignment on time.
+              Students will earn up to <span className="text-[#FF8000] font-black">{formData.rewardXp} XP</span> for completing this assignment on time.
             </p>
           </div>
         </div>

@@ -20,19 +20,37 @@ export const LessonPlayer: FC<LessonPlayerProps> = ({ lesson }) => {
     );
   }
 
-  // Extract YouTube ID for embedding if it's a YouTube URL
-  let embedUrl = lesson.video_url;
-  if (embedUrl && embedUrl.includes('youtube.com/watch?v=')) {
-    const videoId = new URL(embedUrl).searchParams.get('v');
-    if (videoId) {
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  const getEmbedUrl = (url: string): string | null => {
+    if (!url) return null;
+    let safeUrl = url.trim();
+    if (!/^https?:\/\//i.test(safeUrl)) {
+      safeUrl = 'https://' + safeUrl;
     }
-  } else if (embedUrl && embedUrl.includes('youtu.be/')) {
-    const videoId = embedUrl.split('youtu.be/')[1];
-    if (videoId) {
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    try {
+      const parsed = new URL(safeUrl);
+      if (parsed.hostname.includes('youtu.be')) {
+        const videoId = parsed.pathname.substring(1);
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('youtube.com')) {
+        if (parsed.pathname.startsWith('/embed/')) {
+          return safeUrl;
+        }
+        const videoId = parsed.searchParams.get('v');
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      }
+      if (parsed.hostname.includes('vimeo.com')) {
+        const parts = parsed.pathname.split('/');
+        const videoId = parts[parts.length - 1];
+        return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+      }
+    } catch (e) {
+      console.error("Failed to parse video URL:", e);
     }
-  }
+    return url;
+  };
+
+  const embedUrl = getEmbedUrl(lesson.video_url || '');
 
   return (
     <div className="flex-1 bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm flex flex-col">
@@ -61,7 +79,7 @@ export const LessonPlayer: FC<LessonPlayerProps> = ({ lesson }) => {
           
           <div className="prose prose-indigo max-w-none">
             {/* If the content is markdown or HTML, it would normally be parsed here. We'll just render it as text or basic HTML for now */}
-            <div dangerouslySetInnerHTML={{ __html: lesson.content.replace(/\n/g, '<br/>') }} />
+            <div dangerouslySetInnerHTML={{ __html: (lesson.content || '').replace(/\n/g, '<br/>') }} />
           </div>
         </div>
       </div>
