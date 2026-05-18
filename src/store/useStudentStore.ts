@@ -7,6 +7,7 @@ interface StudentState {
   teacherStudents: EnrolledStudent[];
   dashboard: StudentDashboard | null;
   tasks: any[];
+  summaryBar: { current_streak: number; total_xp_today: number; daily_master_percentage: number } | null;
   isLoading: boolean;
   error: string | null;
 
@@ -20,6 +21,7 @@ export const useStudentStore = create<StudentState>((set) => ({
   teacherStudents: [],
   dashboard: null,
   tasks: [],
+  summaryBar: null,
   isLoading: false,
   error: null,
 
@@ -49,10 +51,44 @@ export const useStudentStore = create<StudentState>((set) => ({
   fetchTasks: async () => {
     set({ isLoading: true, error: null });
     try {
-      const data = await studentPortalService.getTasks();
-      // Ensure data is an array (handle DRF pagination if present)
-      const tasksArray = Array.isArray(data) ? data : (data as any).results || [];
-      set({ tasks: tasksArray, isLoading: false, error: null });
+      const data = await studentPortalService.getTasks() as any;
+      let tasksArray: any[] = [];
+      let summaryBarData: any = null;
+
+      if (data) {
+        if (Array.isArray(data)) {
+          tasksArray = data;
+        } else {
+          // Object with past_due and todays_missions
+          const pastDue = (data.past_due || []).map((t: any, idx: number) => ({
+            ...t,
+            id: t.id || `past_${idx}`,
+            title: t.title || "Past Due Task",
+            context: t.subject || "No Subject",
+            xp: t.xp_reward || 100,
+            checked: t.is_completed || false,
+            status: 'overdue',
+            category: 'overdue'
+          }));
+
+          const todaysMissions = (data.todays_missions || []).map((t: any, idx: number) => ({
+            ...t,
+            id: t.id || `today_${idx}`,
+            title: t.title || "Today's Mission",
+            context: t.subject || "No Subject",
+            xp: t.xp_reward || 100,
+            checked: t.is_completed || false,
+            isBlue: true,
+            status: 'today',
+            category: 'today'
+          }));
+
+          tasksArray = [...pastDue, ...todaysMissions];
+          summaryBarData = data.summary_bar || null;
+        }
+      }
+
+      set({ tasks: tasksArray, summaryBar: summaryBarData, isLoading: false, error: null });
     } catch (error: any) {
       set({
         isLoading: false,
@@ -62,6 +98,6 @@ export const useStudentStore = create<StudentState>((set) => ({
   },
 
   clearDashboard: () => {
-    set({ dashboard: null, tasks: [], error: null });
+    set({ dashboard: null, tasks: [], summaryBar: null, error: null });
   }
 }));

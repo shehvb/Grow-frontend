@@ -1,4 +1,6 @@
-import type { Assignment, Submission } from "../types";
+import type { StudentAssignment, Submission } from "../types";
+
+type Assignment = StudentAssignment;
 
 class AssignmentServiceApi {
   private getAuthHeaders() {

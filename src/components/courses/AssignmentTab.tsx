@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { FC } from "react";
-import type { Assignment } from "../../types";
+import type { StudentAssignment as Assignment } from "../../types";
 import { assignmentService } from "../../services/assignmentService";
 
 interface AssignmentTabProps {
@@ -20,6 +20,12 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
   // We will display just the first assignment for simplicity or iterate if needed.
   // Rendering the detailed view for the active assignment.
   const assignment = assignments[0];
+  const targetDate = assignment.due_date || assignment.deadline || "";
+  const xpReward = assignment.xp_reward || 150;
+  const latePenalty = 20;
+  const fileUrl = assignment.teacher_file_url || assignment.teacher_file || "#";
+  const fileName = assignment.teacher_file ? assignment.teacher_file.substring(assignment.teacher_file.lastIndexOf('/') + 1) : "assignment.pdf";
+  const instructions = ["Download the assignment file uploaded by your teacher.", "Complete the exercises as per instructions.", "Upload your completed assignment as a PDF or Word document in the area below.", "After uploading, press the \"Submit Assignment\" button to finalize submission."];
 
   const [remainingTime, setRemainingTime] = useState<string>("");
   const [isExpired, setIsExpired] = useState<boolean>(false);
@@ -33,7 +39,7 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const deadline = new Date(assignment.deadline).getTime();
+      const deadline = new Date(targetDate).getTime();
       const difference = deadline - now;
 
       if (difference <= 0) {
@@ -54,7 +60,7 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
     const timer = setInterval(calculateTimeLeft, 60000); // update every minute
 
     return () => clearInterval(timer);
-  }, [assignment.deadline]);
+  }, [targetDate]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -108,11 +114,8 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
     setError("");
 
     try {
-      // 1. Upload File
-      await assignmentService.uploadAssignmentFile(assignment.id, uploadedFile);
-      
-      // 2. Submit Assignment metadata
-      await assignmentService.submitAssignment(assignment.id, uploadedFile.name);
+      // Submit Assignment
+      await assignmentService.submitStudentAssignment(assignment.id, uploadedFile);
       
       setIsSubmitted(true);
     } catch (err) {
@@ -122,7 +125,7 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
     }
   };
 
-  const formattedDeadlineDate = new Date(assignment.deadline).toLocaleString('en-US', {
+  const formattedDeadlineDate = new Date(targetDate).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -161,9 +164,9 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
           </div>
           <div>
             <div className="text-xs font-semibold text-slate-500 mb-1">XP Rewards</div>
-            <div className="text-base font-bold text-[#EA580C] mb-1">+{assignment.xpReward} XP</div>
+            <div className="text-base font-bold text-[#EA580C] mb-1">+{xpReward} XP</div>
             <div className="text-xs font-bold text-[#EA580C]">
-              ⚠ -{assignment.latePenalty} XP if late
+              ⚠ -{latePenalty} XP if late
             </div>
           </div>
         </div>
@@ -183,13 +186,13 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
           <p className="text-xs text-slate-500 font-medium mb-4">Download the assignment PDF uploaded by your teacher to view the questions and requirements.</p>
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
             <button 
-              onClick={() => window.open(assignment.fileUrl, "_blank")}
+              onClick={() => window.open(fileUrl, "_blank")}
               className="px-4 py-2 border border-[#1600D5] text-[#1600D5] bg-white text-xs font-bold rounded-lg hover:bg-[#F8F8FF] transition-colors flex items-center gap-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               View Assignment
             </button>
             <button 
-              onClick={() => window.open(assignment.fileUrl, "_blank")}  // Simplified logic for download trigger
+              onClick={() => window.open(fileUrl, "_blank")}  // Simplified logic for download trigger
               className="px-4 py-2 bg-[#1600D5] text-white text-xs font-bold rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Download PDF
@@ -197,7 +200,7 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
           </div>
           <div className="mt-4 text-xs font-medium text-slate-400 flex items-center justify-center md:justify-start gap-1">
              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-             {assignment.fileName}
+             {fileName}
           </div>
         </div>
       </div>
@@ -207,7 +210,7 @@ const AssignmentTab: FC<AssignmentTabProps> = ({ assignments }) => {
       
       {/* Dynamic List */}
       <div className="space-y-4 mb-10 pl-2">
-        {assignment.instructions.map((inst, idx) => (
+        {instructions.map((inst: string, idx: number) => (
           <div key={idx} className="flex items-start text-sm font-medium text-slate-600 leading-relaxed">
             <span className="font-exrabold text-[#1600D5] mr-1">{idx + 1}.</span> 
             {inst}

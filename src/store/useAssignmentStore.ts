@@ -71,8 +71,9 @@ export const useAssignmentStore = create<AssignmentState>((set, get) => ({
   fetchSubmissions: async (assignmentId: number) => {
     set({ isLoading: true, error: null });
     try {
-      const submissions = await assignmentService.getSubmissions(assignmentId);
-      set({ currentSubmissions: submissions, isLoading: false });
+      const res = await assignmentService.getSubmissions(assignmentId);
+      const submissionsArray = res && Array.isArray(res.submissions) ? res.submissions : (Array.isArray(res) ? res : []);
+      set({ currentSubmissions: submissionsArray, isLoading: false });
     } catch (error: any) {
       set({ isLoading: false, error: error.message });
     }

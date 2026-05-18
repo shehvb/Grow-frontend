@@ -56,12 +56,15 @@ const AssignmentEditorPage: FC = () => {
       const formData = new FormData();
       formData.append('title', assignmentData.title);
       formData.append('content', assignmentData.description);
+      formData.append('description', assignmentData.description);
       formData.append('course_id', assignmentData.courseId);
       formData.append('max_marks', assignmentData.maxMarks.toString());
+      formData.append('max_score', assignmentData.maxMarks.toString());
       formData.append('due_date', assignmentData.dueDate);
       
       if (attachment) {
         formData.append('attachment', attachment);
+        formData.append('teacher_file', attachment);
       }
 
       if (isEditMode) {

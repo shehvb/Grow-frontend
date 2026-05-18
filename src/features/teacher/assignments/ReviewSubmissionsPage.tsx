@@ -20,14 +20,31 @@ interface UIMappedSubmission {
   status: string;
   submittedAt: string;
   file: string;
+  file_url: string;
   grade: string;
   xp: string;
   feedback: string;
 }
 
+const getMediaUrl = (path?: string) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  
+  const baseUrl = "https://ahmeddali.pythonanywhere.com";
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const mediaPath = normalizedPath.startsWith("/media/") ? normalizedPath : `/media${normalizedPath}`;
+  return `${baseUrl}${mediaPath}`;
+};
+
 const ReviewSubmissionsPage: FC = () => {
   const { id } = useParams<{ id: string }>();
   const [submissions, setSubmissions] = useState<UIMappedSubmission[]>([]);
+  const [summary, setSummary] = useState({
+    total_students: 0,
+    submitted: 0,
+    scored: 0,
+    missing: 0
+  });
   const [loading, setLoading] = useState(true);
   const [gradingState, setGradingState] = useState<Record<string, { grade: string, xp: string, feedback: string }>>({});
   const [selectedClass, setSelectedClass] = useState<string>("All");
@@ -37,11 +54,22 @@ const ReviewSubmissionsPage: FC = () => {
     const fetchSubmissions = async () => {
       try {
         setLoading(true);
-        const data = await assignmentService.getSubmissions(Number(id));
-        const mapped = data.map(sub => {
+        const res = await assignmentService.getSubmissions(Number(id));
+        
+        // Handle backend returning { summary, submissions } or raw array
+        const submissionsArray = res && Array.isArray(res.submissions) ? res.submissions : (Array.isArray(res) ? res : []);
+        const backendSummary = res && res.summary ? res.summary : null;
+
+        const mapped = submissionsArray.map((sub: any) => {
           let statusText = 'Missing';
-          if (sub.status === 'submitted') statusText = 'Submitted';
-          if (sub.status === 'graded') statusText = 'Graded';
+          const normalizedStatus = (sub.status || '').toLowerCase();
+          if (normalizedStatus === 'submitted' || normalizedStatus === 'pending') {
+            statusText = 'Submitted';
+          } else if (normalizedStatus === 'graded' || sub.is_graded === true) {
+            statusText = 'Graded';
+          }
+          
+          const rawFilePath = sub.file || sub.file_url || '';
           
           return {
             id: sub.id.toString(),
@@ -49,13 +77,31 @@ const ReviewSubmissionsPage: FC = () => {
             class: 'All', // API does not provide class info yet
             status: statusText,
             submittedAt: sub.submitted_at ? new Date(sub.submitted_at).toLocaleString() : '',
-            file: sub.file_url ? sub.file_url.split('/').pop() || 'file' : '',
-            grade: sub.score != null ? `${sub.score}%` : '',
-            xp: sub.xp_reward != null ? sub.xp_reward.toString() : '',
+            file: rawFilePath ? rawFilePath.split('/').pop() || 'file' : '',
+            file_url: rawFilePath,
+            grade: sub.raw_score != null ? `${sub.raw_score}%` : (sub.score != null ? `${sub.score}%` : ''),
+            xp: sub.xp_awarded != null ? sub.xp_awarded.toString() : (sub.xp_reward != null ? sub.xp_reward.toString() : ''),
             feedback: sub.feedback || ''
           };
         });
+
         setSubmissions(mapped);
+
+        if (backendSummary) {
+          setSummary({
+            total_students: backendSummary.total_students || 0,
+            submitted: backendSummary.submitted || 0,
+            scored: backendSummary.scored || 0,
+            missing: backendSummary.missing || 0
+          });
+        } else {
+          setSummary({
+            total_students: mapped.length,
+            submitted: mapped.filter((s: any) => s.status !== 'Missing').length,
+            scored: mapped.filter((s: any) => s.status === 'Graded').length,
+            missing: mapped.filter((s: any) => s.status === 'Missing').length
+          });
+        }
       } catch (err) {
         console.error("Failed to fetch submissions", err);
       } finally {
@@ -102,6 +148,12 @@ const ReviewSubmissionsPage: FC = () => {
         }
         return sub;
       }));
+
+      // Update local summary state
+      setSummary(prev => ({
+        ...prev,
+        scored: prev.scored + 1
+      }));
     } catch (err) {
       console.error("Failed to grade submission", err);
       alert("Failed to submit grade. Please try again.");
@@ -141,7 +193,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">{submissions.length}</span>
+            <span className="text-3xl font-black text-slate-800">{summary.total_students}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-400 flex items-center justify-center">
             <FiCheckSquare />
@@ -151,7 +203,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Submitted</p>
-            <span className="text-3xl font-black text-slate-800">{submissions.filter(s => s.status !== 'Missing').length}</span>
+            <span className="text-3xl font-black text-slate-800">{summary.submitted}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-green-50 text-green-500 flex items-center justify-center">
             <FiCheckCircle />
@@ -161,7 +213,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Scored</p>
-            <span className="text-3xl font-black text-slate-800">{submissions.filter(s => s.status === 'Graded').length}</span>
+            <span className="text-3xl font-black text-slate-800">{summary.scored}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-pink-50 text-pink-500 flex items-center justify-center">
             <FiAward />
@@ -171,7 +223,7 @@ const ReviewSubmissionsPage: FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Missing</p>
-            <span className="text-3xl font-black text-slate-800">{submissions.filter(s => s.status === 'Missing').length}</span>
+            <span className="text-3xl font-black text-slate-800">{summary.missing}</span>
           </div>
           <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
             <FiXCircle />
@@ -220,10 +272,22 @@ const ReviewSubmissionsPage: FC = () => {
                       <FiClock />
                       Submitted: {sub.submittedAt}
                     </p>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
-                      <FiDownload />
-                      {sub.file}
-                    </button>
+                    {sub.file_url ? (
+                      <a 
+                        href={getMediaUrl(sub.file_url)} 
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-slate-600 hover:bg-slate-50 transition-colors shadow-sm hover:border-slate-300"
+                      >
+                        <FiDownload className="text-slate-500" />
+                        <span>{sub.file || 'download_submission.pdf'}</span>
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-400 select-none w-fit">
+                        <FiXCircle />
+                        <span>No file uploaded</span>
+                      </div>
+                    )}
                   </div>
                 )}
 

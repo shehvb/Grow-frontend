@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import type { FC } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { quizService } from "../../services/quizService";
-import type { Quiz, QuizResult } from "../../types";
+import type { QuizStart, StudentQuizResult } from "../../types";
 import QuizResultScreen from "./QuizResultScreen";
+import toast from "react-hot-toast";
 
 const QuizPlayerPage: FC = () => {
   const { courseId, quizId } = useParams<{ courseId: string; quizId: string }>();
   const navigate = useNavigate();
 
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [quiz, setQuiz] = useState<QuizStart | null>(null);
   const [loading, setLoading] = useState(true);
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -17,7 +18,7 @@ const QuizPlayerPage: FC = () => {
   
   const [timeLeft, setTimeLeft] = useState(0); // in seconds
   const [isFinished, setIsFinished] = useState(false);
-  const [result, setResult] = useState<QuizResult | null>(null);
+  const [result, setResult] = useState<StudentQuizResult | null>(null);
 
   // Load Quiz
   useEffect(() => {
@@ -25,10 +26,10 @@ const QuizPlayerPage: FC = () => {
       if (!quizId) return;
       setLoading(true);
       try {
-        const data = await quizService.getQuizById(quizId);
+        const data = await quizService.startQuiz(quizId);
         if (data) {
           setQuiz(data);
-          setTimeLeft(data.durationMinutes * 60);
+          setTimeLeft(data.time_limit_seconds || 0);
         }
       } catch (err) {
         console.error(err);
@@ -64,12 +65,22 @@ const QuizPlayerPage: FC = () => {
   const handleSubmit = async () => {
     if (!quiz) return;
     try {
-      const res = await quizService.submitQuiz(quiz.id, answers);
+      const formattedAnswers = Object.entries(answers).map(([qId, answerIndex]) => {
+        const question = quiz.questions.find((q) => q.id.toString() === qId);
+        const rawOption = question?.options[answerIndex];
+        const optionText = typeof rawOption === 'string' ? rawOption : (rawOption?.text || "");
+        return {
+          question_id: parseInt(qId, 10),
+          answer: optionText
+        };
+      });
+      const res = await quizService.submitQuiz(quiz.quiz_id, formattedAnswers);
       setResult(res);
       setIsFinished(true);
+      toast.success("Quiz submitted successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to submit quiz.");
+      toast.error("Failed to submit quiz. Please check your connection and try again.");
     }
   };
 
@@ -95,14 +106,29 @@ const QuizPlayerPage: FC = () => {
     );
   }
 
+  if (!quiz.questions || quiz.questions.length === 0) {
+    return (
+      <div className="text-center py-20 bg-white rounded-[24px] shadow-sm border border-slate-100 p-8 max-w-lg mx-auto mt-10">
+        <h2 className="text-2xl font-extrabold text-slate-800 mb-2">No Questions Available</h2>
+        <p className="text-slate-500 mb-6 font-medium">This quiz doesn't have any questions configured yet. Please check back later or ask your teacher.</p>
+        <button 
+          onClick={() => navigate(`/student/courses/${courseId}`)}
+          className="px-6 py-3 bg-[#1600D5] text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md"
+        >
+          Back to Course
+        </button>
+      </div>
+    );
+  }
+
   if (isFinished && result) {
     return <QuizResultScreen result={result} courseId={courseId!} />;
   }
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
-  const progressPercent = ((Object.keys(answers).length) / quiz.questions.length) * 100;
-  
-
+  const progressPercent = quiz.questions.length > 0 
+    ? (Object.keys(answers).length / quiz.questions.length) * 100 
+    : 0;
 
   return (
     <div className="max-w-7xl mx-auto w-full pb-20 flex flex-col lg:flex-row gap-8 font-['Nunito']">
@@ -132,13 +158,14 @@ const QuizPlayerPage: FC = () => {
         </div>
         
         <div className="space-y-4 mb-20">
-          {currentQuestion.options.map((option, idx) => {
+          {(currentQuestion.options || []).map((option, idx) => {
             const isSelected = answers[currentQuestion.id] === idx;
+            const optionText = typeof option === 'string' ? option : (option?.text || "");
             
             return (
               <button
                 key={idx}
-                onClick={() => handleAnswerSelect(currentQuestion.id, idx)}
+                onClick={() => handleAnswerSelect(currentQuestion.id.toString(), idx)}
                 className={`w-full p-6 space-x-5 rounded-2xl border flex items-center text-left font-black transition-all ${
                   isSelected 
                     ? 'border-[#1600D5] bg-[#E6E5FA]' 
@@ -150,7 +177,7 @@ const QuizPlayerPage: FC = () => {
                 }`}>
                   <div className={`w-2.5 h-2.5 rounded-full ${isSelected ? 'bg-white' : 'bg-transparent'}`}></div>
                 </div>
-                <span className={`text-[15px] ${isSelected ? 'text-slate-900' : 'text-slate-800'}`}>{option}</span>
+                <span className={`text-[15px] ${isSelected ? 'text-slate-900' : 'text-slate-800'}`}>{optionText}</span>
               </button>
             );
           })}
@@ -210,7 +237,7 @@ const QuizPlayerPage: FC = () => {
           <h3 className="text-[17px] font-black text-[#000000] mb-6 uppercase tracking-widest">QUESTION MAP</h3>
           <div className="grid grid-cols-4 gap-4">
             {quiz.questions.map((q, idx) => {
-              const isAnswered = answers[q.id] !== undefined;
+              const isAnswered = answers[q.id.toString()] !== undefined;
               const isCurrent = idx === currentQuestionIndex;
               
               let bgColor = "bg-[#E2E2E2] text-slate-500";
