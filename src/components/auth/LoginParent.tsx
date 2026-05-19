@@ -182,7 +182,7 @@ const LoginForm: FC = () => {
 
     try {
       const login = useAuthStore.getState().login;
-      await login({ email, password });
+      await login({ email: email.trim().toLowerCase(), password });
 
       const user = useAuthStore.getState().user;
 

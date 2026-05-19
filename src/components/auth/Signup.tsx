@@ -91,46 +91,76 @@ const Signup: FC = () => {
       // Using the email itself as the username ensures uniqueness and avoids generation errors.
       const username = email.trim().toLowerCase();
 
-      // 1. Register with strict API schema fields
-      await authStore.register({
-        username: username,
-        email: email,
-        password: password,
-        role: currentRole,
-      });
-
-      // 2. Auto-login to get tokens
-      await authStore.login({
-        email: email,
-        password: password
-      });
-
-      // 3. Update profile to set the Full Name
-      await authStore.updateUserProfile({
-        first_name: firstName,
-        last_name: lastName
-      });
-
-      // 3.5. Initialize Teacher Profile
-      if (currentRole === 'teacher') {
-        try {
-          const { teacherService } = await import("../../features/teacher/services/teacher.service");
-          await teacherService.updateProfile({
-            full_name: fullName
-          });
-        } catch (err) {
-          console.error("Failed to initialize teacher profile:", err);
-        }
+      let selectedSchoolId: number | undefined = undefined;
+      if (schoolCode && schools.length > 0) {
+        const school = schools.find(s => s.school_code === schoolCode);
+        if (school) selectedSchoolId = school.id;
       }
 
-      // 4. Use Enrollment Code if provided (for Students/Teachers)
-      if (signupCode) {
-        try {
-          const { authApi } = await import("../../services/authApi");
-          await authApi.useEnrollmentCode(signupCode);
-        } catch (codeErr) {
-          console.error("Failed to apply enrollment code:", codeErr);
-          // Non-blocking error, user is still registered
+      if (currentRole === 'teacher') {
+        if (!selectedSchoolId) {
+          setError("Please select a school.");
+          setLoading(false);
+          return;
+        }
+        if (!signupCode) {
+          setError("Please enter your teacher code.");
+          setLoading(false);
+          return;
+        }
+
+        // Register Teacher
+        await authStore.register({
+          role: 'teacher',
+          school_id: selectedSchoolId,
+          full_name: fullName.trim(),
+          email: email.trim().toLowerCase(),
+          password: password,
+          teacher_code: signupCode,
+        });
+
+        // Auto-login Teacher if register didn't already populate tokens
+        if (!useAuthStore.getState().isAuthenticated) {
+          await authStore.login({
+            role: 'teacher',
+            school_id: selectedSchoolId,
+            email: email.trim().toLowerCase(),
+            password: password
+          });
+        }
+
+      } else {
+        // 1. Register with strict API schema fields for Student/Parent
+        await authStore.register({
+          username: username,
+          email: email.trim().toLowerCase(),
+          password: password,
+          role: currentRole,
+        });
+
+        // 2. Auto-login to get tokens if not populated
+        if (!useAuthStore.getState().isAuthenticated) {
+          await authStore.login({
+            email: email.trim().toLowerCase(),
+            password: password
+          });
+        }
+
+        // 3. Update profile to set the Full Name
+        await authStore.updateUserProfile({
+          first_name: firstName,
+          last_name: lastName
+        });
+
+        // 4. Use Enrollment Code if provided (for Students)
+        if (signupCode) {
+          try {
+            const { authApi } = await import("../../services/authApi");
+            await authApi.useEnrollmentCode(signupCode);
+          } catch (codeErr) {
+            console.error("Failed to apply enrollment code:", codeErr);
+            // Non-blocking error, user is still registered
+          }
         }
       }
 

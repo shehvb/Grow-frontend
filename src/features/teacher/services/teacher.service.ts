@@ -14,37 +14,37 @@ class TeacherService {
   }
 
   public async getDashboardStats(): Promise<any> {
-    const response = await apiClient.get('/teacher/dashboard/');
+    const response = await apiClient.get('/teachers/dashboard/');
     return response.data;
   }
 
   public async getStudents(): Promise<any[]> {
-    const response = await apiClient.get('/teacher/students/');
+    const response = await apiClient.get('/teachers/students/');
     return response.data;
   }
 
   public async getProfile(): Promise<any> {
-    const response = await apiClient.get('/teacher/settings/profile/');
+    const response = await apiClient.get('/teachers/settings/profile/');
     return response.data;
   }
 
   public async updateProfile(data: any): Promise<any> {
-    const response = await apiClient.patch('/teacher/settings/profile/update/', data);
+    const response = await apiClient.patch('/teachers/settings/profile/update/', data);
     return response.data;
   }
 
   public async getNotifications(): Promise<any> {
-    const response = await apiClient.get('/teacher/settings/notifications/');
+    const response = await apiClient.get('/teachers/settings/notifications/');
     return response.data;
   }
 
   public async updateNotifications(data: any): Promise<any> {
-    const response = await apiClient.patch('/teacher/settings/notifications/update/', data);
+    const response = await apiClient.patch('/teachers/settings/notifications/update/', data);
     return response.data;
   }
 
   public async getNotificationsFeed(): Promise<TeacherNotification[]> {
-    const response = await apiClient.get('/teacher/notifications/');
+    const response = await apiClient.get('/teachers/notifications/');
     return response.data;
   }
 }

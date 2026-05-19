@@ -139,17 +139,58 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (credentials) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authApi.login(credentials);
-
-      // Determine loginFlow: if credentials contain an OTP field, it's the OTP flow
       const loginFlow: 'standard' | 'otp' = credentials.otp ? 'otp' : 'standard';
+      let userObj: User;
+      let tokens: AuthTokens;
 
-      const tokens: AuthTokens = {
-        access: response.access,
-        refresh: response.refresh,
-        role: response.user?.role,
-        loginFlow,
-      };
+      if (credentials.role === 'school_admin') {
+        // Dedicated school admin login flow
+        const response = await authApi.schoolAdminLogin({
+          username: credentials.username || credentials.email, // Allow either
+          password: credentials.password
+        });
+
+        userObj = {
+          id: response.user_id,
+          username: response.username,
+          email: '', // Not returned by schools/login/ but required by type User
+          role: 'school_admin',
+        };
+
+        tokens = {
+          access: response.access,
+          refresh: response.refresh,
+          role: 'school_admin',
+          loginFlow: 'standard',
+        };
+      } else if (credentials.role === 'teacher') {
+        const response = await authApi.teacherLogin({
+          school_id: credentials.school_id,
+          email: credentials.email,
+          password: credentials.password
+        });
+        userObj = {
+          id: response.user_id,
+          role: response.role || 'teacher',
+          email: credentials.email,
+          username: credentials.email,
+        } as User;
+        tokens = {
+          access: response.access,
+          refresh: response.refresh,
+          role: response.role || 'teacher',
+          loginFlow,
+        };
+      } else {
+        const response = await authApi.login(credentials);
+        userObj = response.user;
+        tokens = {
+          access: response.access,
+          refresh: response.refresh,
+          role: response.user?.role,
+          loginFlow,
+        };
+      }
 
       localStorage.setItem('auth_tokens', JSON.stringify(tokens));
 
@@ -158,7 +199,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       proactiveRefreshTimer = scheduleProactiveRefresh(tokens.access, silentRefresh);
 
       set({
-        user: response.user,
+        user: userObj,
         tokens,
         isAuthenticated: true,
         isLoading: false,
@@ -177,7 +218,36 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (userData) => {
     set({ isLoading: true, error: null });
     try {
-      await authApi.register(userData);
+      if (userData.role === 'teacher') {
+        const response = await authApi.teacherSignup(userData) as any;
+        // The backend teacherSignup actually returns tokens in the response.
+        // We can consume them immediately to bypass calling login() again.
+        if (response.access && response.refresh) {
+          const tokens = { access: response.access, refresh: response.refresh };
+          localStorage.setItem('auth_tokens', JSON.stringify(tokens));
+
+          if (proactiveRefreshTimer) clearTimeout(proactiveRefreshTimer);
+          proactiveRefreshTimer = scheduleProactiveRefresh(tokens.access, silentRefresh);
+
+          set({
+            user: {
+              id: response.user_id,
+              role: response.role || 'teacher',
+              email: userData.email,
+              first_name: userData.full_name,
+              last_name: '',
+              username: userData.email,
+            },
+            tokens,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+          return; // Skip the rest, user is fully logged in
+        }
+      } else {
+        await authApi.register(userData);
+      }
       set({ isLoading: false, error: null });
     } catch (error: any) {
       set({

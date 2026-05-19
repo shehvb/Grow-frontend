@@ -150,7 +150,13 @@ const LoginForm: FC = () => {
 
     try {
       const login = useAuthStore.getState().login;
-      await login({ email, password });
+      const school = schools.find(s => s.school_code === selectedSchoolCode);
+      await login({ 
+        school_id: school?.id,
+        email: email.trim().toLowerCase(), 
+        password,
+        role: 'teacher'
+      });
 
       const user = useAuthStore.getState().user;
 

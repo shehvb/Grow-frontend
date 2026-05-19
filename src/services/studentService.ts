@@ -11,7 +11,7 @@ export interface EnrolledStudent {
 
 export const studentService = {
   getTeacherStudents: async (): Promise<EnrolledStudent[]> => {
-    const response = await apiClient.get('teacher/students/');
+    const response = await apiClient.get('teachers/students/');
     const data = response.data;
     return Array.isArray(data) ? data : (data.students || []);
   },

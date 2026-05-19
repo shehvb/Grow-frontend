@@ -187,7 +187,7 @@ const StudentLoginForm: FC = () => {
     try {
       const login = useAuthStore.getState().login;
       // Note: The backend schema expects "email" and "password".
-      await login({ email: studentId, password });
+      await login({ email: studentId.trim().toLowerCase(), password });
 
       const user = useAuthStore.getState().user;
 
