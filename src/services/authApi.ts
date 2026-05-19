@@ -13,13 +13,13 @@ export const authApi = {
     return response.data;
   },
 
-  teacherLogin: async (credentials: any): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('teachers/auth/login/', credentials);
+  teacherLogin: async (credentials: any): Promise<any> => {
+    const response = await apiClient.post<any>('teachers/auth/login/', credentials);
     return response.data;
   },
 
-  teacherSignup: async (userData: any): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('teachers/auth/signup/', userData);
+  teacherSignup: async (userData: any): Promise<any> => {
+    const response = await apiClient.post<any>('teachers/auth/signup/', userData);
     return response.data;
   },
 
