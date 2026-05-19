@@ -1,5 +1,5 @@
 import { create } from "zustand";
-
+import apiClient from "../services/apiClient";
 export interface Message {
   id: string;
   role: "user" | "assistant";
@@ -102,24 +102,43 @@ export const useAIStore = create<AIStore>((set, get) => ({
       )
     }));
 
-    // Generate mock AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: `I've received your message: "${content}". How can I help you further with this topic?`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
+    // Call the real AI API
+    apiClient.post('/ai/chat/', { message: content })
+      .then(response => {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: response.data.reply || "I'm sorry, I didn't get a response.",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
 
-      set((state) => ({
-        chats: state.chats.map(chat => 
-          chat.id === activeChatId 
-            ? { ...chat, messages: [...chat.messages, aiResponse] }
-            : chat
-        )
-      }));
-      
-      responseCallback(aiResponse);
-    }, 1000);
+        set((state) => ({
+          chats: state.chats.map(chat => 
+            chat.id === activeChatId 
+              ? { ...chat, messages: [...chat.messages, aiResponse] }
+              : chat
+          )
+        }));
+        
+        responseCallback(aiResponse);
+      })
+      .catch(error => {
+        console.error("AI Chat error:", error);
+        const errorResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Sorry, I'm having trouble connecting right now. Please try again later.",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+
+        set((state) => ({
+          chats: state.chats.map(chat => 
+            chat.id === activeChatId 
+              ? { ...chat, messages: [...chat.messages, errorResponse] }
+              : chat
+          )
+        }));
+        responseCallback(errorResponse);
+      });
   }
 }));

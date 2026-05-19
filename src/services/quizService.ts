@@ -28,27 +28,27 @@ export const quizService = {
 
   // Teacher Endpoints
   getTeacherQuizById: async (id: string | number): Promise<any> => {
-    const response = await apiClient.get(`teacher/quizzes/${id}/`);
+    const response = await apiClient.get(`teachers/quizzes/${id}/`);
     return response.data;
   },
 
   getTeacherQuizzes: async (): Promise<any[]> => {
-    const response = await apiClient.get('teacher/quizzes/');
+    const response = await apiClient.get('teachers/quizzes/');
     return response.data;
   },
 
   createQuiz: async (data: any): Promise<any> => {
-    const response = await apiClient.post('teacher/quizzes/create/', data);
+    const response = await apiClient.post('teachers/quizzes/create/', data);
     return response.data;
   },
 
   updateQuiz: async (id: string | number, data: any): Promise<any> => {
-    const response = await apiClient.put(`teacher/quizzes/${id}/update/`, data);
+    const response = await apiClient.put(`teachers/quizzes/${id}/update/`, data);
     return response.data;
   },
 
   getQuizResults: async (quizId: string | number): Promise<QuizResultDetail[]> => {
-    const response = await apiClient.get(`teacher/quizzes/${quizId}/results/`);
+    const response = await apiClient.get(`teachers/quizzes/${quizId}/results/`);
     return response.data;
   }
 };

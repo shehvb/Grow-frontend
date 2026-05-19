@@ -21,7 +21,7 @@ const GrowLogo: FC = () => (
 
 const LoginAdmin: FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -30,8 +30,17 @@ const LoginAdmin: FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email.trim() || !password) {
-      toast.error("Please enter your email and password");
+    const trimmedUsername = username.trim();
+
+    if (!trimmedUsername || !password) {
+      toast.error("Please enter your username and password");
+      return;
+    }
+
+    // Username regex: Alphanumeric and underscores, dots, dashes, plus, or @, 3 to 150 characters
+    const usernameRegex = /^[\w.@+-]{3,150}$/;
+    if (!usernameRegex.test(trimmedUsername)) {
+      toast.error("Username must be 3-150 characters long and can only contain letters, numbers, underscores, dots, dashes, plus, or @ signs.");
       return;
     }
 
@@ -39,7 +48,7 @@ const LoginAdmin: FC = () => {
 
     try {
       const login = useAuthStore.getState().login;
-      await login({ email, password });
+      await login({ username: trimmedUsername, password, role: 'school_admin' });
 
       const user = useAuthStore.getState().user;
 
@@ -88,13 +97,13 @@ const LoginAdmin: FC = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-black font-bold text-sm mb-2">
-                Email Address
+                Username
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@school.edu"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
                 className="w-full px-4 py-3.5 rounded-lg border-none bg-[#f3f4f6] text-black placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#3b82f6] transition-all"
               />
             </div>

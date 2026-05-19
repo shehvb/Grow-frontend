@@ -19,30 +19,30 @@ export interface Assignment {
 
 export const assignmentService = {
   listAssignments: async (): Promise<Assignment[]> => {
-    const response = await apiClient.get('teacher/assignments/');
+    const response = await apiClient.get('teachers/assignments/');
     return response.data;
   },
 
   createAssignment: async (data: FormData): Promise<Assignment> => {
-    const response = await apiClient.post('teacher/assignments/create/', data, {
+    const response = await apiClient.post('teachers/assignments/create/', data, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   },
 
   updateAssignment: async (id: number, data: FormData): Promise<Assignment> => {
-    const response = await apiClient.put(`teacher/assignments/${id}/update/`, data, {
+    const response = await apiClient.put(`teachers/assignments/${id}/update/`, data, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   },
 
   deleteAssignment: async (id: number): Promise<void> => {
-    await apiClient.delete(`teacher/assignments/${id}/`);
+    await apiClient.delete(`teachers/assignments/${id}/`);
   },
 
   getSubmissions: async (assignmentId: number): Promise<any> => {
-    const response = await apiClient.get(`teacher/assignments/${assignmentId}/results/`);
+    const response = await apiClient.get(`teachers/assignments/${assignmentId}/results/`);
     return response.data;
   },
 
@@ -52,7 +52,7 @@ export const assignmentService = {
       raw_score: scoreVal,
       feedback: data.feedback || ""
     };
-    const response = await apiClient.post(`teacher/submissions/${submissionId}/grade/`, payload);
+    const response = await apiClient.post(`teachers/submissions/${submissionId}/grade/`, payload);
     return response.data;
   },
 

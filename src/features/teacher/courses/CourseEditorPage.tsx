@@ -323,7 +323,7 @@ const CourseEditorPage: FC = () => {
             <div className="space-y-6">
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Lessons</p>
-                <p className="text-3xl font-black text-slate-800 tracking-tight">12</p>
+                <p className="text-3xl font-black text-slate-800 tracking-tight">{course?.lesson_count ?? lessons.length}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Enrolled Students</p>

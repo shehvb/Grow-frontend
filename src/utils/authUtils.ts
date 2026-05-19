@@ -34,7 +34,7 @@ export const getRefreshConfig = (
 
   if (role === 'teacher') {
     return {
-      endpoint: 'teacher/auth/refresh/',
+      endpoint: 'teachers/auth/refresh/',
       body: { refresh },
     };
   }
