@@ -139,7 +139,7 @@ export const Footer: FC = () => (
           <ul className="flex flex-col gap-4 list-none p-0 m-0">
             <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">About</a></li>
             <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">Features</a></li>
-            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">For School</a></li>
+            <li><a href="#" className="text-slate-500 hover:text-blue-600 text-sm font-medium transition-colors no-underline">For teacher</a></li>
           </ul>
         </div>
         <div>

@@ -5,6 +5,39 @@ import { quizService } from "../../services/quizService";
 import type { QuizStart, StudentQuizResult } from "../../types";
 import QuizResultScreen from "./QuizResultScreen";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+
+const choiceVariants = {
+  selected: {
+    borderColor: "#1600D5",
+    backgroundColor: "#E6E5FA",
+    scale: 1.01,
+    transition: { type: "spring" as const, stiffness: 300, damping: 20 }
+  },
+  unselected: {
+    borderColor: "rgba(226, 232, 240, 1)",
+    backgroundColor: "#F8F9FA",
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 300, damping: 20 }
+  }
+};
+
+const mapContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const mapItemVariants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { type: "spring" as const, stiffness: 200, damping: 12 }
+  }
+};
 
 const QuizPlayerPage: FC = () => {
   const { courseId, quizId } = useParams<{ courseId: string; quizId: string }>();
@@ -163,22 +196,26 @@ const QuizPlayerPage: FC = () => {
             const optionText = typeof option === 'string' ? option : (option?.text || "");
             
             return (
-              <button
+              <motion.button
                 key={idx}
                 onClick={() => handleAnswerSelect(currentQuestion.id.toString(), idx)}
-                className={`w-full p-6 space-x-5 rounded-2xl border flex items-center text-left font-black transition-all ${
-                  isSelected 
-                    ? 'border-[#1600D5] bg-[#E6E5FA]' 
-                    : 'border-slate-200 bg-[#F8F9FA] hover:border-slate-300 hover:bg-slate-50'
-                }`}
+                variants={choiceVariants}
+                animate={isSelected ? "selected" : "unselected"}
+                className="w-full p-6 space-x-5 rounded-2xl border flex items-center text-left font-black cursor-pointer"
               >
                 <div className={`w-6 h-6 rounded-full border-[3px] flex items-center justify-center shrink-0 shadow-sm ${
                   isSelected ? 'border-[#1600D5] bg-[#1600D5]' : 'border-slate-200 bg-white'
                 }`}>
-                  <div className={`w-2.5 h-2.5 rounded-full ${isSelected ? 'bg-white' : 'bg-transparent'}`}></div>
+                  {isSelected && (
+                    <motion.div 
+                      className="w-2.5 h-2.5 rounded-full bg-white"
+                      animate={{ scale: [0.8, 1.2, 1] }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  )}
                 </div>
                 <span className={`text-[15px] ${isSelected ? 'text-slate-900' : 'text-slate-800'}`}>{optionText}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -235,7 +272,12 @@ const QuizPlayerPage: FC = () => {
         {/* QUESTION MAP */}
         <div className="bg-white rounded-[24px] border border-white shadow-sm p-8 overflow-y-auto">
           <h3 className="text-[17px] font-black text-[#000000] mb-6 uppercase tracking-widest">QUESTION MAP</h3>
-          <div className="grid grid-cols-4 gap-4">
+          <motion.div 
+            className="grid grid-cols-4 gap-4"
+            variants={mapContainerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {quiz.questions.map((q, idx) => {
               const isAnswered = answers[q.id.toString()] !== undefined;
               const isCurrent = idx === currentQuestionIndex;
@@ -245,16 +287,21 @@ const QuizPlayerPage: FC = () => {
               else if (isAnswered) bgColor = "bg-[#0ED600] text-white";
 
               return (
-                <button
+                <motion.button
                   key={q.id}
                   onClick={() => setCurrentQuestionIndex(idx)}
-                  className={`w-12 h-12 rounded-[12px] font-black text-[18px] flex items-center justify-center transition-all ${bgColor}`}
+                  variants={mapItemVariants}
+                  className={`w-12 h-12 rounded-[12px] font-black text-[18px] flex items-center justify-center relative ${bgColor}`}
+                  animate={isCurrent ? {
+                    boxShadow: ["0px 0px 0px rgba(22,0,213,0)", "0px 0px 10px rgba(22,0,213,0.6)", "0px 0px 0px rgba(22,0,213,0)"]
+                  } : {}}
+                  transition={isCurrent ? { repeat: Infinity, duration: 1.5 } : {}}
                 >
                   {idx + 1}
-                </button>
+                </motion.button>
               );
             })}
-          </div>
+          </motion.div>
           
           <div className="mt-8 space-y-4">
             <div className="flex items-center gap-3 text-xs font-black text-slate-500">

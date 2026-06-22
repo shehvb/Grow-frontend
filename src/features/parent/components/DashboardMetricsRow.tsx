@@ -1,6 +1,8 @@
 import type { FC } from "react";
 import { FiTrendingUp, FiClock, FiZap } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "../../../components/ui/AnimatedNumber";
 import type { DashboardMetrics } from "../../../types/parent";
 
 interface DashboardMetricsRowProps {
@@ -19,10 +21,18 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
   const activeGpa = safeMetrics.gpa;
   const activeXp = safeMetrics.studentXp;
 
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 },
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Current GPA */}
-      <div 
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(34, 197, 94, 0.4)" }}
+        transition={{ duration: 0.2 }}
         onClick={() => navigate("/parent/analytics")}
         className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
       >
@@ -33,7 +43,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           <div>
             <p className="text-[13px] font-bold text-slate-500 mb-1">Current GPA</p>
             <p className="text-[40px] font-extrabold text-slate-900 leading-tight">
-              {activeGpa?.value || 0}
+              <AnimatedNumber value={activeGpa?.value || 0} />
             </p>
           </div>
           <div className="w-8 h-8 rounded-full bg-green-50 text-green-500 flex items-center justify-center">
@@ -47,10 +57,13 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           </span>
           <span className="text-xs text-slate-500 font-bold ml-2">{activeGpa?.trend}</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Study Hours */}
-      <div 
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.4)" }}
+        transition={{ duration: 0.2 }}
         onClick={() => navigate("/parent/analytics")}
         className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
       >
@@ -61,7 +74,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           <div>
             <p className="text-[13px] font-bold text-slate-500 mb-1">Study Hours</p>
             <p className="text-[40px] font-extrabold text-slate-900 leading-tight flex items-baseline gap-1">
-              {safeMetrics.studyHours?.value || 0} <span className="text-base font-bold text-slate-500">hrs</span>
+              <AnimatedNumber value={safeMetrics.studyHours?.value || 0} /> <span className="text-base font-bold text-slate-500">hrs</span>
             </p>
           </div>
           <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
@@ -75,10 +88,13 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           </span>
           <span className="text-xs font-semibold text-slate-400">{safeMetrics.studyHours?.trend}</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Student Xp */}
-      <div 
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.02, boxShadow: "0 10px 25px -5px rgba(217, 70, 239, 0.4)" }}
+        transition={{ duration: 0.2 }}
         onClick={() => navigate("/parent/analytics")}
         className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden min-h-[160px] cursor-pointer hover:shadow-md transition-shadow group"
       >
@@ -89,7 +105,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           <div>
             <p className="text-[13px] font-bold text-slate-500 mb-1">Student Xp</p>
             <p className="text-[40px] font-extrabold text-slate-900 leading-tight">
-              {activeXp?.value?.toLocaleString() || 0}
+              <AnimatedNumber value={activeXp?.value || 0} />
             </p>
           </div>
           <div className="w-8 h-8 rounded-full bg-fuchsia-50 text-fuchsia-500 flex items-center justify-center">
@@ -104,7 +120,7 @@ const DashboardMetricsRow: FC<DashboardMetricsRowProps> = ({ metrics = null }) =
           </span>
           <span className="text-xs font-semibold text-slate-400">{activeXp?.trend}</span>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

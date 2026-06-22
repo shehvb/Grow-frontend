@@ -3,6 +3,7 @@ import type { FC } from "react";
 import { FiDownload, FiShare2, FiLoader } from "react-icons/fi";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { motion } from "framer-motion";
 import { useParentStore } from "../../store/parentStore";
 import ReportMetricsRow from "./components/reports/ReportMetricsRow";
 import AiAnalysisBanner from "./components/reports/AiAnalysisBanner";
@@ -64,15 +65,25 @@ const ParentReportsPage: FC = () => {
 
   return (
     <div className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
-      <div className="mb-8">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="mb-8"
+      >
         <h1 className="text-[36px] font-black text-[#1A1C1E] tracking-tight mb-1 leading-none">Monthly Reports</h1>
         <p className="text-[#9E9E9E] font-bold text-[16px]">
           January 2026
         </p>
-      </div>
+      </motion.div>
 
       <div ref={reportRef} className="space-y-8 pb-10 mt-6 relative">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8"
+        >
               <div>
                 <h2 className="text-[42px] font-black text-[#1A1C1E] tracking-tighter leading-tight mb-2">Monthly Report: January 2026</h2>
                 <p className="text-[#9E9E9E] font-medium text-[16px]">
@@ -96,7 +107,7 @@ const ParentReportsPage: FC = () => {
                   {isDownloading ? 'Generating...' : 'Download Report'}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
             <ReportMetricsRow metrics={reportMetrics} />
 

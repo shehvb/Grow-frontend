@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 interface AcademicTrendPoint {
   label: string;
@@ -23,7 +24,12 @@ const AcademicTrendCard: FC<AcademicTrendCardProps> = ({
   onPeriodChange
 }) => {
   return (
-    <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex flex-col gap-6 group hover:shadow-md transition-shadow h-full pb-8 overflow-hidden relative">
+    <motion.div 
+      initial={{ y: 15, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex flex-col gap-6 group hover:shadow-md transition-shadow h-full pb-8 overflow-hidden relative"
+    >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
         <div className="space-y-1">
           <h2 className="text-xl font-black text-slate-800 tracking-tight">Overall Academic Trend</h2>
@@ -91,12 +97,12 @@ const AcademicTrendCard: FC<AcademicTrendCardProps> = ({
               strokeWidth={4} 
               fillOpacity={1} 
               fill="url(#colorGradient)" 
-              animationDuration={2000}
+              animationDuration={1500}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

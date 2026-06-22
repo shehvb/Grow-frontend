@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { FiChevronLeft, FiChevronRight, FiAlertTriangle } from "react-icons/fi";
+import { motion } from "framer-motion";
 import type { CalendarDayEvent } from "../../../../types/parent";
 
 interface ActivityCalendarProps {
@@ -66,7 +67,12 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events, currentDate, onPr
   };
 
   return (
-    <div className="bg-white rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm col-span-full lg:col-span-2 overflow-hidden">
+    <motion.div 
+      initial={{ scale: 0.98, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="bg-white rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm col-span-full lg:col-span-2 overflow-hidden"
+    >
       <div className="flex justify-between items-center mb-6 sm:mb-8">
         <div className="flex flex-col">
           <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Activity Calendar</h3>
@@ -141,7 +147,16 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events, currentDate, onPr
                     <div className="mt-auto space-y-1 w-full px-1 mb-1">
                         {dayEvents.map((ev, i) => {
                             if (ev.status === "Completed") {
-                                return <div key={i} className="h-1.5 w-full bg-[#0062FF] rounded-full" />;
+                                return (
+                                  <motion.div 
+                                    key={i} 
+                                    initial={{ scaleX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    style={{ transformOrigin: "center" }}
+                                    className="h-1.5 w-full bg-[#0062FF] rounded-full" 
+                                  />
+                                );
                             }
 
                             return null;
@@ -165,7 +180,7 @@ const ActivityCalendar: FC<ActivityCalendarProps> = ({ events, currentDate, onPr
             <span className="text-[10px] sm:text-xs font-bold text-slate-500">Missed</span>
          </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

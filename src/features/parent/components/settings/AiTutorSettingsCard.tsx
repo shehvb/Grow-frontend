@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { FiStar } from "react-icons/fi";
+import { motion } from "framer-motion";
 import type { AiTutorSettings } from "../../../../types/parent";
 
 interface AiTutorSettingsCardProps {
@@ -7,9 +8,14 @@ interface AiTutorSettingsCardProps {
   onToggle?: () => void;
 }
 
-export const AiTutorSettingsCard: FC<AiTutorSettingsCardProps> = () => {
+const AiTutorSettingsCard: FC<AiTutorSettingsCardProps> = () => {
   return (
-    <div className="rounded-[24px] p-8 border border-indigo-500 shadow-xl shadow-indigo-600/10 relative overflow-hidden bg-gradient-to-br from-[#1600D5] to-indigo-900 min-h-[300px] flex flex-col justify-between">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="rounded-[24px] p-8 border border-indigo-500 shadow-xl shadow-indigo-600/10 relative overflow-hidden bg-gradient-to-br from-[#1600D5] to-indigo-900 min-h-[300px] flex flex-col justify-between"
+    >
        {/* Background star effects */}
        <div className="absolute top-8 left-8 flex -space-x-1">
           <FiStar className="text-white w-6 h-6 fill-white" />
@@ -33,10 +39,13 @@ export const AiTutorSettingsCard: FC<AiTutorSettingsCardProps> = () => {
           </p>
        </div>
 
-       <button className="w-full bg-white hover:bg-slate-50 text-[#1600D5] font-black py-3.5 rounded-2xl transition-all shadow-md mt-auto z-10">
+       <motion.button 
+         whileTap={{ scale: 0.95 }}
+         className="w-full bg-white hover:bg-slate-50 text-[#1600D5] font-black py-3.5 rounded-2xl transition-all shadow-md mt-auto z-10"
+       >
           Manage Preferences
-       </button>
-    </div>
+       </motion.button>
+    </motion.div>
   );
 };
 

@@ -1,9 +1,35 @@
 import type { FC } from "react";
+import { motion } from "framer-motion";
 
 interface WeeklyGoalWidgetProps {
   weeklyProgress: number;
   weeklyTarget: number;
 }
+
+const ringVariants = {
+  hidden: { strokeDashoffset: 2 * Math.PI * 50 },
+  visible: (offset: number) => ({
+    strokeDashoffset: offset,
+    transition: {
+      duration: 1.5,
+      ease: [0.16, 1, 0.3, 1] as const, // easeOutExpo
+    },
+  }),
+};
+
+const textVariants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 150,
+      damping: 12,
+      delay: 0.4,
+    },
+  },
+};
 
 const WeeklyGoalWidget: FC<WeeklyGoalWidgetProps> = ({ weeklyProgress, weeklyTarget }) => {
   const percentage = Math.min((weeklyProgress / weeklyTarget) * 100, 100);
@@ -30,7 +56,7 @@ const WeeklyGoalWidget: FC<WeeklyGoalWidgetProps> = ({ weeklyProgress, weeklyTar
             strokeWidth={strokeWidth}
             fill="none"
           />
-          <circle
+          <motion.circle
             cx="60"
             cy="60"
             r={radius}
@@ -38,12 +64,21 @@ const WeeklyGoalWidget: FC<WeeklyGoalWidgetProps> = ({ weeklyProgress, weeklyTar
             strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="transition-all duration-500"
+            custom={strokeDashoffset}
+            variants={ringVariants}
+            initial="hidden"
+            animate="visible"
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold text-[#FF8000]">{Math.round(percentage)}%</span>
+          <motion.span 
+            className="text-2xl font-bold text-[#FF8000]"
+            variants={textVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {Math.round(percentage)}%
+          </motion.span>
         </div>
       </div>
       
@@ -54,3 +89,4 @@ const WeeklyGoalWidget: FC<WeeklyGoalWidgetProps> = ({ weeklyProgress, weeklyTar
 };
 
 export default WeeklyGoalWidget;
+

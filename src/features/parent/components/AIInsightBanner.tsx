@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { motion } from "framer-motion";
 
 interface AIInsightBannerProps {
   title: string;
@@ -8,7 +9,12 @@ interface AIInsightBannerProps {
 
 const AIInsightBanner: FC<AIInsightBannerProps> = ({ title, description, actionRequired }) => {
   return (
-    <div className="bg-white rounded-3xl p-5 md:p-6 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:shadow-md transition-all duration-300">
+    <motion.div 
+      initial={{ y: -30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      className="bg-white rounded-3xl p-5 md:p-6 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:shadow-md transition-all duration-300"
+    >
       <div className="absolute top-0 left-0 w-1.5 h-full bg-[#FF8000]"></div>
       
       <div className="flex items-start gap-5">
@@ -33,10 +39,14 @@ const AIInsightBanner: FC<AIInsightBannerProps> = ({ title, description, actionR
         </div>
       </div>
       
-      <button className="px-6 py-3 bg-[#FF8000] text-white rounded-xl font-black shadow-lg shadow-orange-100 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap text-sm">
+      <motion.button 
+        animate={{ boxShadow: ["0px 0px 0px rgba(255,128,0,0)", "0px 0px 15px rgba(255,128,0,0.5)", "0px 0px 0px rgba(255,128,0,0)"] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="px-6 py-3 bg-[#FF8000] text-white rounded-xl font-black hover:scale-105 flex items-center gap-2 whitespace-nowrap text-sm"
+      >
         View Practice Plan <span className="text-lg">→</span>
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 };
 

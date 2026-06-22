@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FC } from "react";
 import { FiBell } from "react-icons/fi";
+import { motion } from "framer-motion";
 import type { NotificationPreferences } from "../../../../types/parent";
 
 interface NotificationsCardProps {
@@ -32,9 +33,13 @@ const NotificationsCard: FC<NotificationsCardProps> = ({ preferences }) => {
             </div>
             <button 
               onClick={() => togglePref('emailSummaries')}
-              className={`w-14 h-8 rounded-full transition-colors relative ${prefs.emailSummaries ? "bg-[#1600D5]" : "bg-slate-300"}`}
+              className={`w-14 h-8 rounded-full transition-colors relative flex items-center px-1 ${prefs.emailSummaries ? "bg-[#1600D5] justify-end" : "bg-slate-300 justify-start"}`}
             >
-               <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-transform ${prefs.emailSummaries ? "translate-x-7" : "translate-x-1"}`} />
+               <motion.div 
+                 layout
+                 transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                 className="w-6 h-6 bg-white rounded-full shadow-sm" 
+               />
             </button>
          </div>
 
@@ -46,9 +51,13 @@ const NotificationsCard: FC<NotificationsCardProps> = ({ preferences }) => {
             </div>
             <button 
               onClick={() => togglePref('realtimeAlerts')}
-              className={`w-14 h-8 rounded-full transition-colors relative ${prefs.realtimeAlerts ? "bg-[#1600D5]" : "bg-slate-300"}`}
+              className={`w-14 h-8 rounded-full transition-colors relative flex items-center px-1 ${prefs.realtimeAlerts ? "bg-[#1600D5] justify-end" : "bg-slate-300 justify-start"}`}
             >
-               <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-transform ${prefs.realtimeAlerts ? "translate-x-7" : "translate-x-1"}`} />
+               <motion.div 
+                 layout
+                 transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                 className="w-6 h-6 bg-white rounded-full shadow-sm" 
+               />
             </button>
          </div>
 
@@ -60,9 +69,13 @@ const NotificationsCard: FC<NotificationsCardProps> = ({ preferences }) => {
             </div>
             <button 
               onClick={() => togglePref('aiRecommendations')}
-              className={`w-14 h-8 rounded-full transition-colors relative ${prefs.aiRecommendations ? "bg-[#1600D5]" : "bg-slate-400"}`}
+              className={`w-14 h-8 rounded-full transition-colors relative flex items-center px-1 ${prefs.aiRecommendations ? "bg-[#1600D5] justify-end" : "bg-slate-300 justify-start"}`}
             >
-               <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-transform ${prefs.aiRecommendations ? "translate-x-7" : "translate-x-1"}`} />
+               <motion.div 
+                 layout
+                 transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                 className="w-6 h-6 bg-white rounded-full shadow-sm" 
+               />
             </button>
          </div>
       </div>

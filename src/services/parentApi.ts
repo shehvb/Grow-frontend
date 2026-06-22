@@ -283,7 +283,8 @@ class ParentApiService {
       attendanceRate: 100,
       attendanceMetrics: MOCK_ATTENDANCE_METRICS[studentId] || MOCK_ATTENDANCE_METRICS["s1"],
       calendarEvents: MOCK_CALENDAR_EVENTS[studentId] || MOCK_CALENDAR_EVENTS["s1"],
-      actionNeeded: MOCK_ACTION_NEEDED[studentId] || MOCK_ACTION_NEEDED["s1"]
+      actionNeeded: MOCK_ACTION_NEEDED[studentId] || MOCK_ACTION_NEEDED["s1"],
+      recentActivities: []
     };
     try {
       const liveAttendance = await fetchWithAuth(`/parent/attendance/${studentId}/`);

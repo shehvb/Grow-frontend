@@ -13,7 +13,7 @@ const mainNavItems = [
   { path: "/student/dashboard", label: "Dashboard", icon: <FiPieChart /> },
   { path: "/student/courses", label: "Courses", icon: <FiBookOpen /> },
   { path: "/student/tasks", label: "Tasks", icon: <FiCheckSquare /> },
-  { path: "/student/ai-tutor", label: "AI Tour", icon: <FiCpu /> },
+  { path: "/student/ai-tutor", label: "AI Tutor", icon: <FiCpu /> },
   { path: "/student/settings", label: "Setting", icon: <FiSettings /> },
 ];
 
@@ -44,17 +44,26 @@ const AITutorLayout: FC<AITutorLayoutProps> = () => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 text-[15px] transition-colors ${isActive
-                    ? "text-[#FF8000] font-bold"
+                className={({ isActive }) => {
+                  const activeColor = item.path.includes('ai-tutor') ? 'text-[#1600d5]' : 'text-[#FF8000]';
+                  return `flex items-center gap-2 text-[15px] transition-colors ${isActive
+                    ? `${activeColor} font-bold`
                     : "text-[#94A3B8] font-bold hover:text-slate-700"
-                  }`
-                }
+                  }`;
+                }}
               >
-                <span className={`text-lg ${item.path.includes('ai-tutor') ? 'text-[#FF8000]' : ''}`}>
-                  {item.icon}
-                </span>
-                <span>{item.label}</span>
+                {({ isActive }) => (
+                  <>
+                    <span className={`text-lg ${
+                      item.path.includes('ai-tutor')
+                        ? (isActive ? 'text-[#1600d5]' : 'text-[#FF8000]')
+                        : ''
+                    }`}>
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                  </>
+                )}
               </NavLink>
             ))}
           </nav>

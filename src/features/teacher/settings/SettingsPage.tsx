@@ -8,7 +8,23 @@ import {
   FiChevronDown, 
   FiChevronRight
 } from "react-icons/fi";
+import { motion } from "framer-motion";
 import { teacherService } from "../services/teacher.service";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+  }
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } }
+};
 
 const SettingsPage: FC = () => {
   const { user } = useAuthStore();
@@ -108,18 +124,18 @@ const SettingsPage: FC = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-20">
       {/* Header Area */}
-      <div className="space-y-1">
+      <motion.div variants={sectionVariants} className="space-y-1">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight">Profile & Settings</h1>
         <p className="text-slate-400 font-medium">Account Overview</p>
-      </div>
+      </motion.div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column: Profile Info */}
         <div className="lg:w-[320px] shrink-0 space-y-6">
           {/* Profile Card */}
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
+          <motion.div variants={sectionVariants} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center">
             <div className="relative mb-6">
               <div className="w-32 h-32 rounded-full bg-[#D9D9D9]"></div>
               <button className="absolute bottom-1 right-1 w-8 h-8 bg-[#FF8000] text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:bg-orange-600 transition-colors">
@@ -130,10 +146,10 @@ const SettingsPage: FC = () => {
                {displayName}
             </h2>
             <p className="text-sm font-bold text-slate-400 capitalize">{user?.role || "Teacher"} Account</p>
-          </div>
+          </motion.div>
 
           {/* About Me Card */}
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+          <motion.div variants={sectionVariants} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-4">
             <h3 className="text-base font-black text-slate-800">About Me</h3>
             <p className="text-sm font-medium text-slate-500 leading-relaxed">
               Passionate Math teacher with 8 years of experience.
@@ -141,13 +157,13 @@ const SettingsPage: FC = () => {
             <button className="text-[#FF8000] text-sm font-bold flex items-center gap-1 hover:text-orange-600 transition-colors pt-4">
               Update bio <FiChevronRight />
             </button>
-          </div>
+          </motion.div>
         </div>
 
         {/* Right Column: Settings */}
         <div className="flex-1 space-y-6">
           {/* Account Settings Form */}
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
+          <motion.div variants={sectionVariants} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="w-8 h-8 rounded-full bg-orange-100 text-[#FF8000] flex items-center justify-center">
                 <FiUser />
@@ -222,10 +238,10 @@ const SettingsPage: FC = () => {
                 Save Changes
               </button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Learning Preferences */}
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
+          <motion.div variants={sectionVariants} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-8">
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-3 border-b border-slate-100 pb-4">
               <div className="w-8 h-8 rounded-full bg-orange-100 text-[#FF8000] flex items-center justify-center">
                 <FiSliders />
@@ -242,9 +258,9 @@ const SettingsPage: FC = () => {
                 </div>
                 <button 
                   onClick={() => handleTogglePreference('emailNotifications')}
-                  className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.emailNotifications ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+                  className={`w-14 h-7 rounded-full p-1 transition-colors flex ${preferences.emailNotifications ? 'bg-[#FF8000] justify-end' : 'bg-slate-300 justify-start'}`}
                 >
-                  <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.emailNotifications ? 'translate-x-7' : 'translate-x-0'}`} />
+                  <motion.div layout transition={{ type: "spring", stiffness: 500, damping: 30 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
                 </button>
               </div>
 
@@ -256,9 +272,9 @@ const SettingsPage: FC = () => {
                 </div>
                 <button 
                   onClick={() => handleTogglePreference('missingAssignments')}
-                  className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.missingAssignments ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+                  className={`w-14 h-7 rounded-full p-1 transition-colors flex ${preferences.missingAssignments ? 'bg-[#FF8000] justify-end' : 'bg-slate-300 justify-start'}`}
                 >
-                  <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.missingAssignments ? 'translate-x-7' : 'translate-x-0'}`} />
+                  <motion.div layout transition={{ type: "spring", stiffness: 500, damping: 30 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
                 </button>
               </div>
 
@@ -270,17 +286,17 @@ const SettingsPage: FC = () => {
                 </div>
                 <button 
                   onClick={() => handleTogglePreference('newSubmissions')}
-                  className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${preferences.newSubmissions ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+                  className={`w-14 h-7 rounded-full p-1 transition-colors flex ${preferences.newSubmissions ? 'bg-[#FF8000] justify-end' : 'bg-slate-300 justify-start'}`}
                 >
-                  <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${preferences.newSubmissions ? 'translate-x-7' : 'translate-x-0'}`} />
+                  <motion.div layout transition={{ type: "spring", stiffness: 500, damping: 30 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

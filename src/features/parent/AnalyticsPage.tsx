@@ -6,9 +6,10 @@ import AcademicTrendCard from "./components/AcademicTrendCard";
 import AnalyticsMetricCard from "./components/AnalyticsMetricCard";
 import SubjectBreakdownCard from "./components/SubjectBreakdownCard";
 import { FiClock, FiArrowRight, FiAlertTriangle } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 const AnalyticsPage: FC = () => {
-  const { dashboardSummary, selectedStudentId, fetchAnalytics } = useParentStore();
+  const { dashboardSummary, selectedStudentId, fetchAnalytics, students } = useParentStore();
   const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
 
   useEffect(() => {
@@ -28,6 +29,9 @@ const AnalyticsPage: FC = () => {
   const { analyticsData } = dashboardSummary;
   const trendData = period === "weekly" ? analyticsData.weeklyTrend : analyticsData.monthlyTrend;
 
+  const currentStudent = students.find(s => String(s.id) === String(selectedStudentId));
+  const studentName = currentStudent ? currentStudent.name : (dashboardSummary.student?.name || "Student");
+
   return (
     <div className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
       {/* Header */}
@@ -35,7 +39,7 @@ const AnalyticsPage: FC = () => {
         <div>
           <h1 className="text-4xl font-extrabold text-[#0F172A] tracking-tight">Student Analytics</h1>
           <p className="text-slate-400 font-medium text-base mt-1">
-            Detailed performance breakdown for <span className="text-[#1600D5] font-extrabold">{dashboardSummary.student.name}</span>.
+            Detailed performance breakdown for <span className="text-[#1600D5] font-extrabold">{studentName}</span>.
           </p>
         </div>
       </div>
@@ -58,7 +62,12 @@ const AnalyticsPage: FC = () => {
             onPeriodChange={setPeriod}
           />
         </div>
-        <div className="lg:col-span-1 grid grid-cols-1 gap-6">
+        <motion.div 
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="lg:col-span-1 grid grid-cols-1 gap-6"
+        >
           <AnalyticsMetricCard 
             title="Total Study Hours"
             value={analyticsData.totalStudyHours.hours}
@@ -92,7 +101,7 @@ const AnalyticsPage: FC = () => {
           </div>
 
 
-        </div>
+        </motion.div>
       </div>
 
       {/* Subject Breakdown Section */}
@@ -104,7 +113,16 @@ const AnalyticsPage: FC = () => {
            </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          variants={{
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+        >
           {analyticsData.subjectBreakdown.map((subject) => (
              <SubjectBreakdownCard 
                 key={subject.id}
@@ -115,7 +133,7 @@ const AnalyticsPage: FC = () => {
                 upcomingEvent={subject.upcomingEvent}
              />
           ))}
-        </div>
+        </motion.div>
       </section>
     </div>
   );

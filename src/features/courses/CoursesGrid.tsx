@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Course } from "../../types";
+import { motion } from "framer-motion";
 
 interface CoursesGridProps {
   courses: Course[];
@@ -57,21 +58,59 @@ const COMPLETED_STYLE = {
   barFill: 'bg-[#43A047]'
 };
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+};
+
 const CoursesGrid: FC<CoursesGridProps> = ({ courses }) => {
   const navigate = useNavigate();
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {courses.map((course) => {
         const isCompleted = course.progress === 100;
         const style = isCompleted ? COMPLETED_STYLE : getCourseStyle(course.id);
         return (
-          <div 
+          <motion.div 
             key={course.id} 
             onClick={() => navigate(`/student/courses/${course.id}`)}
-            className="relative bg-white rounded-xl p-8 shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[280px] hover:shadow-md transition-shadow cursor-pointer group w-full"
+            className="relative bg-white rounded-xl p-8 shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[280px] cursor-pointer group w-full"
+            variants={cardVariants}
+            whileHover={{ 
+              scale: 1.02, 
+              y: -4,
+              boxShadow: "0 10px 20px rgba(0, 0, 0, 0.06)"
+            }}
           >
             {/* Top Right Shape */}
-            <div className={`absolute -top-6 -right-6 w-32 h-32 rounded-full ${style.shapeColor} group-hover:scale-110 transition-transform`}></div>
+            <motion.div 
+              className={`absolute -top-6 -right-6 w-32 h-32 rounded-full ${style.shapeColor}`}
+              whileHover={{ scale: 1.1, rotate: 12 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            />
 
             <div className="flex-1 relative z-10">
               {/* Top Left Icon */}
@@ -103,11 +142,12 @@ const CoursesGrid: FC<CoursesGridProps> = ({ courses }) => {
                 <div className={`h-full rounded-full ${style.barFill} transition-all duration-1000`} style={{ width: `${course.progress}%` }}></div>
               </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 };
 
 export default CoursesGrid;
+

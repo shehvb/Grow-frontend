@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { motion } from "framer-motion";
 
 import DashboardMetricsRow from "./components/DashboardMetricsRow";
 import UpcomingScheduleList from "./components/UpcomingScheduleList";
@@ -50,18 +51,43 @@ const ParentDashboardPage: FC = () => {
   const recentActivities = dashboardSummary?.recentActivities || [];
   const topSubjects = dashboardSummary?.topSubjects || [];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.05,
+      },
+    },
+  };
+
+  const headerVariants = {
+    hidden: { y: 15, opacity: 0 },
+    show: { 
+      y: 0, 
+      opacity: 1, 
+      transition: { duration: 0.5, ease: "easeOut" as const } 
+    },
+  };
+
   return (
-    <div className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6">
+    <motion.div 
+      className="w-full space-y-8 pb-10 mt-6 relative px-4 sm:px-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
+        <motion.div variants={headerVariants}>
           <h1 className="text-4xl font-extrabold text-[#0F172A] tracking-tight">
             Welcome back, {parentName}
           </h1>
           <p className="text-slate-500 font-medium mt-2">
             Here is {firstName}'s learning summary for this week.
           </p>
-        </div>
+        </motion.div>
       </div>
 
       <DashboardMetricsRow metrics={metrics} />
@@ -76,7 +102,7 @@ const ParentDashboardPage: FC = () => {
           <DashboardSubjectsList subjects={topSubjects} />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

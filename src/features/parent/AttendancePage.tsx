@@ -3,6 +3,7 @@ import type { FC } from "react";
 import { FiDownload, FiCalendar, FiLoader } from "react-icons/fi";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { motion } from "framer-motion";
 import { useParentStore } from "../../store/parentStore";
 import AttendanceMetricsRow from "./components/attendance/AttendanceMetricsRow";
 import ActivityCalendar from "./components/attendance/ActivityCalendar";
@@ -64,7 +65,12 @@ const AttendancePage: FC = () => {
   };
 
   return (
-    <div className="w-full space-y-8 pb-10 mt-2 sm:mt-6 relative px-4 sm:px-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="w-full space-y-8 pb-10 mt-2 sm:mt-6 relative px-4 sm:px-6"
+    >
       <div className="mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight">Attendance & Activity</h1>
         <p className="text-slate-500 font-medium text-sm sm:text-base mt-1">
@@ -86,10 +92,11 @@ const AttendancePage: FC = () => {
               <button className="flex-1 sm:flex-none px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all text-slate-700 text-sm">
                 <FiCalendar /> This Month
               </button>
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
                 onClick={handleDownloadReport}
                 disabled={isDownloading}
-                className="flex-1 sm:flex-none px-6 py-3 bg-[#0062FF] text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-md text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                className="flex-1 sm:flex-none px-6 py-3 bg-[#0062FF] text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-md text-sm disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isDownloading ? (
                   <FiLoader className="w-5 h-5 animate-spin" />
@@ -97,7 +104,7 @@ const AttendancePage: FC = () => {
                   <FiDownload />
                 )}
                 {isDownloading ? 'Generating...' : 'Download Report'}
-              </button>
+              </motion.button>
             </div>
           </div>
 
@@ -123,7 +130,7 @@ const AttendancePage: FC = () => {
             </div>
           </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

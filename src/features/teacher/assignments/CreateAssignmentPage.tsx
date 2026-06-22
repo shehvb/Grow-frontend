@@ -7,9 +7,25 @@ import {
   FiZap,
   FiChevronDown
 } from "react-icons/fi";
+import { motion } from "framer-motion";
 import { useAssignmentStore } from "../../../store/useAssignmentStore";
 import { useCourseStore } from "../../../store/useCourseStore";
 import { toast } from "react-hot-toast";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+  }
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } }
+};
 
 const CreateAssignmentPage: FC = () => {
   const { id } = useParams();
@@ -83,19 +99,19 @@ const CreateAssignmentPage: FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-20">
       {/* Header Area */}
-      <div className="space-y-2">
+      <motion.div variants={sectionVariants} className="space-y-2">
         <Link to="/teacher/assignments" className="flex items-center text-slate-800 font-black text-2xl hover:text-blue-600 transition-colors w-fit">
           <FiArrowLeft className="mr-3 text-xl" />
           {isEditMode ? "Edit Assignment" : "Create New Assignment"}
         </Link>
         <p className="text-slate-400 font-medium ml-9">Set up a new assignment for your students</p>
-      </div>
+      </motion.div>
 
       <div className="max-w-4xl space-y-6">
         {/* Assignment Details Form */}
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+        <motion.div variants={sectionVariants} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
           <h3 className="text-lg font-black text-slate-800">Assignment Details</h3>
           
           <div className="space-y-2">
@@ -146,10 +162,10 @@ const CreateAssignmentPage: FC = () => {
               className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm font-bold focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none transition-all text-slate-400 uppercase tracking-wider"
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* File Upload section */}
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+        <motion.div variants={sectionVariants} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
           <h3 className="text-lg font-black text-slate-800">Resources</h3>
           
           <div 
@@ -172,10 +188,10 @@ const CreateAssignmentPage: FC = () => {
               onChange={e => setAttachment(e.target.files?.[0] || null)}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* XP Rewards */}
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+        <motion.div variants={sectionVariants} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
           <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
             <FiZap className="text-orange-500 fill-orange-500" />
             XP Rewards & Marks
@@ -217,10 +233,10 @@ const CreateAssignmentPage: FC = () => {
               Students will earn up to <span className="text-[#FF8000] font-black">{formData.rewardXp} XP</span> for completing this assignment on time.
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4 pt-4">
+        <motion.div variants={sectionVariants} className="flex items-center gap-4 pt-4">
           <button 
             onClick={handleSave}
             disabled={isLoading}
@@ -234,9 +250,9 @@ const CreateAssignmentPage: FC = () => {
           >
             Cancel
           </button>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

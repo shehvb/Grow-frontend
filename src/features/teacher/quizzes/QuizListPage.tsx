@@ -9,9 +9,71 @@ import {
   FiBookOpen,
   FiLoader
 } from "react-icons/fi";
+import { motion } from "framer-motion";
 import { quizService } from "../../../services/quizService";
 import { courseService } from "../../../services/courseService";
 import type { Course } from "../../../types/course";
+import { useCountUp } from "../hooks/useCountUp";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
+};
+
+const kpiContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const kpiCardVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+const listContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+// ─── Animated Progress Bar ───────────────────────────────────────────────────
+
+const ProgressBar: FC<{ progress: number; color: string }> = ({ progress, color }) => (
+  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
+    <motion.div
+      className={`h-full rounded-full ${color}`}
+      initial={{ width: "0%" }}
+      animate={{ width: `${progress}%` }}
+      transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1], delay: 0.2 }}
+    />
+  </div>
+);
+
+// ─── KPI Card with count-up ──────────────────────────────────────────────────
+
+const KPICard: FC<{ label: string; value: number; icon: React.ReactNode; iconBg: string; iconColor: string; suffix?: string }> = (
+  { label, value, icon, iconBg, iconColor, suffix = "" }
+) => {
+  const display = useCountUp(value, { suffix });
+  return (
+    <motion.div
+      variants={kpiCardVariants}
+      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{label}</span>
+        <div className={`w-8 h-8 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center`}>{icon}</div>
+      </div>
+      <motion.span className="text-4xl font-black text-slate-800 tracking-tight">{display}</motion.span>
+    </motion.div>
+  );
+};
 
 
 const QuizListPage: FC = () => {
@@ -47,7 +109,7 @@ const QuizListPage: FC = () => {
   const totalXp = quizzes.reduce((acc, q) => acc + q.xp, 0);
 
   return (
-    <div className="space-y-8 animate-fade-in pb-10">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -64,47 +126,12 @@ const QuizListPage: FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Total Quizzes</span>
-            <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-500 flex items-center justify-center">
-              <span className="font-black text-[10px]">A+</span>
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800">{quizzes.length}</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Active Quizzes</span>
-            <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-              <FiClock />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800">{activeQuizzes}</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Avg Score</span>
-            <div className="w-8 h-8 rounded-lg bg-green-100 text-green-500 flex items-center justify-center">
-              <FiTrendingUp />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800">{avgScore}%</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Total XP</span>
-            <div className="w-8 h-8 rounded-lg bg-pink-100 text-pink-500 flex items-center justify-center">
-              <FiZap className="fill-pink-500" />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800">{totalXp.toLocaleString()}</span>
-        </div>
-      </div>
+      <motion.div variants={kpiContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard label="Total Quizzes" value={quizzes.length} icon={<span className="font-black text-[10px]">A+</span>} iconBg="bg-orange-100" iconColor="text-orange-500" />
+        <KPICard label="Active Quizzes" value={activeQuizzes} icon={<FiClock />} iconBg="bg-purple-100" iconColor="text-purple-600" />
+        <KPICard label="Avg Score" value={avgScore} icon={<FiTrendingUp />} iconBg="bg-green-100" iconColor="text-green-500" suffix="%" />
+        <KPICard label="Total XP" value={totalXp} icon={<FiZap className="fill-pink-500" />} iconBg="bg-pink-100" iconColor="text-pink-500" />
+      </motion.div>
 
       {/* Quizzes List */}
       <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[400px]">
@@ -125,14 +152,16 @@ const QuizListPage: FC = () => {
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <motion.div variants={listContainerVariants} initial="hidden" animate="visible" className="space-y-4">
             {quizzes.map(quiz => {
               const completionRate = quiz.total_students ? Math.round((quiz.completed_count / quiz.total_students) * 100) : 0;
               const isActive = !quiz.is_locked;
               
               return (
-                <div 
+                <motion.div 
                   key={quiz.id} 
+                  variants={rowVariants}
+                  whileHover={{ y: -4, boxShadow: "0 12px 24px -8px rgba(0,0,0,0.12)" }}
                   className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 overflow-hidden group hover:border-slate-200 transition-colors"
                 >
                   {/* Vertical Indicator */}
@@ -162,12 +191,7 @@ const QuizListPage: FC = () => {
                     </div>
                     
                     <div className="flex-1">
-                      <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
-                        <div 
-                          className={`h-full rounded-full ${isActive ? 'bg-orange-500' : 'bg-slate-400'}`} 
-                          style={{ width: `${completionRate}%` }} 
-                        />
-                      </div>
+                      <ProgressBar progress={completionRate} color={isActive ? 'bg-orange-500' : 'bg-slate-400'} />
                       <div className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                         {completionRate}% completion
                       </div>
@@ -188,13 +212,13 @@ const QuizListPage: FC = () => {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

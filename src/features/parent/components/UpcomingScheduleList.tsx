@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { FiChevronRight } from "react-icons/fi";
+import { motion } from "framer-motion";
 import type { UpcomingScheduleEvent } from "../../../types/parent";
 
 interface UpcomingScheduleListProps {
@@ -26,8 +27,29 @@ const UpcomingScheduleList: FC<UpcomingScheduleListProps> = ({ schedule }) => {
     }
   };
 
+  const containerVariants = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const rowVariants = {
+    hidden: { y: 10, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
+  const badgeVariants = {
+    hidden: { scale: 0 },
+    show: { scale: 1, transition: { type: "spring" as const, stiffness: 300, damping: 20 } }
+  };
+
   return (
-    <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 p-6">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true }}
+      className="bg-white rounded-[24px] shadow-sm border border-slate-100 p-6"
+    >
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-extrabold text-slate-900">Upcoming Schedule</h3>
         <Link 
@@ -56,23 +78,30 @@ const UpcomingScheduleList: FC<UpcomingScheduleListProps> = ({ schedule }) => {
             </thead>
             <tbody>
               {events.map((event) => (
-                <tr key={event.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                <motion.tr 
+                  variants={rowVariants}
+                  key={event.id} 
+                  className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors"
+                >
                   <td className="py-4 text-[13px] font-medium text-slate-500">{event.date}</td>
                   <td className="py-4 text-[13px] font-bold text-slate-700">{event.subject}</td>
                   <td className="py-4 text-[13px] font-medium text-slate-500">{event.type}</td>
                   <td className="py-4 text-[13px] font-medium text-slate-600">{event.title}</td>
                   <td className="py-4 text-right">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${getStatusStyles(event.status)}`}>
+                    <motion.span 
+                      variants={badgeVariants}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${getStatusStyles(event.status)}`}
+                    >
                       {event.status}
-                    </span>
+                    </motion.span>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

@@ -28,7 +28,7 @@ const StudentSelector: FC = () => {
         </div>
         <div className="text-left flex-1">
           <p className="font-bold text-slate-800 text-sm">
-            {currentStudent.name} <span className="font-normal text-slate-500">(Grade {currentStudent.gradeLevel})</span>
+            {currentStudent.name} <span className="font-normal text-slate-500">( {currentStudent.gradeLevel})</span>
           </p>
         </div>
         <FiChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -59,7 +59,7 @@ const StudentSelector: FC = () => {
               </div>
               <div>
                 <p className="font-bold text-slate-800 text-sm">{student.name}</p>
-                <p className="text-xs text-slate-500">Grade {student.gradeLevel}</p>
+                <p className="text-xs text-slate-500"> {student.gradeLevel}</p>
               </div>
             </button>
           ))}

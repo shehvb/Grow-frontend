@@ -1,11 +1,38 @@
+import { useState } from "react";
 import type { FC } from "react";
 import { FiUser, FiCheckCircle } from "react-icons/fi";
+import { motion } from "framer-motion";
 import type { ParentProfile } from "../../../../types/parent";
 import { useAuthStore } from "../../../../store/authStore";
 
 interface MyProfileCardProps {
   profile: ParentProfile;
 }
+
+const AnimatedInput = ({ label, defaultValue, type = "text" }: { label: string, defaultValue: string, type?: string }) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <div>
+       <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">{label}</label>
+       <div className="relative">
+         <motion.div 
+           initial={{ opacity: 0 }}
+           animate={{ opacity: isFocused ? 1 : 0 }}
+           transition={{ duration: 0.2 }}
+           className="absolute inset-0 rounded-xl border-2 border-[#1600D5] shadow-[0_0_15px_rgba(22,0,213,0.3)] pointer-events-none"
+         />
+         <input 
+           type={type} 
+           className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none relative bg-transparent z-10" 
+           defaultValue={defaultValue} 
+           onFocus={() => setIsFocused(true)}
+           onBlur={() => setIsFocused(false)}
+         />
+       </div>
+    </div>
+  );
+};
 
 const MyProfileCard: FC<MyProfileCardProps> = ({ profile }) => {
   const { user } = useAuthStore();
@@ -31,15 +58,8 @@ const MyProfileCard: FC<MyProfileCardProps> = ({ profile }) => {
          </div>
 
          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
-            <div>
-               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
-               <input type="text" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={displayName} />
-            </div>
-            <div>
-               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
-               <input type="email" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-bold focus:outline-none focus:border-[#0062FF]" defaultValue={user?.email || profile.email} />
-            </div>
-
+            <AnimatedInput label="Full Name" defaultValue={displayName} />
+            <AnimatedInput label="Email Address" type="email" defaultValue={user?.email || profile.email} />
          </div>
       </div>
     </div>

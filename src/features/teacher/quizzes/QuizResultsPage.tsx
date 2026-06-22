@@ -12,7 +12,56 @@ import {
   FiMessageSquare
 } from "react-icons/fi";
 import { BsFilter } from "react-icons/bs";
+import { motion } from "framer-motion";
 import { quizService } from "../../../services/quizService";
+import { useCountUp } from "../hooks/useCountUp";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
+};
+
+const kpiContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const kpiCardVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+const listContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as any } },
+};
+
+// ─── KPI Card with count-up ──────────────────────────────────────────────────
+
+const KPIStat: FC<{ label: string; value: number; icon: React.ReactNode; iconBg: string; iconColor: string; suffix?: string }> = (
+  { label, value, icon, iconBg, iconColor, suffix = "" }
+) => {
+  const display = useCountUp(value, { suffix });
+  return (
+    <motion.div
+      variants={kpiCardVariants}
+      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"
+    >
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">{label}</p>
+        <motion.span className="text-3xl font-black text-slate-800">{display}</motion.span>
+      </div>
+      <div className={`w-10 h-10 rounded-xl ${iconBg} ${iconColor} flex items-center justify-center`}>{icon}</div>
+    </motion.div>
+  );
+};
 
 interface UIMappedResult {
   id: string;
@@ -108,7 +157,7 @@ const QuizResultsPage: FC = () => {
   const totalXp = results.reduce((sum, r) => sum + r.xpEarned, 0);
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-20">
       {/* Header Area */}
       <div className="flex items-start justify-between">
         <div className="space-y-3">
@@ -144,47 +193,12 @@ const QuizResultsPage: FC = () => {
       </div>
 
       {/* KPI Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Average Score</p>
-            <span className="text-3xl font-black text-slate-800">{avgScore}%</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center">
-            <FiTrendingUp className="text-xl stroke-[3]" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Completion Rate</p>
-            <span className="text-3xl font-black text-slate-800">{completionRate}%</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-            <FiCheckCircle className="text-xl stroke-[3]" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">{results.length}</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center">
-            <FiUsers className="text-xl" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total XP Earned</p>
-            <span className="text-3xl font-black text-slate-800">{totalXp}</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
-            <FiZap className="text-xl fill-orange-500" />
-          </div>
-        </div>
-      </div>
+      <motion.div variants={kpiContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPIStat label="Average Score" value={avgScore} icon={<FiTrendingUp className="text-xl stroke-[3]" />} iconBg="bg-green-50" iconColor="text-green-500" suffix="%" />
+        <KPIStat label="Completion Rate" value={completionRate} icon={<FiCheckCircle className="text-xl stroke-[3]" />} iconBg="bg-blue-50" iconColor="text-blue-500" suffix="%" />
+        <KPIStat label="Total Students" value={results.length} icon={<FiUsers className="text-xl" />} iconBg="bg-pink-50" iconColor="text-pink-500" />
+        <KPIStat label="Total XP Earned" value={totalXp} icon={<FiZap className="text-xl fill-orange-500" />} iconBg="bg-orange-50" iconColor="text-orange-500" />
+      </motion.div>
 
       {/* Student Results Table */}
       <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
@@ -202,7 +216,11 @@ const QuizResultsPage: FC = () => {
                 <th className="pb-4 text-right pr-4">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <motion.tbody
+              variants={listContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-slate-500 font-medium">Loading results...</td>
@@ -218,7 +236,11 @@ const QuizResultsPage: FC = () => {
                 const scoreColor = result.score >= 80 ? 'text-green-500' : result.score > 0 ? 'text-red-500' : 'text-slate-800';
                 
                 return (
-                  <tr key={result.id} className={`${isTopPerformer ? 'bg-green-50/50' : 'bg-transparent'} ${idx !== filteredResults.length - 1 ? 'border-b border-slate-50' : ''}`}>
+                  <motion.tr 
+                    key={result.id} 
+                    variants={rowVariants}
+                    className={`${isTopPerformer ? 'bg-green-50/50' : 'bg-transparent'} ${idx !== filteredResults.length - 1 ? 'border-b border-slate-50' : ''}`}
+                  >
                     <td className="py-4 pl-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[#FF8000] text-white flex items-center justify-center font-black tracking-widest text-sm shrink-0">
@@ -227,9 +249,14 @@ const QuizResultsPage: FC = () => {
                         <div>
                           <h4 className="text-sm font-black text-slate-800">{result.studentName}</h4>
                           {isTopPerformer && (
-                            <p className="text-[9px] font-bold text-green-500 flex items-center gap-1 uppercase tracking-wider mt-0.5">
+                            <motion.p 
+                              initial={{ scale: 0.8 }}
+                              animate={{ scale: [0.8, 1.06, 1] }}
+                              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                              className="text-[9px] font-bold text-green-500 flex items-center gap-1 uppercase tracking-wider mt-0.5"
+                            >
                               ⭐ Top Performer
-                            </p>
+                            </motion.p>
                           )}
                         </div>
                       </div>
@@ -257,14 +284,14 @@ const QuizResultsPage: FC = () => {
                         Message
                       </button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 );
               })}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

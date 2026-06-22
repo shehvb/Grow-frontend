@@ -88,7 +88,7 @@ export const MOCK_ANALYTICS: Record<string, AnalyticsData> = {
     totalStudyHours: {
       hours: 12,
       minutes: 45,
-      changeLabel: "+2h vs last month"
+      changeLabel: "+20m vs last month"
     },
     assignmentsCompleted: {
       count: 15,

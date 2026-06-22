@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { FC } from "react";
 import { FiSave } from "react-icons/fi";
+import { motion } from "framer-motion";
 import { useParentStore } from "../../store/parentStore";
 import MyProfileCard from "./components/settings/MyProfileCard";
 import LinkedStudentsCard from "./components/settings/LinkedStudentsCard";
@@ -43,7 +44,12 @@ const SettingsPage: FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
          {/* Left Column (Main) */}
-         <div className="xl:col-span-2 space-y-8">
+         <motion.div 
+           initial={{ y: 10, opacity: 0 }}
+           animate={{ y: 0, opacity: 1 }}
+           transition={{ duration: 0.5, ease: "easeOut" }}
+           className="xl:col-span-2 space-y-8"
+         >
             {parentProfile && (
                <MyProfileCard profile={parentProfile} />
             )}
@@ -51,10 +57,15 @@ const SettingsPage: FC = () => {
             {linkedStudents && (
                <LinkedStudentsCard students={linkedStudents} />
             )}
-         </div>
+         </motion.div>
 
          {/* Right Column (Sidebar equivalent) */}
-         <div className="xl:col-span-1 space-y-8">
+         <motion.div 
+           initial={{ y: 10, opacity: 0 }}
+           animate={{ y: 0, opacity: 1 }}
+           transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+           className="xl:col-span-1 space-y-8"
+         >
             {notificationPrefs && (
                <NotificationsCard preferences={notificationPrefs} />
             )}
@@ -62,7 +73,7 @@ const SettingsPage: FC = () => {
             {aiTutorSettings && (
                <AiTutorSettingsCard settings={aiTutorSettings} />
             )}
-         </div>
+         </motion.div>
       </div>
     </div>
   );

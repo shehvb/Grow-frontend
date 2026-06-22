@@ -10,6 +10,55 @@ import {
   FiMessageSquare,
   FiUser
 } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { useCountUp } from "../hooks/useCountUp";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
+};
+
+const kpiContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const kpiCardVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+const listContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+// ─── KPI Card with count-up ──────────────────────────────────────────────────
+
+const KPIStat: FC<{ label: string; value: number; icon: React.ReactNode; iconBg: string; iconColor: string; suffix?: string }> = (
+  { label, value, icon, iconBg, iconColor, suffix = "" }
+) => {
+  const display = useCountUp(value, { suffix });
+  return (
+    <motion.div
+      variants={kpiCardVariants}
+      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"
+    >
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">{label}</p>
+        <motion.span className="text-3xl font-black text-slate-800">{display}</motion.span>
+      </div>
+      <div className={`w-10 h-10 rounded-xl ${iconBg} ${iconColor} flex items-center justify-center`}>{icon}</div>
+    </motion.div>
+  );
+};
 
 const StudentsPage: FC = () => {
   const [students, setStudents] = useState<any[]>([]);
@@ -101,7 +150,7 @@ const StudentsPage: FC = () => {
     : students.filter(s => s.status === 'Needs Attention').length;
 
   return (
-    <div className="space-y-8 animate-fade-in pb-10">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-10">
       {/* Header Area */}
       <div className="space-y-1">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight">View & Manage Students</h1>
@@ -112,47 +161,12 @@ const StudentsPage: FC = () => {
       </div>
 
       {/* KPI Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Avg Performance</p>
-            <span className="text-3xl font-black text-slate-800">{avgPerformance}%</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-green-100 text-green-500 flex items-center justify-center">
-            <FiTrendingUp className="text-xl stroke-[3]" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Avg Attendance</p>
-            <span className="text-3xl font-black text-slate-800">{avgAttendance}%</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-500 flex items-center justify-center">
-            <FiCheckCircle className="text-xl stroke-[3]" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">{totalStudents}</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-pink-100 text-pink-500 flex items-center justify-center">
-            <FiUsers className="text-xl" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-800 mb-1">Need Attention</p>
-            <span className="text-3xl font-black text-slate-800">{needsAttentionCount}</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-red-100 text-red-500 flex items-center justify-center">
-            <FiAlertCircle className="text-xl stroke-[3]" />
-          </div>
-        </div>
-      </div>
+      <motion.div variants={kpiContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPIStat label="Avg Performance" value={avgPerformance} icon={<FiTrendingUp className="text-xl stroke-[3]" />} iconBg="bg-green-100" iconColor="text-green-500" suffix="%" />
+        <KPIStat label="Avg Attendance" value={avgAttendance} icon={<FiCheckCircle className="text-xl stroke-[3]" />} iconBg="bg-blue-100" iconColor="text-blue-500" suffix="%" />
+        <KPIStat label="Total Students" value={totalStudents} icon={<FiUsers className="text-xl" />} iconBg="bg-pink-100" iconColor="text-pink-500" />
+        <KPIStat label="Need Attention" value={needsAttentionCount} icon={<FiAlertCircle className="text-xl stroke-[3]" />} iconBg="bg-red-100" iconColor="text-red-500" />
+      </motion.div>
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -184,7 +198,7 @@ const StudentsPage: FC = () => {
 
       {/* Students List */}
       <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <div className="space-y-4">
+        <motion.div variants={listContainerVariants} initial="hidden" animate="visible" className="space-y-4">
           {filteredStudents.length > 0 ? (
             filteredStudents.map((student) => {
               const initials = student.name ? student.name.split(' ').map((n: string) => n[0]).join('') : "??";
@@ -199,8 +213,9 @@ const StudentsPage: FC = () => {
               };
 
               return (
-                <div 
+                <motion.div 
                   key={student.id} 
+                  variants={rowVariants}
                   className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors"
                 >
                   <div className="flex items-center gap-5 w-full xl:w-auto">
@@ -243,7 +258,7 @@ const StudentsPage: FC = () => {
                       Message
                     </button>
                   </div>
-                </div>
+                </motion.div>
               );
             })
           ) : (
@@ -258,9 +273,9 @@ const StudentsPage: FC = () => {
               </button>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -11,8 +11,70 @@ import {
   FiEdit3,
   FiTrash2
 } from "react-icons/fi";
+import { motion } from "framer-motion";
 import { useAssignmentStore } from "../../../store/useAssignmentStore";
 import { toast } from "react-hot-toast";
+import { useCountUp } from "../hooks/useCountUp";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
+};
+
+const kpiContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+};
+
+const kpiCardVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+const listContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+// ─── Animated Progress Bar ───────────────────────────────────────────────────
+
+const ProgressBar: FC<{ progress: number; color: string }> = ({ progress, color }) => (
+  <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+    <motion.div
+      className={`h-full rounded-full ${color}`}
+      initial={{ width: "0%" }}
+      animate={{ width: `${progress}%` }}
+      transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1], delay: 0.2 }}
+    />
+  </div>
+);
+
+// ─── KPI Card with count-up ──────────────────────────────────────────────────
+
+const KPICard: FC<{ label: string; value: number; icon: React.ReactNode; iconBg: string; iconColor: string }> = (
+  { label, value, icon, iconBg, iconColor }
+) => {
+  const display = useCountUp(value);
+  return (
+    <motion.div
+      variants={kpiCardVariants}
+      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{label}</span>
+        <div className={`w-8 h-8 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center`}>{icon}</div>
+      </div>
+      <motion.span className="text-4xl font-black text-slate-800 tracking-tight">{display}</motion.span>
+    </motion.div>
+  );
+};
 
 const AssignmentListPage: FC = () => {
   const navigate = useNavigate();
@@ -39,7 +101,7 @@ const AssignmentListPage: FC = () => {
   const pendingReview = 0;
 
   return (
-    <div className="space-y-8 animate-fade-in pb-10">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -56,51 +118,16 @@ const AssignmentListPage: FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Total Assignments</span>
-            <div className="w-8 h-8 rounded-lg bg-[#FFEAD1] text-[#FF8000] flex items-center justify-center">
-              <FiCheckSquare className="text-sm" />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">{totalAssignments}</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Active</span>
-            <div className="w-8 h-8 rounded-lg bg-[#E2E1FF] text-[#1600D5] flex items-center justify-center">
-              <FiClock className="text-sm" />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">{activeAssignments}</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Pending Review</span>
-            <div className="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-500 flex items-center justify-center">
-              <FiUsers className="text-sm" />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">{pendingReview}</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Completed</span>
-            <div className="w-8 h-8 rounded-lg bg-green-100 text-green-500 flex items-center justify-center">
-              <FiCheckCircle className="text-sm" />
-            </div>
-          </div>
-          <span className="text-4xl font-black text-slate-800 tracking-tight">{completedAssignments}</span>
-        </div>
-      </div>
+      <motion.div variants={kpiContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <KPICard label="Total Assignments" value={totalAssignments} icon={<FiCheckSquare className="text-sm" />} iconBg="bg-[#FFEAD1]" iconColor="text-[#FF8000]" />
+        <KPICard label="Active" value={activeAssignments} icon={<FiClock className="text-sm" />} iconBg="bg-[#E2E1FF]" iconColor="text-[#1600D5]" />
+        <KPICard label="Pending Review" value={pendingReview} icon={<FiUsers className="text-sm" />} iconBg="bg-yellow-100" iconColor="text-yellow-500" />
+        <KPICard label="Completed" value={completedAssignments} icon={<FiCheckCircle className="text-sm" />} iconBg="bg-green-100" iconColor="text-green-500" />
+      </motion.div>
 
       {/* Assignments List */}
       <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <div className="space-y-4">
+        <motion.div variants={listContainerVariants} initial="hidden" animate="visible" className="space-y-4">
           {isLoading && assignments.length === 0 ? (
             <div className="text-center py-10 text-slate-400 font-bold">Loading assignments...</div>
           ) : assignments.length === 0 ? (
@@ -111,12 +138,13 @@ const AssignmentListPage: FC = () => {
             const status = isCompleted ? 'Completed' : 'Active';
             const isActive = status === 'Active';
             const submissions = assignment.submissions || 0;
-            const totalStudents = assignment.totalStudents || Math.max(submissions, 1); // prevent divide by 0 and overflow
+            const totalStudents = assignment.totalStudents || Math.max(submissions, 1);
             const progress = Math.round((submissions / totalStudents) * 100);
             
             return (
-              <div 
-                key={assignment.id} 
+              <motion.div 
+                key={assignment.id}
+                variants={rowVariants}
                 className={`relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 overflow-hidden group hover:border-slate-200 transition-colors`}
               >
                 {/* Status indicator line */}
@@ -141,12 +169,7 @@ const AssignmentListPage: FC = () => {
                       <p className="text-[8px] font-black text-slate-400 uppercase mt-0.5">Submissions</p>
                     </div>
                     <div className="flex-1 flex flex-col items-center gap-1.5">
-                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${isActive ? 'bg-[#FF8000]' : 'bg-green-500'}`} 
-                          style={{ width: `${progress}%` }} 
-                        />
-                      </div>
+                      <ProgressBar progress={progress} color={isActive ? 'bg-[#FF8000]' : 'bg-green-500'} />
                       <span className="text-[10px] font-bold text-slate-800">{progress}%</span>
                     </div>
                   </div>
@@ -177,12 +200,12 @@ const AssignmentListPage: FC = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

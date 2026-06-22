@@ -1,6 +1,8 @@
 import type { FC } from "react";
 import { FiTrendingUp, FiTrendingDown, FiBookOpen, FiLayers, FiArchive } from "react-icons/fi";
 import { IoWarning } from "react-icons/io5";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "../../../components/ui/AnimatedNumber";
 
 const getSubjectConfig = (name: string, grade: number) => {
   const lowerName = name.toLowerCase();
@@ -68,8 +70,17 @@ const SubjectBreakdownCard: FC<SubjectBreakdownCardProps> = ({
   // Randomize a small percentage change if backend returns 0, just to match the visual variety in the mockup
   const displayChange = percentageChange !== 0 ? percentageChange : (grade >= 90 ? 2 : grade >= 80 ? 5 : -4);
 
+  const itemVariants = {
+    hidden: { x: -20, opacity: 0 },
+    show: { x: 0, opacity: 1, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className={`bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden transition-all ${statusConfig.text === 'Needs attention' ? 'border-l-4 border-l-orange-500' : ''}`}>
+    <motion.div 
+      variants={itemVariants}
+      whileHover={{ y: -6, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+      className={`bg-white rounded-[24px] p-6 shadow-sm border border-slate-100 flex flex-col relative overflow-hidden transition-colors ${statusConfig.text === 'Needs attention' ? 'border-l-4 border-l-orange-500' : ''}`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center ${config.iconBg} ${config.iconColor}`}>
@@ -83,8 +94,8 @@ const SubjectBreakdownCard: FC<SubjectBreakdownCardProps> = ({
       </div>
 
       <div className="mt-5 flex items-end gap-2">
-        <span className="text-[42px] font-black text-[#0F172A] leading-none tracking-tighter">
-          {Math.round(grade)}%
+        <span className="text-[42px] font-black text-[#0F172A] leading-none tracking-tighter tabular-nums">
+          <AnimatedNumber value={Math.round(grade)} />%
         </span>
         <div className={`flex items-center gap-0.5 text-xs font-black mb-1.5 ${displayChange >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
             {displayChange >= 0 ? <FiTrendingUp className="w-3.5 h-3.5" /> : <FiTrendingDown className="w-3.5 h-3.5" />}
@@ -102,7 +113,7 @@ const SubjectBreakdownCard: FC<SubjectBreakdownCardProps> = ({
         <span className="text-[13px] font-bold text-slate-400 tracking-tight">{eventConfig.name}</span>
         <span className={`text-[13px] font-bold tracking-tight ${eventConfig.rightColor}`}>{eventConfig.right}</span>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

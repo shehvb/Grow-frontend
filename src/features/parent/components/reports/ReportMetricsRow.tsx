@@ -1,5 +1,7 @@
 import type { FC } from "react";
 import { FiClock, FiFileText, FiCalendar, FiAlertTriangle } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "../../../../components/ui/AnimatedNumber";
 import type { ReportMetrics } from "../../../../types/parent";
 
 interface ReportMetricsRowProps {
@@ -18,7 +20,15 @@ const ReportMetricsRow: FC<ReportMetricsRowProps> = ({ metrics }) => {
           <span className="text-[14px] font-bold text-[#9E9E9E] tracking-tight">Overall Average</span>
         </div>
         <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-[44px] font-black text-[#1A1C1E] tracking-tighter leading-none">{metrics.overallAverage.percentage}%</span>
+          <motion.span 
+            initial={{ scale: 0.5, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="text-[44px] font-black text-[#1A1C1E] tracking-tighter leading-none inline-block origin-center tabular-nums"
+          >
+            <AnimatedNumber value={metrics.overallAverage.percentage} />%
+          </motion.span>
           <span className="text-[20px] font-extrabold text-[#9E9E9E]">{metrics.overallAverage.grade}</span>
         </div>
         <div className="mt-4 flex items-center">
@@ -38,7 +48,15 @@ const ReportMetricsRow: FC<ReportMetricsRowProps> = ({ metrics }) => {
           <span className="text-[14px] font-bold text-[#9E9E9E] tracking-tight">Assignments</span>
         </div>
         <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-[44px] font-black text-[#1A1C1E] tracking-tighter leading-none">{metrics.assignments.total}</span>
+          <motion.span 
+            initial={{ scale: 0.5, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+            viewport={{ once: true }}
+            className="text-[44px] font-black text-[#1A1C1E] tracking-tighter leading-none inline-block origin-center tabular-nums"
+          >
+            <AnimatedNumber value={metrics.assignments.total} />
+          </motion.span>
           <span className="text-[18px] font-extrabold text-[#9E9E9E]">Days</span>
         </div>
         <div className="flex items-center gap-2 mt-4 text-orange-500 font-extrabold text-[13px] tracking-tight">
@@ -55,7 +73,15 @@ const ReportMetricsRow: FC<ReportMetricsRowProps> = ({ metrics }) => {
           <span className="text-[14px] font-bold text-[#9E9E9E] tracking-tight">Attendance</span>
         </div>
         <div className="mt-1 flex items-baseline">
-          <span className="text-[44px] font-black text-[#1A1C1E] tracking-tighter leading-none">{metrics.attendance.percentage}%</span>
+          <motion.span 
+            initial={{ scale: 0.5, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-[44px] font-black text-[#1A1C1E] tracking-tighter leading-none inline-block origin-center tabular-nums"
+          >
+            <AnimatedNumber value={metrics.attendance.percentage} />%
+          </motion.span>
         </div>
         <div className="mt-4">
           <p className="text-[13px] text-[#9E9E9E] font-bold tracking-tight leading-snug">

@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { BsStars, BsLightbulb } from "react-icons/bs";
+import { motion } from "framer-motion";
 import type { AiLearningAnalysis } from "../../../../types/parent";
 import BrainImage from "../../../../assets/image.png";
 
@@ -9,7 +10,14 @@ interface AiAnalysisBannerProps {
 
 const AiAnalysisBanner: FC<AiAnalysisBannerProps> = ({ data }) => {
   return (
-    <div className="bg-[#F5F3FF] border border-dashed border-[#C7D2FE] rounded-[16px] p-8 relative overflow-hidden mb-8">
+    <motion.div 
+      initial={{ scaleY: 0.95, opacity: 0 }}
+      whileInView={{ scaleY: 1, opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      style={{ transformOrigin: "top" }}
+      viewport={{ once: true }}
+      className="bg-[#F5F3FF] border border-dashed border-[#C7D2FE] rounded-[16px] p-8 relative overflow-hidden mb-8"
+    >
       {/* Decorative Image */}
       <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-100 hidden md:block">
         <img src={BrainImage} alt="AI Analysis" className="w-48 h-auto object-contain" />
@@ -43,7 +51,7 @@ const AiAnalysisBanner: FC<AiAnalysisBannerProps> = ({ data }) => {
 
         {/* Bottom Section */}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

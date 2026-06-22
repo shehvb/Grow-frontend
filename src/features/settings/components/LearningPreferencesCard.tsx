@@ -2,10 +2,17 @@ import { useState } from "react";
 import type { FC } from "react";
 import { FiSliders } from "react-icons/fi";
 import type { StudentLearningPreferences } from "../../../types/parent";
+import { motion } from "framer-motion";
 
 interface LearningPreferencesCardProps {
   preferences: StudentLearningPreferences;
 }
+
+const toggleSpring = {
+  type: "spring" as const,
+  stiffness: 500,
+  damping: 30
+};
 
 const LearningPreferencesCard: FC<LearningPreferencesCardProps> = ({ preferences }) => {
   const [prefs, setPrefs] = useState(preferences);
@@ -32,9 +39,13 @@ const LearningPreferencesCard: FC<LearningPreferencesCardProps> = ({ preferences
           </div>
           <button 
             onClick={() => togglePref('emailNotifications')}
-            className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${prefs.emailNotifications ? 'bg-[#1600D5]' : 'bg-slate-200'}`}
+            className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out flex items-center ${prefs.emailNotifications ? 'bg-[#1600D5]' : 'bg-slate-200'}`}
           >
-            <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${prefs.emailNotifications ? 'translate-x-7' : 'translate-x-0'}`} />
+            <motion.div 
+              layout
+              transition={toggleSpring}
+              className={`w-5 h-5 bg-white rounded-full ${prefs.emailNotifications ? 'ml-auto' : 'mr-auto'}`} 
+            />
           </button>
         </div>
 
@@ -46,9 +57,13 @@ const LearningPreferencesCard: FC<LearningPreferencesCardProps> = ({ preferences
           </div>
           <button 
             onClick={() => togglePref('aiProactivity')}
-            className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${prefs.aiProactivity ? 'bg-[#1600D5]' : 'bg-slate-200'}`}
+            className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out flex items-center ${prefs.aiProactivity ? 'bg-[#1600D5]' : 'bg-slate-200'}`}
           >
-            <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out ${prefs.aiProactivity ? 'translate-x-7' : 'translate-x-0'}`} />
+            <motion.div 
+              layout
+              transition={toggleSpring}
+              className={`w-5 h-5 bg-white rounded-full ${prefs.aiProactivity ? 'ml-auto' : 'mr-auto'}`} 
+            />
           </button>
         </div>
 

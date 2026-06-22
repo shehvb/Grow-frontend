@@ -1,4 +1,6 @@
 import type { FC, ReactNode } from "react";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "../../../components/ui/AnimatedNumber";
 
 interface AnalyticsMetricCardProps {
   title: string;
@@ -44,7 +46,9 @@ const AnalyticsMetricCard: FC<AnalyticsMetricCardProps> = ({
       <div className="space-y-1 relative z-10">
         <h3 className="text-lg font-bold text-slate-500">{title}</h3>
         <div className="flex items-baseline gap-2">
-           <span className="text-4xl font-black text-[#0F172A] tracking-tighter tabular-nums leading-none">{value}</span>
+           <span className="text-4xl font-black text-[#0F172A] tracking-tighter tabular-nums leading-none">
+             {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
+           </span>
            {subtitle && <span className="text-lg font-bold text-slate-400">{subtitle}</span>}
         </div>
         {changeLabel && (
@@ -55,10 +59,12 @@ const AnalyticsMetricCard: FC<AnalyticsMetricCardProps> = ({
       {progressPercentage !== undefined && (
         <div className="mt-8 relative z-10 space-y-3">
           <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
-             <div 
-                className={`h-full rounded-full transition-all duration-1000 ${progressColor}`} 
-                style={{ width: `${progressPercentage}%` }}
-             ></div>
+             <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercentage}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className={`h-full rounded-full ${progressColor}`} 
+             />
           </div>
           {progressPercentage === 100 && (
              <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest text-center">COMPLETED</p>

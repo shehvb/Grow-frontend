@@ -18,7 +18,7 @@ const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName, user }
 
       <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-8">
         {/* Full Name */}
-        <div className="relative">
+        <div className="relative focus-within:ring-2 focus-within:ring-[#1600D5]/20 rounded-xl transition-all duration-200">
           <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Full Name</label>
           <input 
             type="text" 
@@ -28,7 +28,7 @@ const AccountSettingsCard: FC<AccountSettingsCardProps> = ({ studentName, user }
         </div>
 
         {/* Email Address */}
-        <div className="relative">
+        <div className="relative focus-within:ring-2 focus-within:ring-[#1600D5]/20 rounded-xl transition-all duration-200">
           <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 z-10">Email Address</label>
           <input 
             type="text" 

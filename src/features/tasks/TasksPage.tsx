@@ -2,6 +2,48 @@ import { useState, useEffect } from "react";
 import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStudentStore } from "../../store/useStudentStore";
+import { motion } from "framer-motion";
+
+const listVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
+const taskItemVariants = {
+  hidden: { y: -15, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 120,
+      damping: 15
+    }
+  }
+};
+
+const shakeVariants = {
+  hidden: { y: -15, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    rotate: [0, -3, 3, -2, 2, 0],
+    transition: {
+      rotate: {
+        delay: 0.3,
+        duration: 0.5,
+        ease: "easeInOut" as const
+      },
+      y: { type: "spring" as const, stiffness: 120, damping: 15 },
+      opacity: { duration: 0.2 }
+    }
+  }
+};
 
 const TasksPage: FC = () => {
   const navigate = useNavigate();
@@ -102,12 +144,22 @@ const TasksPage: FC = () => {
               <span className="px-2 py-0.5 bg-[#FFF0E0] text-[#FF8000] border border-[#FFD9B3] rounded font-bold text-[10px] tracking-wider uppercase">CRITICAL</span>
             </div>
             
-            <div className="space-y-4">
+            <motion.div 
+              className="space-y-4"
+              variants={listVariants}
+              initial="hidden"
+              animate="visible"
+            >
               {overdueTasks.length === 0 ? (
                 <p className="text-slate-500 text-sm">No past due tasks.</p>
               ) : (
                 overdueTasks.slice(0, 1).map(task => (
-                  <div key={task.id} onClick={() => handleTaskClick(task)} className="relative flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:bg-slate-50 transition-colors gap-4">
+                  <motion.div 
+                    key={task.id} 
+                    onClick={() => handleTaskClick(task)} 
+                    variants={shakeVariants}
+                    className="relative flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden cursor-pointer hover:bg-slate-50 transition-colors gap-4"
+                  >
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#FF8000]"></div>
                     
                     <div className="flex items-start gap-3 sm:gap-4 ml-1 sm:ml-2">
@@ -144,10 +196,10 @@ const TasksPage: FC = () => {
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* Today's Missions Section */}
@@ -157,12 +209,22 @@ const TasksPage: FC = () => {
               <span className="text-slate-400 font-bold text-xs sm:text-sm">Monday, June 12</span>
             </div>
             
-            <div className="space-y-4">
+            <motion.div 
+              className="space-y-4"
+              variants={listVariants}
+              initial="hidden"
+              animate="visible"
+            >
               {todayTasks.length === 0 ? (
                 <p className="text-slate-500 text-sm">No tasks for today.</p>
               ) : (
                 todayTasks.map(task => (
-                  <div key={task.id} onClick={() => handleTaskClick(task)} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors gap-4">
+                  <motion.div 
+                    key={task.id} 
+                    onClick={() => handleTaskClick(task)} 
+                    variants={taskItemVariants}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors gap-4"
+                  >
                     <div className="flex items-start gap-3 sm:gap-4 ml-1 sm:ml-2">
                       <div className="mt-1 shrink-0">
                         {task.checked && task.isBlue ? (
@@ -202,10 +264,10 @@ const TasksPage: FC = () => {
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               )}
-            </div>
+            </motion.div>
           </div>
         </div>
       )}

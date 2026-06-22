@@ -11,7 +11,71 @@ import {
   FiClock
 } from "react-icons/fi";
 import { BsFilter } from "react-icons/bs";
+import { motion, AnimatePresence } from "framer-motion";
 import { assignmentService } from "../../../services/assignmentService";
+import { useCountUp } from "../hooks/useCountUp";
+
+// ─── Variant Dictionaries ────────────────────────────────────────────────────
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as any } },
+};
+
+const kpiCardVariants = {
+  hidden: { opacity: 0, y: 10, scale: 0.97 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0, scale: 1,
+    transition: { duration: 0.35, ease: "easeOut" as any, delay: i * 0.07 },
+  }),
+};
+
+const rowContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, y: -12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as any } },
+};
+
+const gradingPanelVariants = {
+  hidden: { height: 0, opacity: 0 },
+  visible: {
+    height: "auto",
+    opacity: 1,
+    transition: { height: { type: "spring" as any, stiffness: 300, damping: 30 }, opacity: { duration: 0.25, delay: 0.05 } },
+  },
+  exit: {
+    height: 0,
+    opacity: 0,
+    transition: { height: { duration: 0.22 }, opacity: { duration: 0.15 } },
+  },
+};
+
+// ─── KPI Card with count-up ──────────────────────────────────────────────────
+
+const KPIStat: FC<{ label: string; value: number; icon: React.ReactNode; iconBg: string; iconColor: string; index: number }> = (
+  { label, value, icon, iconBg, iconColor, index }
+) => {
+  const display = useCountUp(value, { delay: index * 0.07 });
+  return (
+    <motion.div
+      custom={index}
+      variants={kpiCardVariants}
+      initial="hidden"
+      animate="visible"
+      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between"
+    >
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">{label}</p>
+        <motion.span className="text-3xl font-black text-slate-800">{display}</motion.span>
+      </div>
+      <div className={`w-8 h-8 rounded-lg ${iconBg} ${iconColor} flex items-center justify-center`}>{icon}</div>
+    </motion.div>
+  );
+};
 
 interface UIMappedSubmission {
   id: string;
@@ -161,7 +225,7 @@ const ReviewSubmissionsPage: FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <motion.div variants={pageVariants} initial="hidden" animate="visible" className="space-y-8 pb-20">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-2">
@@ -190,52 +254,22 @@ const ReviewSubmissionsPage: FC = () => {
 
       {/* KPI Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Total Students</p>
-            <span className="text-3xl font-black text-slate-800">{summary.total_students}</span>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-400 flex items-center justify-center">
-            <FiCheckSquare />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Submitted</p>
-            <span className="text-3xl font-black text-slate-800">{summary.submitted}</span>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-green-50 text-green-500 flex items-center justify-center">
-            <FiCheckCircle />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Scored</p>
-            <span className="text-3xl font-black text-slate-800">{summary.scored}</span>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-pink-50 text-pink-500 flex items-center justify-center">
-            <FiAward />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">Missing</p>
-            <span className="text-3xl font-black text-slate-800">{summary.missing}</span>
-          </div>
-          <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
-            <FiXCircle />
-          </div>
-        </div>
+        <KPIStat label="Total Students" value={summary.total_students} icon={<FiCheckSquare />} iconBg="bg-orange-50" iconColor="text-orange-400" index={0} />
+        <KPIStat label="Submitted" value={summary.submitted} icon={<FiCheckCircle />} iconBg="bg-green-50" iconColor="text-green-500" index={1} />
+        <KPIStat label="Scored" value={summary.scored} icon={<FiAward />} iconBg="bg-pink-50" iconColor="text-pink-500" index={2} />
+        <KPIStat label="Missing" value={summary.missing} icon={<FiXCircle />} iconBg="bg-red-50" iconColor="text-red-500" index={3} />
       </div>
 
       {/* Submissions List */}
       <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
         <h3 className="text-lg font-black text-slate-800">Student Submissions</h3>
         
-        <div className="space-y-6">
+        <motion.div
+          variants={rowContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-6"
+        >
           {loading ? (
             <p className="text-slate-500 font-medium">Loading submissions...</p>
           ) : filteredSubmissions.length === 0 ? (
@@ -244,7 +278,7 @@ const ReviewSubmissionsPage: FC = () => {
             const initials = sub.studentName ? sub.studentName.split(' ').map(n => n[0]).join('') : '?';
             
             return (
-              <div key={sub.id} className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 lg:p-8">
+              <motion.div key={sub.id} variants={rowVariants} className="bg-slate-50 border border-slate-100 rounded-[2rem] p-6 lg:p-8">
                 {/* Header */}
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-[#FF8000] text-white flex items-center justify-center font-black tracking-widest text-lg shrink-0">
@@ -253,13 +287,22 @@ const ReviewSubmissionsPage: FC = () => {
                   <div>
                     <div className="flex flex-wrap items-center gap-3 mb-1">
                       <h4 className="text-base font-black text-slate-800">{sub.studentName}</h4>
-                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                        sub.status === 'Submitted' ? 'bg-blue-100 text-blue-600' :
-                        sub.status === 'Graded' ? 'bg-green-100 text-green-600' :
-                        'bg-red-100 text-red-500'
-                      }`}>
-                        {sub.status}
-                      </span>
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={sub.status}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: [0.8, 1.06, 1], opacity: 1 }}
+                          exit={{ scale: 0.8, opacity: 0 }}
+                          transition={{ type: "spring" as any, stiffness: 400, damping: 20 }}
+                          className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                            sub.status === 'Submitted' ? 'bg-blue-100 text-blue-600' :
+                            sub.status === 'Graded' ? 'bg-green-100 text-green-600' :
+                            'bg-red-100 text-red-500'
+                          }`}
+                        >
+                          {sub.status}
+                        </motion.span>
+                      </AnimatePresence>
                     </div>
                     <p className="text-xs font-bold text-slate-400">{sub.class}</p>
                   </div>
@@ -291,69 +334,88 @@ const ReviewSubmissionsPage: FC = () => {
                   </div>
                 )}
 
-                {/* Grading Area */}
-                {sub.status === 'Submitted' && (
-                  <div className="bg-white rounded-3xl p-6 border border-slate-100 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Score(%)</label>
-                        <input 
-                          type="number" 
-                          placeholder="0-100"
-                          value={gradingState[sub.id]?.grade || ""}
-                          onChange={(e) => handleGradeChange(sub.id, 'grade', e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none focus:border-orange-400"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Xp Awarded</label>
-                        <input 
-                          type="number" 
-                          placeholder="150"
-                          value={gradingState[sub.id]?.xp || ""}
-                          onChange={(e) => handleGradeChange(sub.id, 'xp', e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none focus:border-orange-400"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Feedback</label>
-                      <textarea 
-                        rows={3}
-                        placeholder="provide feedback to the student..."
-                        value={gradingState[sub.id]?.feedback || ""}
-                        onChange={(e) => handleGradeChange(sub.id, 'feedback', e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none focus:border-orange-400 resize-none"
-                      />
-                    </div>
-                    <button 
-                      onClick={() => submitGrade(sub.id)}
-                      className="px-6 py-3 bg-[#FF8000] text-white font-black rounded-xl hover:bg-orange-600 transition-all text-xs shadow-lg shadow-orange-100 uppercase tracking-wider"
+                {/* Grading Area — spring accordion */}
+                <AnimatePresence>
+                  {sub.status === 'Submitted' && (
+                    <motion.div
+                      key="grading-panel"
+                      variants={gradingPanelVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      style={{ overflow: "hidden" }}
                     >
-                      Submit Grade
-                    </button>
-                  </div>
-                )}
+                      <div className="bg-white rounded-3xl p-6 border border-slate-100 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Score(%)</label>
+                            <input 
+                              type="number" 
+                              placeholder="0-100"
+                              value={gradingState[sub.id]?.grade || ""}
+                              onChange={(e) => handleGradeChange(sub.id, 'grade', e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none focus:border-orange-400"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Xp Awarded</label>
+                            <input 
+                              type="number" 
+                              placeholder="150"
+                              value={gradingState[sub.id]?.xp || ""}
+                              onChange={(e) => handleGradeChange(sub.id, 'xp', e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none focus:border-orange-400"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Feedback</label>
+                          <textarea 
+                            rows={3}
+                            placeholder="provide feedback to the student..."
+                            value={gradingState[sub.id]?.feedback || ""}
+                            onChange={(e) => handleGradeChange(sub.id, 'feedback', e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none focus:border-orange-400 resize-none"
+                          />
+                        </div>
+                        <button 
+                          onClick={() => submitGrade(sub.id)}
+                          className="px-6 py-3 bg-[#FF8000] text-white font-black rounded-xl hover:bg-orange-600 transition-all text-xs shadow-lg shadow-orange-100 uppercase tracking-wider"
+                        >
+                          Submit Grade
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Graded Summary */}
-                {sub.status === 'Graded' && (
-                  <div className="bg-white rounded-3xl p-6 border border-slate-100 space-y-2">
-                    <p className="text-xs font-black text-slate-800 tracking-wider">
-                      Score: <span className="text-green-500 ml-1">{sub.grade}</span>
-                    </p>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">Feedback:</p>
-                      <p className="text-xs font-medium text-slate-500 leading-relaxed">{sub.feedback}</p>
-                    </div>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {sub.status === 'Graded' && (
+                    <motion.div
+                      key="graded-summary"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-white rounded-3xl p-6 border border-slate-100 space-y-2"
+                    >
+                      <p className="text-xs font-black text-slate-800 tracking-wider">
+                        Score: <span className="text-green-500 ml-1">{sub.grade}</span>
+                      </p>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-1">Feedback:</p>
+                        <p className="text-xs font-medium text-slate-500 leading-relaxed">{sub.feedback}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

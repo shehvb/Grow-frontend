@@ -2,11 +2,41 @@ import type { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiBookOpen } from "react-icons/fi";
 import type { StudentQuizResult } from "../../types";
+import { motion } from "framer-motion";
 
 interface QuizResultScreenProps {
   result: StudentQuizResult;
   courseId: string;
 }
+
+const medalVariants = {
+  hidden: { scale: 0, rotate: -15, opacity: 0 },
+  visible: {
+    scale: [0, 1.1, 1],
+    rotate: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 120,
+      damping: 10,
+      duration: 0.8
+    }
+  }
+};
+
+const scoreVariants = {
+  hidden: { y: 30, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 12,
+      delay: 0.5
+    }
+  }
+};
 
 const QuizResultScreen: FC<QuizResultScreenProps> = ({ result, courseId }) => {
   const navigate = useNavigate();
@@ -16,7 +46,12 @@ const QuizResultScreen: FC<QuizResultScreenProps> = ({ result, courseId }) => {
       <div className="flex flex-col items-center flex-1 text-center">
         
         {/* Medal Badge Container */}
-        <div className="w-28 h-28 rounded-full bg-[#C7C2FF] flex items-center justify-center mb-8 shadow-sm relative shrink-0 select-none">
+        <motion.div 
+          className="w-28 h-28 rounded-full bg-[#C7C2FF] flex items-center justify-center mb-8 shadow-sm relative shrink-0 select-none"
+          variants={medalVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {result.passed ? (
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#1600D5]">
               <circle cx="12" cy="8" r="7" fill="#1600D5" stroke="#1600D5" />
@@ -30,7 +65,7 @@ const QuizResultScreen: FC<QuizResultScreenProps> = ({ result, courseId }) => {
               <line x1="9" y1="9" x2="15" y2="15" stroke="#EF4444" strokeWidth="2.5" />
             </svg>
           )}
-        </div>
+        </motion.div>
 
         <h1 className="text-[38px] font-black text-slate-900 tracking-tight mb-3">
           {result.passed ? "Outstanding performance!" : "Keep Practicing!"}
@@ -43,7 +78,12 @@ const QuizResultScreen: FC<QuizResultScreenProps> = ({ result, courseId }) => {
 
         <div className="flex flex-col md:flex-row gap-6 w-full mb-12">
           {/* Final Score Card */}
-          <div className="flex-1 bg-white rounded-[16px] p-8 border border-slate-100 shadow-sm flex flex-col items-center justify-center min-h-[220px]">
+          <motion.div 
+            className="flex-1 bg-white rounded-[16px] p-8 border border-slate-100 shadow-sm flex flex-col items-center justify-center min-h-[220px]"
+            variants={scoreVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">FINAL SCORE</p>
             <span className={`text-[80px] leading-none font-black tracking-tight mb-4 ${result.passed ? 'text-[#1600D5]' : 'text-red-500'}`}>
               {result.percentage}%
@@ -55,7 +95,8 @@ const QuizResultScreen: FC<QuizResultScreenProps> = ({ result, courseId }) => {
             }`}>
               {result.passed ? 'PASSED' : 'FAILED'}
             </div>
-          </div>
+          </motion.div>
+
 
           {/* Assessment Progress Card */}
           <div className="flex-[1.5] bg-white rounded-[16px] p-8 border border-slate-100 shadow-sm flex flex-col justify-center text-left min-h-[220px]">

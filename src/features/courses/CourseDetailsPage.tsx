@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCourseStore } from "../../store/useCourseStore";
 import { useLessonStore } from "../../store/useLessonStore";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FiArrowLeft,
   FiBookOpen,
@@ -278,7 +279,6 @@ const CourseDetailsPage: FC = () => {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 text-[#1600D5] text-sm font-bold tracking-wide">
               <PiGraduationCap className="text-[20px] stroke-[2.5]" />
-              Course Details
             </div>
             <h1 className="text-3xl md:text-[32px] font-black text-slate-900 tracking-tight leading-none">
               {courseTitle}
@@ -438,45 +438,68 @@ const CourseDetailsPage: FC = () => {
                 <h3 className="text-[17px] font-black text-slate-900">Course Syllabus:</h3>
 
                 <div className={`space-y-3 pr-2 ${sortedLessons.length > 4 ? "max-h-[350px] overflow-y-auto custom-scrollbar" : ""}`}>
-                  {sortedLessons.map((lesson, index) => {
-                    const status = getLessonStatus(lesson);
-                    const isSelected = selectedLesson?.id === lesson.id;
+                  <AnimatePresence initial={false}>
+                    {sortedLessons.map((lesson, index) => {
+                      const status = getLessonStatus(lesson);
+                      const isSelected = selectedLesson?.id === lesson.id;
 
-                    return (
-                      <div
-                        key={lesson.id}
-                        onClick={() => {
-                          if (status !== "locked") setSelectedLesson(lesson);
-                        }}
-                        className={`p-4 rounded-[16px] transition-all duration-200 cursor-pointer flex gap-4 items-center border border-transparent hover:border-slate-200 ${isSelected
-                            ? "bg-[#EAEBFA] shadow-sm border-blue-200"
-                            : status === "completed" || status === "in_progress"
-                              ? "bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
-                              : "bg-slate-50 opacity-80"
-                          }`}
-                      >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${status === "completed" || status === "in_progress"
-                            ? "bg-[#1600D5] text-white shadow-sm"
-                            : "bg-slate-100 text-slate-400"
-                          }`}>
-                          {status === "completed" || status === "in_progress" ? (
-                            <FiCheck className="stroke-[4] text-sm" />
-                          ) : (
-                            <FiLock className="text-sm stroke-[2.5]" />
+                      return (
+                        <motion.div
+                          key={lesson.id}
+                          layout
+                          onClick={() => {
+                            if (status !== "locked") setSelectedLesson(lesson);
+                          }}
+                          className={`p-4 rounded-[16px] transition-all duration-200 cursor-pointer flex gap-4 items-center border border-transparent hover:border-slate-200 relative overflow-hidden ${isSelected
+                              ? "bg-[#EAEBFA] shadow-sm border-blue-200"
+                              : status === "completed" || status === "in_progress"
+                                ? "bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                                : "bg-slate-50 opacity-80"
+                            }`}
+                        >
+                          {isSelected && status === "in_progress" && (
+                            <motion.div 
+                              className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"
+                              layoutId="activeLessonGlow"
+                              animate={{ opacity: [0.4, 1, 0.4] }}
+                              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                            />
                           )}
-                        </div>
 
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-[15px] font-black text-slate-900 truncate">
-                            {lesson.order || (index + 1)}. {lesson.title}
-                          </h4>
-                          <span className="text-[12px] font-medium text-slate-500 tracking-wide mt-0.5 block">
-                            {status === "completed" ? "Completed" : status === "in_progress" ? "In Progress" : "Locked"}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${status === "completed" || status === "in_progress"
+                              ? "bg-[#1600D5] text-white shadow-sm"
+                              : "bg-slate-100 text-slate-400"
+                            }`}>
+                            {status === "completed" || status === "in_progress" ? (
+                              <FiCheck className="stroke-[4] text-sm" />
+                            ) : (
+                              <FiLock className="text-sm stroke-[2.5]" />
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[15px] font-black text-slate-900 truncate">
+                              {lesson.order || (index + 1)}. {lesson.title}
+                            </h4>
+                            <motion.div 
+                              className="overflow-hidden"
+                              initial={false}
+                              animate={{ height: isSelected ? "auto" : "20px" }}
+                            >
+                              <span className="text-[12px] font-medium text-slate-500 tracking-wide mt-0.5 block">
+                                {status === "completed" ? "Completed" : status === "in_progress" ? "In Progress" : "Locked"}
+                              </span>
+                              {isSelected && lesson.content && (
+                                <p className="text-[11px] text-slate-400 font-medium mt-1 leading-normal">
+                                  {lesson.content.substring(0, 60)}...
+                                </p>
+                              )}
+                            </motion.div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
 
                   {apiLessons.length === 0 && (
                     <p className="text-sm text-slate-400 text-center font-medium py-4">No lessons added yet.</p>
@@ -517,15 +540,17 @@ const CourseDetailsPage: FC = () => {
                           <span className="text-[11px] font-bold text-slate-400 mt-0.5 block">Document</span>
                         </div>
                       </div>
-                      <a
+                      <motion.a
                         href={getMediaUrl(selectedLesson.pdf_file)}
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => setHasDownloadedFile(true)}
                         className="text-slate-400 hover:text-[#1600D5] transition-colors p-2 cursor-pointer"
+                        whileHover={{ y: [0, 4, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity }}
                       >
                         <FiDownload size={16} className="stroke-[2.5]" />
-                      </a>
+                      </motion.a>
                     </div>
                   ) : (
                     <div className="text-slate-400 text-sm font-medium">
@@ -768,7 +793,13 @@ const CourseDetailsPage: FC = () => {
                 {(selectedAssignment.submission_status === 'pending' || selectedAssignment.submission_status === 'missing' || !selectedAssignment.submission_status) ? (
                   <div className="space-y-4">
                     {/* Drag and Drop Zone */}
-                    <div className="border-2 border-dashed border-slate-300 rounded-[16px] p-10 bg-[#F8F9FA] hover:bg-slate-100/50 hover:border-slate-400 transition-all text-center flex flex-col items-center justify-center cursor-pointer relative">
+                    <motion.div 
+                      className="border-2 border-dashed border-slate-300 rounded-[16px] p-10 bg-[#F8F9FA] hover:bg-slate-100/50 transition-all text-center flex flex-col items-center justify-center cursor-pointer relative overflow-hidden"
+                      whileHover={{ 
+                        borderColor: "#1600D5",
+                        backgroundColor: "rgba(22, 0, 213, 0.02)"
+                      }}
+                    >
                       <input
                         type="file"
                         id="file-upload"
@@ -776,11 +807,16 @@ const CourseDetailsPage: FC = () => {
                         onChange={(e) => setUploadFile(e.target.files ? e.target.files[0] : null)}
                       />
                       <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center w-full h-full justify-center">
-                        <FiFileText className="text-5xl text-slate-300 mb-3" />
+                        <motion.div
+                          animate={{ y: [0, -8, 0] }}
+                          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                        >
+                          <FiFileText className="text-5xl text-slate-300 mb-3" />
+                        </motion.div>
                         <span className="text-slate-700 font-bold text-[15px]">Drag & drop your assignment here or click to upload</span>
                         <span className="text-xs text-slate-400 mt-1 font-bold">PDF, DOC, DOCX up to 5MB</span>
                       </label>
-                    </div>
+                    </motion.div>
 
                     {/* File Selected Badge */}
                     {uploadFile && (

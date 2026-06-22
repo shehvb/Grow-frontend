@@ -1,5 +1,7 @@
 import type { FC } from "react";
 import { FiTrendingUp, FiTrendingDown, FiType, FiArchive, FiMonitor, FiCpu, FiBookOpen, FiEdit3, FiAlertTriangle } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "../../../../components/ui/AnimatedNumber";
 import type { DetailedSubjectPerformance } from "../../../../types/parent";
 
 interface DetailedSubjectsGridProps {
@@ -19,15 +21,35 @@ const DetailedSubjectsGrid: FC<DetailedSubjectsGridProps> = ({ subjects }) => {
     return { icon: FiBookOpen, color: '#1600D5', bgColor: '#E2E1FF', progressColor: 'bg-[#1600D5]' };
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+    >
       {subjects.map((subject) => {
         const config = getSubjectConfig(subject.name);
         const Icon = config.icon;
         const isNegativeTrend = subject.trend < 0;
 
         return (
-          <div key={subject.id} className="bg-white rounded-[28px] p-7 border border-slate-100 shadow-[0_4px_20px_0_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_4px_25px_0_rgba(0,0,0,0.05)] flex flex-col relative group">
+          <motion.div 
+            variants={itemVariants}
+            key={subject.id} 
+            className="bg-white rounded-[28px] p-7 border border-slate-100 shadow-[0_4px_20px_0_rgba(0,0,0,0.02)] transition-colors hover:shadow-[0_4px_25px_0_rgba(0,0,0,0.05)] flex flex-col relative group"
+          >
             {/* Subject Header */}
             <div className="flex justify-between items-start mb-6">
                <div className="flex items-center gap-3">
@@ -44,7 +66,9 @@ const DetailedSubjectsGrid: FC<DetailedSubjectsGridProps> = ({ subjects }) => {
             {/* Score & Trend */}
             <div className="flex items-end justify-between mb-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-[38px] font-black text-[#1A1C1E] tracking-tighter leading-none">{subject.score}%</span>
+                <span className="text-[38px] font-black text-[#1A1C1E] tracking-tighter leading-none tabular-nums">
+                  <AnimatedNumber value={subject.score} />%
+                </span>
                 <div className={`flex items-center gap-0.5 text-[12px] font-extrabold ${isNegativeTrend ? 'text-[#FF4040]' : 'text-[#30B175]'}`}>
                    {isNegativeTrend ? <FiTrendingDown className="w-3.5 h-3.5" /> : <FiTrendingUp className="w-3.5 h-3.5" />}
                    {Math.abs(subject.trend)}%
@@ -57,9 +81,12 @@ const DetailedSubjectsGrid: FC<DetailedSubjectsGridProps> = ({ subjects }) => {
 
             {/* Thick Progress Bar */}
             <div className="w-full bg-[#F3F3F3] h-3 rounded-full overflow-hidden mb-8">
-               <div 
-                 className={`h-full ${config.progressColor} rounded-full transition-all duration-1000`} 
-                 style={{ width: `${subject.score}%` }} 
+               <motion.div 
+                 initial={{ width: 0 }}
+                 whileInView={{ width: `${subject.score}%` }}
+                 transition={{ duration: 1.2, ease: "easeOut" }}
+                 viewport={{ once: true }}
+                 className={`h-full ${config.progressColor} rounded-full`} 
                />
             </div>
 
@@ -76,10 +103,10 @@ const DetailedSubjectsGrid: FC<DetailedSubjectsGridProps> = ({ subjects }) => {
                   </span>
                </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 };
 

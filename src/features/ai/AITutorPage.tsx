@@ -2,6 +2,40 @@ import { useState, useRef, useEffect } from "react";
 import type { FC } from "react";
 import { FiPaperclip, FiMic, FiSend } from "react-icons/fi";
 import { useAIStore } from "../../store/aiStore";
+import { motion } from "framer-motion";
+
+const aiMsgVariants = {
+  hidden: { scale: 0.93, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 180,
+      damping: 18
+    }
+  }
+};
+
+const suggContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const suggItemVariants = {
+  hidden: { x: -10, opacity: 0 },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: { type: "spring" as const, stiffness: 150, damping: 15 }
+  }
+};
 
 const AITutorPage: FC = () => {
   const { chats, activeChatId, sendMessage } = useAIStore();
@@ -28,8 +62,68 @@ const AITutorPage: FC = () => {
     });
   };
 
-  // getMockResponse is now handled inside the store for simplicity, 
-  // but we could keep it here if needed for specific page logic.
+  // Helper to parse simple markdown formatting in AI responses
+  const parseBoldText = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <strong key={idx} className="font-extrabold text-[#ff8000]">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  const parseMessageContent = (text: string) => {
+    const lines = text.split("\n");
+    return lines.map((line, lineIdx) => {
+      const trimmed = line.trim();
+      
+      // 1. Check for horizontal rule/divider
+      if (trimmed === "---") {
+        return <hr key={lineIdx} className="my-4 border-slate-200" />;
+      }
+
+      // 2. Check for H3 heading
+      if (line.startsWith("### ")) {
+        const headingText = line.substring(4);
+        return (
+          <h3 key={lineIdx} className="text-base sm:text-lg font-black text-slate-900 mt-4 mb-2 tracking-tight">
+            {parseBoldText(headingText)}
+          </h3>
+        );
+      }
+
+      // 3. Check for bullet list item
+      if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
+        const match = line.match(/^(\s*)([*|-]\s+)(.*)$/);
+        const indentClass = match && match[1].length > 0 ? "ml-8" : "ml-4";
+        const bulletContent = match ? match[3] : trimmed.substring(2);
+        return (
+          <div key={lineIdx} className={`flex items-start gap-2 ${indentClass} my-1.5`}>
+            <span className="text-[#1600D5] select-none">•</span>
+            <span className="text-sm text-slate-800 leading-relaxed font-bold tracking-wide">
+              {parseBoldText(bulletContent)}
+            </span>
+          </div>
+        );
+      }
+
+      // 4. Normal paragraph (empty or with text)
+      if (trimmed === "") {
+        return <div key={lineIdx} className="h-2" />;
+      }
+
+      return (
+        <p key={lineIdx} className="text-sm text-slate-800 leading-relaxed font-bold tracking-wide my-1.5">
+          {parseBoldText(line)}
+        </p>
+      );
+    });
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F3F3F3] font-sans text-slate-800 overflow-hidden">
@@ -46,7 +140,14 @@ const AITutorPage: FC = () => {
             {messages.map((msg) => (
               msg.role === "assistant" ? (
                 /* AI Message */
-                <div key={msg.id} className="flex flex-col items-start gap-1 w-full max-w-full">
+                <motion.div 
+                  key={msg.id} 
+                  className="flex flex-col items-start gap-1 w-full max-w-full"
+                  variants={aiMsgVariants}
+                  initial="hidden"
+                  animate="visible"
+                  style={{ originX: 0, originY: 1 }}
+                >
                   <div className="flex items-center gap-2 ml-12 sm:ml-16 mb-1">
                     <span className="font-extrabold text-[#1600D5] text-sm">Grow AI</span>
                     <span className="text-[10px] text-slate-400 font-bold">{msg.timestamp}</span>
@@ -56,15 +157,22 @@ const AITutorPage: FC = () => {
                       ✨
                     </div>
                     <div className="bg-white rounded-2xl rounded-tl-sm p-4 sm:p-6 shadow-sm max-w-[80%] sm:max-w-[85%] mt-1 border border-white hover:border-blue-50 transition-colors group">
-                      <div className="font-bold text-slate-900 leading-relaxed text-sm tracking-wide whitespace-pre-wrap">
-                        {msg.content}
+                      <div className="text-slate-900 tracking-wide">
+                        {parseMessageContent(msg.content)}
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ) : (
                 /* User Message */
-                <div key={msg.id} className="flex flex-col items-end gap-1 w-full max-w-full">
+                <motion.div 
+                  key={msg.id} 
+                  className="flex flex-col items-end gap-1 w-full max-w-full"
+                  variants={aiMsgVariants}
+                  initial="hidden"
+                  animate="visible"
+                  style={{ originX: 1, originY: 1 }}
+                >
                   <div className="flex items-center gap-2 mr-12 sm:mr-16 mb-1">
                     <span className="text-[10px] text-slate-400 font-bold">{msg.timestamp}</span>
                     <span className="font-extrabold text-slate-900 text-sm">You</span>
@@ -79,7 +187,7 @@ const AITutorPage: FC = () => {
                       M
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )
             ))}
 
@@ -104,13 +212,17 @@ const AITutorPage: FC = () => {
 
         {/* Bottom Input Area - Fixed at bottom */}
         <div className="bg-white px-4 sm:px-8 py-4 sm:py-6 border-t border-slate-100 flex flex-col items-center relative shrink-0">
-          {/* Suggestions */}
           <div className={`absolute -top-14 left-0 right-0 overflow-x-auto no-scrollbar flex items-center justify-start sm:justify-center gap-3 px-4 z-20 transition-all ${messages.length > 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100'}`}>
-            <div className="flex items-center gap-3 whitespace-nowrap">
-              <button onClick={() => handleSend("Explain Chloroplasts")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Explain Chloroplasts</button>
-              <button onClick={() => handleSend("Give me an example")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Give me an example</button>
-              <button onClick={() => handleSend("Why is oxygen released?")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Why is oxygen released?</button>
-            </div>
+            <motion.div 
+              className="flex items-center gap-3 whitespace-nowrap"
+              variants={suggContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.button variants={suggItemVariants} onClick={() => handleSend("Explain Chloroplasts")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Explain Chloroplasts</motion.button>
+              <motion.button variants={suggItemVariants} onClick={() => handleSend("Give me an example")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Give me an example</motion.button>
+              <motion.button variants={suggItemVariants} onClick={() => handleSend("Why is oxygen released?")} className="px-4 py-2 rounded-full border border-[#FFD9B3] bg-[#FFF0E0] text-[#FF8000] text-[11px] font-bold shadow-sm hover:bg-[#ffe5cc] transition-colors focus:outline-none shrink-0">Why is oxygen released?</motion.button>
+            </motion.div>
           </div>
 
           <div className="w-full max-w-3xl">

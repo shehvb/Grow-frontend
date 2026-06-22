@@ -130,8 +130,8 @@ const AddStudentPage: FC = () => {
           <div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mb-8">
             <FiCheckCircle className="text-white w-12 h-12" />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 mb-3">تم ربط الطالب بنجاح!</h2>
-          <p className="text-slate-500">سيتم توجيهك إلى لوحة التحكم...</p>
+          <h2 className="text-2xl font-extrabold text-slate-900 mb-3">You have successfully linked your child!</h2>
+          <p className="text-slate-500">You will be redirected to the dashboard...</p>
         </div>
       </div>
     );
@@ -144,7 +144,7 @@ const AddStudentPage: FC = () => {
           <div className="w-24 h-24 rounded-full bg-red-500 flex items-center justify-center mb-8">
             <FiAlertCircle className="text-white w-12 h-12" />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 mb-3">حدث خطأ</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900 mb-3">An error occurred</h2>
           <p className="text-slate-500 mb-8">{error}</p>
           <button
             onClick={() => setView("FORM")}

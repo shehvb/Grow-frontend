@@ -112,7 +112,7 @@ export const useParentStore = create<ParentState>((set, get) => ({
           attendanceMetrics: attendance.attendanceMetrics,
           calendarEvents: attendance.calendarEvents,
           actionNeeded: attendance.actionNeeded,
-          recentActivities: attendance.recentActivities?.length > 0 ? attendance.recentActivities : state.dashboardSummary.recentActivities
+          recentActivities: attendance.recentActivities || []
         } : null
       }));
     } catch (err) {

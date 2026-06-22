@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { motion } from "framer-motion";
 
 export type FilterType = "all" | "in_progress" | "completed" 
 // | "archives"
@@ -19,20 +20,30 @@ const filters: { key: FilterType; label: string }[] = [
 const FilterBar: FC<FilterBarProps> = ({ activeFilter, onFilterChange }) => {
   return (
     <div className="flex flex-nowrap overflow-x-auto no-scrollbar gap-2 sm:gap-3 mb-6 sm:mb-10 pb-2 sm:pb-0">
-      {filters.map((filter) => (
-        <button
-          key={filter.key}
-          onClick={() => onFilterChange(filter.key)}
-          className={`px-6 py-2 rounded-full font-bold transition-colors ${activeFilter === filter.key
-              ? "bg-[#1600D5] text-white"
-              : "bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 shadow-sm"
+      {filters.map((filter) => {
+        const isActive = activeFilter === filter.key;
+        return (
+          <button
+            key={filter.key}
+            onClick={() => onFilterChange(filter.key)}
+            className={`relative px-6 py-2 rounded-full font-bold transition-colors duration-200 ${
+              isActive ? "text-white" : "bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 shadow-sm"
             }`}
-        >
-          {filter.label}
-        </button>
-      ))}
+          >
+            {isActive && (
+              <motion.div
+                layoutId="activeFilterCapsule"
+                className="absolute inset-0 bg-[#1600D5] rounded-full z-0"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">{filter.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 };
 
 export default FilterBar;
+

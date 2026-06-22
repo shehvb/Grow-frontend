@@ -40,10 +40,10 @@ const StudentTopNav: FC = () => {
               key={item.id} 
               to={item.path}
               className={`flex items-center gap-2 text-sm font-extrabold transition-colors ${
-                isActive ? "text-[#FF8000]" : "text-slate-400 hover:text-slate-600"
+                isActive ? "text-[#1600d5]" : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              <div className={isActive ? "text-[#FF8000]" : "text-slate-400"}>
+              <div className={isActive ? "text-[#1600d5]" : "text-slate-400"}>
                 {item.icon}
               </div>
               {item.label}
@@ -54,7 +54,7 @@ const StudentTopNav: FC = () => {
 
       {/* Right icons */}
       <div className="flex items-center gap-5">
-        <button className="relative text-[#FF8000] border border-[#FFE5CC] bg-[#FFF8F0] p-2 rounded-full hover:bg-[#FFE5CC]">
+        <button className="relative text-[#1600d5] border border-[#FFE5CC] bg-[#FFF8F0] p-2 rounded-full hover:bg-[#FFE5CC]">
           <FiBell className="w-5 h-5" />
           <span className="absolute top-1 right-2 w-2 h-2 bg-[#1600D5] rounded-full border-2 border-white"></span>
         </button>

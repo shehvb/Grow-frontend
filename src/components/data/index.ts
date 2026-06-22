@@ -151,7 +151,7 @@ export const AUDIENCE_CARDS: AudienceCard[] = [
     ],
   },
   {
-    tag: "For School",
+    tag: "For teacher",
     image: learn3,
     tagColor: "bg-amber-400",
     illustration: "🏫",
@@ -171,7 +171,7 @@ export const NAV_LINKS: string[] = [
   "How it works",
   "Features",
   "Who We Serve",
-  "For School",
+  "For teacher",
 ];
 
 export const FOOTER_LINKS: string[] = [

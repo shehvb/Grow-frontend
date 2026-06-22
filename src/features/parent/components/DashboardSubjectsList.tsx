@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { FiBookmark } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface Subject {
   name: string;
@@ -24,8 +25,24 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
     );
   }
 
+  const sidebarVariants = {
+    hidden: { x: 20, opacity: 0 },
+    show: { x: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" as const } }
+  };
+
+  const progressVariants = {
+    hidden: { width: 0 },
+    show: (customWidth: number) => ({
+      width: `${customWidth}%`,
+      transition: { duration: 1.2, ease: [0.215, 0.61, 0.355, 1] as const }
+    })
+  };
+
   return (
-    <div className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100">
+    <motion.div 
+      variants={sidebarVariants}
+      className="bg-white rounded-[24px] p-6 shadow-sm border border-slate-100"
+    >
       <div className="flex justify-between items-center mb-6">
         <h3 className="font-extrabold text-[#0F172A] text-[17px]">Subject Performance</h3>
         <button 
@@ -69,10 +86,11 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
               </h4>
               
               <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mb-1.5">
-                <div
-                  className="h-full rounded-full transition-all duration-500 ease-out"
+                <motion.div
+                  className="h-full rounded-full"
+                  custom={subject.grade}
+                  variants={progressVariants}
                   style={{
-                    width: `${subject.grade}%`,
                     backgroundColor: color
                   }}
                 />
@@ -86,7 +104,7 @@ const DashboardSubjectsList: FC<DashboardSubjectsListProps> = ({ subjects = [] }
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

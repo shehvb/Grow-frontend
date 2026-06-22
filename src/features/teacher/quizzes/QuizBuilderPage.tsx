@@ -6,6 +6,7 @@ import {
   FiPlus,
   FiChevronDown
 } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 import { courseService } from "../../../services/courseService";
 import { quizService } from "../../../services/quizService";
 import type { Course } from "../../../types/course";
@@ -156,9 +157,9 @@ const QuizBuilderPage: FC = () => {
           <span className="text-sm font-black text-slate-800">Active</span>
           <button 
             onClick={() => setFormData({...formData, isActive: !formData.isActive})}
-            className={`w-12 h-6 rounded-full p-1 transition-colors ${formData.isActive ? 'bg-[#FF8000]' : 'bg-slate-300'}`}
+            className={`w-12 h-6 rounded-full p-1 transition-colors flex ${formData.isActive ? 'bg-[#FF8000] justify-end' : 'bg-slate-300 justify-start'}`}
           >
-            <div className={`w-4 h-4 rounded-full bg-white transition-transform ${formData.isActive ? 'translate-x-6' : 'translate-x-0'}`} />
+            <motion.div layout transition={{ type: "spring", stiffness: 500, damping: 30 }} className="w-4 h-4 rounded-full bg-white shadow-sm" />
           </button>
         </div>
       </div>
@@ -254,46 +255,55 @@ const QuizBuilderPage: FC = () => {
             </div>
             
             <div className="space-y-6">
-              {questions.map((q, idx) => (
-                <div key={q.id} className="border border-slate-200 rounded-3xl p-6 relative">
-                  <div className="flex gap-4 mb-6">
-                    <div className="w-8 h-8 shrink-0 rounded-lg bg-[#FF8000] text-white flex items-center justify-center font-black text-sm">
-                      {idx + 1}
+              <AnimatePresence>
+                {questions.map((q, idx) => (
+                  <motion.div 
+                    key={q.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.97, y: 16 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="border border-slate-200 rounded-3xl p-6 relative bg-white"
+                  >
+                    <div className="flex gap-4 mb-6">
+                      <div className="w-8 h-8 shrink-0 rounded-lg bg-[#FF8000] text-white flex items-center justify-center font-black text-sm">
+                        {idx + 1}
+                      </div>
+                      <input 
+                        type="text"
+                        placeholder="Enter your question..."
+                        value={q.prompt}
+                        onChange={(e) => updateQuestion(q.id, 'prompt', e.target.value)}
+                        className="w-full bg-slate-100 border-transparent rounded-xl px-4 py-3 text-sm font-bold text-slate-800 focus:bg-white focus:border-orange-400 outline-none transition-all placeholder:text-slate-400"
+                      />
                     </div>
-                    <input 
-                      type="text"
-                      placeholder="Enter your question..."
-                      value={q.prompt}
-                      onChange={(e) => updateQuestion(q.id, 'prompt', e.target.value)}
-                      className="w-full bg-slate-100 border-transparent rounded-xl px-4 py-3 text-sm font-bold text-slate-800 focus:bg-white focus:border-orange-400 outline-none transition-all placeholder:text-slate-400"
-                    />
-                  </div>
 
-                  <div className="pl-12">
-                    <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest mb-3 block">Answer Options</label>
-                    <div className="space-y-3">
-                      {q.options.map((opt, optIdx) => (
-                        <div key={optIdx} className="flex items-center gap-3">
-                          <button 
-                            className={`w-4 h-4 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${q.correctIndex === optIdx ? 'border-[#FF8000]' : 'border-slate-300'}`}
-                            onClick={() => updateQuestion(q.id, 'correctIndex', optIdx)}
-                          >
-                            {q.correctIndex === optIdx && <div className="w-2 h-2 rounded-full bg-[#FF8000]" />}
-                          </button>
-                          <input 
-                            type="text"
-                            placeholder={`Option ${optIdx + 1}`}
-                            value={opt}
-                            onChange={(e) => updateQuestion(q.id, 'options', e.target.value, optIdx)}
-                            className="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 outline-none focus:border-orange-400 transition-all"
-                          />
-                        </div>
-                      ))}
+                    <div className="pl-12">
+                      <label className="text-[9px] font-black text-slate-800 uppercase tracking-widest mb-3 block">Answer Options</label>
+                      <div className="space-y-3">
+                        {q.options.map((opt, optIdx) => (
+                          <div key={optIdx} className="flex items-center gap-3">
+                            <button 
+                              className={`w-4 h-4 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${q.correctIndex === optIdx ? 'border-[#FF8000]' : 'border-slate-300'}`}
+                              onClick={() => updateQuestion(q.id, 'correctIndex', optIdx)}
+                            >
+                              {q.correctIndex === optIdx && <motion.div layoutId={`correct-${q.id}`} className="w-2 h-2 rounded-full bg-[#FF8000]" />}
+                            </button>
+                            <input 
+                              type="text"
+                              placeholder={`Option ${optIdx + 1}`}
+                              value={opt}
+                              onChange={(e) => updateQuestion(q.id, 'options', e.target.value, optIdx)}
+                              className="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 outline-none focus:border-orange-400 transition-all"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[9px] font-bold text-slate-400 mt-3 pl-7">Select the correct answer</p>
                     </div>
-                    <p className="text-[9px] font-bold text-slate-400 mt-3 pl-7">Select the correct answer</p>
-                  </div>
-                </div>
-              ))}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -330,11 +340,19 @@ const QuizBuilderPage: FC = () => {
             <div className="space-y-4">
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Quiz Title</p>
-                <p className="text-sm font-black text-slate-800">{formData.title || "Untitled Quiz"}</p>
+                <AnimatePresence mode="wait">
+                  <motion.p key={formData.title} initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}} className="text-sm font-black text-slate-800">
+                    {formData.title || "Untitled Quiz"}
+                  </motion.p>
+                </AnimatePresence>
               </div>
               <div>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Subject</p>
-                <p className="text-sm font-black text-slate-800">{formData.courseId || "Unassigned"}</p>
+                <AnimatePresence mode="wait">
+                  <motion.p key={formData.courseId} initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-4}} transition={{duration:0.2}} className="text-sm font-black text-slate-800">
+                    {formData.courseId || "Unassigned"}
+                  </motion.p>
+                </AnimatePresence>
               </div>
               
               <hr className="border-slate-100 my-4" />
@@ -342,15 +360,27 @@ const QuizBuilderPage: FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   <span>Questions</span>
-                  <span className="text-slate-800 font-black">{questions.length}</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span key={questions.length} initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} className="text-slate-800 font-black">
+                      {questions.length}
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
                 <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   <span>Duration</span>
-                  <span className="text-slate-800 font-black">{formData.duration} min</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span key={formData.duration} initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} className="text-slate-800 font-black">
+                      {formData.duration} min
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
                 <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   <span>XP Reward</span>
-                  <span className="text-blue-500 font-black">{formData.rewardXp} Xp</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span key={formData.rewardXp} initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} className="text-blue-500 font-black">
+                      {formData.rewardXp} Xp
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
               </div>
             </div>

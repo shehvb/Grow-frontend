@@ -1,5 +1,7 @@
 import type { FC } from "react";
 import { FiClock, FiZap, FiAlertTriangle } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "../../../../components/ui/AnimatedNumber";
 import type { AttendanceMetrics } from "../../../../types/parent";
 
 interface AttendanceMetricsRowProps {
@@ -7,10 +9,26 @@ interface AttendanceMetricsRowProps {
 }
 
 const AttendanceMetricsRow: FC<AttendanceMetricsRowProps> = ({ metrics }) => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true }}
+      className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+    >
       {/* Total Study Hours */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden h-44 group hover:shadow-md transition-shadow">
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden h-44 group hover:shadow-md transition-shadow">
         <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-indigo-50/50 rounded-full" />
         <div className="flex justify-between items-start z-10">
           <span className="text-sm font-bold text-slate-400">Total Study Hours</span>
@@ -19,7 +37,9 @@ const AttendanceMetricsRow: FC<AttendanceMetricsRowProps> = ({ metrics }) => {
           </div>
         </div>
         <div className="z-10 mt-2 flex items-baseline">
-          <span className="text-4xl font-black text-slate-800">{metrics.totalStudyHours.value}</span>
+          <span className="text-4xl font-black text-slate-800 tabular-nums">
+            <AnimatedNumber value={metrics.totalStudyHours.value} />
+          </span>
           <span className="text-sm font-bold text-slate-500 ml-1">hrs</span>
         </div>
         <div className="flex items-center gap-2 mt-4 z-10 w-full">
@@ -28,19 +48,27 @@ const AttendanceMetricsRow: FC<AttendanceMetricsRowProps> = ({ metrics }) => {
           </span>
           <span className="text-sm text-slate-400 font-medium">{metrics.totalStudyHours.trendLabel}</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Study Streak */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden h-44 group hover:shadow-md transition-shadow">
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden h-44 group hover:shadow-md transition-shadow">
         <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-green-50/50 rounded-full" />
         <div className="flex justify-between items-start z-10">
           <span className="text-sm font-bold text-slate-400">Study Streak</span>
-          <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-emerald-500">
+          <motion.div 
+            initial={{ scale: 0, rotate: -10 }}
+            whileInView={{ scale: [0, 1.2, 1], rotate: [-10, 0] }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-emerald-500"
+          >
             <FiZap className="w-4 h-4" />
-          </div>
+          </motion.div>
         </div>
         <div className="z-10 mt-2 flex items-baseline">
-          <span className="text-4xl font-black text-slate-800">{metrics.studyStreak.days}</span>
+          <span className="text-4xl font-black text-slate-800 tabular-nums">
+            <AnimatedNumber value={metrics.studyStreak.days} />
+          </span>
           <span className="text-sm font-bold text-slate-500 ml-1">Days</span>
         </div>
         <div className="flex items-center gap-2 mt-4 z-10 w-full">
@@ -49,10 +77,10 @@ const AttendanceMetricsRow: FC<AttendanceMetricsRowProps> = ({ metrics }) => {
           </span>
           <span className="text-sm text-slate-400 font-medium">{metrics.studyStreak.trendLabel}</span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Attendance Rate */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden h-44 group hover:shadow-md transition-shadow">
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden h-44 group hover:shadow-md transition-shadow">
         <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-orange-50/50 rounded-full" />
         <div className="flex justify-between items-start z-10">
           <span className="text-sm font-bold text-slate-400">Attendance Rate</span>
@@ -61,7 +89,9 @@ const AttendanceMetricsRow: FC<AttendanceMetricsRowProps> = ({ metrics }) => {
           </div>
         </div>
         <div className="z-10 mt-2 flex items-baseline">
-          <span className="text-4xl font-black text-slate-800">{metrics.attendanceRate.value}%</span>
+          <span className="text-4xl font-black text-slate-800 tabular-nums">
+             <AnimatedNumber value={metrics.attendanceRate.value} />%
+          </span>
         </div>
         <div className="flex items-center gap-2 mt-4 z-10 w-full">
           <span className="px-2 py-0.5 rounded text-xs font-bold text-orange-500 bg-orange-50">
@@ -69,8 +99,8 @@ const AttendanceMetricsRow: FC<AttendanceMetricsRowProps> = ({ metrics }) => {
           </span>
           <span className="text-sm text-slate-400 font-medium">{metrics.attendanceRate.trendLabel}</span>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
