@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useCourseStore } from "../../../../store/useCourseStore";
 import { FiChevronDown } from "react-icons/fi";
 import { type SchoolGrade } from "../../../../services/courseService";
@@ -77,7 +78,7 @@ const CreateCourseModal: FC<CreateCourseModalProps> = ({ isOpen, onClose, onSave
     }
   };
 
-  return (
+  return createPortal(
     <>
       <div 
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 animate-fade-in"
@@ -164,7 +165,7 @@ const CreateCourseModal: FC<CreateCourseModalProps> = ({ isOpen, onClose, onSave
         </form>
       </div>
     </>
-  );
+  , document.body);
 };
 
 export default CreateCourseModal;

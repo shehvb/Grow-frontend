@@ -627,7 +627,7 @@ const CourseDetailsPage: FC = () => {
                             <div className="w-[22px] h-[22px] rounded-[6px] border-2 border-slate-300 flex items-center justify-center font-black text-slate-400 text-[10px]">
                               ?
                             </div>
-                            <span className="text-slate-500 font-extrabold text-[13px]">{qCount} QS</span>
+                            <span className="text-slate-500 font-extrabold text-[13px]">2 QS</span>
                           </div>
 
                           {/* Time Limit */}

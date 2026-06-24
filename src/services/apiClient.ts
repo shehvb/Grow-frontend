@@ -67,7 +67,10 @@ apiClient.interceptors.response.use(
 
     // Handle 429 Too Many Requests
     if (error.response?.status === 429) {
-      error.response.data = { detail: 'Too many requests. Please wait a moment before trying again.' };
+      const backendDetail = error.response.data?.detail;
+      error.response.data = {
+        detail: backendDetail || 'Too many requests. Please wait a moment before trying again.'
+      };
     }
 
     const isLoginEndpoint = originalRequest?.url?.includes('auth/login/') ||
