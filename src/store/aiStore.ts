@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import axios from "axios";
 import apiClient from "../services/apiClient";
 export interface Message {
   id: string;
@@ -124,10 +125,14 @@ export const useAIStore = create<AIStore>((set, get) => ({
       })
       .catch(error => {
         console.error("AI Chat error:", error);
+        let errorMessage = "Sorry, I'm having trouble connecting right now. Please try again later.";
+        if (axios.isAxiosError(error) && error.response?.data?.detail) {
+          errorMessage = error.response.data.detail;
+        }
         const errorResponse: Message = {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: "Sorry, I'm having trouble connecting right now. Please try again later.",
+          content: errorMessage,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
 

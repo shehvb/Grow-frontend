@@ -1,4 +1,5 @@
 import { useState, useEffect, type FC } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, FileVideo, AlignLeft, Award } from 'lucide-react';
 import type { TeacherLesson, TeacherLessonWriteRequest } from '../../../../types/course';
 import { useLessonStore } from '../../../../store/useLessonStore';
@@ -95,7 +96,7 @@ export const CreateLessonModal: FC<CreateLessonModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b border-gray-100">
@@ -241,6 +242,7 @@ export const CreateLessonModal: FC<CreateLessonModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
